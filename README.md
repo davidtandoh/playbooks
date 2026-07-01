@@ -9,6 +9,7 @@ execute against.
 | Playbook | What it covers |
 |---|---|
 | [Building AI Agents](building-ai-agents.md) | When to build an agent, the ReAct loop, single-agent tool/context design, multi-agent orchestration, failure handling |
+| [Building Reliable Agents](building-reliable-agents.md) | Observability (OTel GenAI), token cost & economics, reliability engineering & evals, security/prompt injection, and the production blind spots |
 
 ## Conventions
 

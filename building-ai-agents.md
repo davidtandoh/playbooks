@@ -12,6 +12,9 @@ real output without someone shepherding every step.
 > controls the workflow.* Everything below is in service of keeping fixed structure around
 > autonomous decision-making at defined points.
 
+**Companion playbook:** once you've built one, see [Building Reliable Agents](building-reliable-agents.md)
+for observability, token economics, evals, and security — how to keep it working and affordable in production.
+
 ---
 
 ## 0. The four-line summary
