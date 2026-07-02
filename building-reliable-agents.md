@@ -104,14 +104,23 @@ it further. Instrument first, optimize the top driver. **[practice — direction
 | **Concise response formats** | Expose a `response_format` (concise vs detailed); concise can use **~⅓ the tokens** (illustrative, one worked example — treat as order-of-magnitude). **[verified]** | same |
 | **Compaction** | Near the limit, summarize and reinitiate a fresh window with the summary. Build the compaction prompt by **maximizing recall first, then improving precision**. **[verified][Claude]** | [context-engineering](https://www.anthropic.com/engineering/effective-context-engineering-for-ai-agents) |
 | **Prompt caching** | Reuse a stable prefix across turns (see economics below). **[Claude]** | Anthropic prompt caching |
-| **Model routing / tiering** | Route easy steps to a cheaper model, hard steps to a frontier model. **[practice]** | — |
-| **Batching** | Non-urgent, high-volume work → Batch API at ~50% off. **[Claude][practice]** | — |
+| **Model routing / tiering** | Route by task difficulty — cheap model for simple, mid-tier for most, frontier for the hardest (Anthropic's own guidance). Cascade/router architectures make it systematic: **FrugalGPT** matches GPT-4 at up to **98% lower cost**; **RouteLLM** cuts cost **~85% at 95% of GPT-4 quality** (MT-Bench). See mechanics below. **[verified]** | [FrugalGPT](https://arxiv.org/pdf/2305.05176), [RouteLLM](https://github.com/lm-sys/RouteLLM), [Anthropic pricing](https://platform.claude.com/docs/en/about-claude/pricing) |
+| **Batching** | Non-urgent, high-volume work → Batch API at **50% off both input and output** tokens (e.g. Opus 4.8 $5/$25 → $2.50/$12.50 per MTok). Stacks with prompt caching. **[verified][Claude]** | [Anthropic pricing](https://platform.claude.com/docs/en/about-claude/pricing) |
 | **Hard caps** | Turn/step limits and token budgets as a runaway backstop. **[practice]** | — |
 
-### Prompt-caching economics (the numbers) **[Claude]**
+### Model routing & cascades (the mechanics) **[verified]**
+
+Two paradigms for spending frontier-model money only where it's needed:
+- **Routing** — pick one model per query up front.
+- **Cascading** — run cheap→expensive in sequence, stopping when the output is good enough. An LLM cascade scores each answer with a generation-scoring function `g(q,a) → [0,1]` and escalates to the next model only when the score is below a threshold τ. ([FrugalGPT](https://arxiv.org/pdf/2305.05176))
+- **Cascade routing** unifies both into one budget-aware strategy — select on a cost-quality score `q̂(x) − λĉ(x)` under a fixed cost budget B — and empirically beats routing-only or cascading-only (up to ~14% on SWE-Bench). ([cascade routing](https://arxiv.org/abs/2410.10347))
+
+Rule of thumb: default to a mid-tier model; cascade up to frontier only when a scorer says the cheap answer isn't good enough. Reported savings are large (**85–98%**) but workload-dependent — measure on your own eval set, don't assume the headline number.
+
+### Prompt-caching economics (the numbers) **[verified][Claude]** — [Anthropic pricing](https://platform.claude.com/docs/en/about-claude/pricing)
 
 - **Cache read ≈ 0.1×** base input price; **cache write = 1.25×** (5-min TTL) or **2×** (1-hour TTL).
-- **Break-even:** 5-min TTL pays off at **~2 requests**; 1-hour at **~3**.
+- **Break-even:** pays off after **1 cache read** (5-min write) or **2 cache reads** (1-hour write). Multipliers **stack** with the Batch discount and data residency.
 - **Default TTL 5 min, refreshed on each read;** 1-hour optional for bursty traffic with gaps.
 - **Minimum cacheable prefix is model-dependent** (e.g. ~4096 tokens on Opus 4.8 / Haiku 4.5; ~1024 on Sonnet 4.5). Below it, nothing caches — silently.
 - Keep the cached prefix **byte-stable** (frozen system prompt, deterministic tool order); put volatile content last. One byte change in the prefix invalidates everything after it.
@@ -169,17 +178,18 @@ dimension with its own isolated rubric** rather than one judge scoring everythin
 - **Regression evals** — "does it still handle everything it used to?" → keep near **100% pass**; catches backsliding. **[verified]**
 - **Capability evals** — target tasks it struggles with → start at a **low pass rate** to preserve improvement signal. An eval at 100% saturation tracks regressions but gives no room to climb. **[verified]**
 
-### Failure handling mechanics **[practice — flagged thin in the research; standard engineering]**
+### Failure handling mechanics **[verified]** — [AWS: backoff & jitter](https://aws.amazon.com/blogs/architecture/exponential-backoff-and-jitter/), [AWS Builders' Library: timeouts, retries & backoff](https://aws.amazon.com/builders-library/timeouts-retries-and-backoff-with-jitter/)
 
 | Concern | Pattern |
 |---|---|
-| **Transient tool/API failure** | Retry with exponential backoff + jitter; cap attempts |
-| **Idempotency** | Attach an idempotency key to side-effecting tool calls so a retry doesn't double-send/double-charge |
-| **Timeouts** | Per-tool and per-task deadlines; don't let one hung call wedge the run |
-| **Circuit breaker** | After N consecutive failures on a dependency, stop calling it and fail fast / escalate |
-| **Bad output** | Validate **format and content** at every hand-off; a review layer catches what schemas miss |
-| **Hallucinated tool call** | Return a **structured error**, not an exception — let the agent recover |
-| **Partial completion** | Checkpoint; make operations idempotent so a resumed run doesn't redo work |
+| **Transient tool/API failure** | Exponential backoff **with jitter** — backoff alone keeps clients clustered at the same intervals; jitter spreads them to a near-constant call rate and cuts retry volume by **>half**. **Full Jitter** is the sane default. Cap attempts. |
+| **Retry amplification** | Retry at **a single layer** only. Independent retries at each tier multiply — a 5-deep stack × 3 retries = **243× load** on the bottom dependency, which then can't recover. |
+| **Limiting retry load** | Prefer a **local token bucket** (retry freely while tokens last, then at a fixed rate) — AWS's SDK default since 2016 — over a hard trip. A circuit breaker (open → half-open → closed) is still fine for isolating a flaky *dependency*. |
+| **Idempotency** | Side-effecting calls are **not safe to retry unless idempotent**. Attach a client-generated **idempotency key** (cf. EC2 `RunInstances`) so a retry can't double-send/charge. A timeout does **not** mean the side effect didn't happen. |
+| **Timeouts** | Per-tool and per-task deadlines; don't let one hung call wedge the run. **[practice]** |
+| **Bad output** | Validate **format and content** at every hand-off; a review layer catches what schemas miss. **[verified — see §3 grading]** |
+| **Hallucinated tool call** | Return a **structured error**, not an exception — let the agent recover. **[verified — see §2 tools]** |
+| **Partial completion** | Checkpoint; make operations idempotent so a resumed run doesn't redo work. |
 
 ### Long-running agents: state scaffolding + known failure modes **[verified][Claude]**
 
@@ -200,8 +210,8 @@ And design the harness against the recurring failure modes:
 - [ ] Evals grade produced outcome/state, not tool-call path
 - [ ] Grader chosen per dimension; LLM judges calibrated + "Unknown" escape + per-dimension rubric
 - [ ] Separate regression (~100%) and capability (low-pass) suites
-- [ ] Retries w/ backoff + idempotency keys on side-effecting calls
-- [ ] Per-tool/per-task timeouts; circuit breakers on flaky dependencies
+- [ ] Retries use backoff **with jitter**, retry at a **single layer**, token-bucket cap; idempotency keys on side-effecting calls
+- [ ] Per-tool/per-task timeouts; circuit breaker / token bucket on flaky dependencies
 - [ ] Format + content validation at every hand-off
 - [ ] Structured errors (not exceptions) back to the agent
 - [ ] Long-running: progress log + git + JSON feature registry + start-of-session smoke test
@@ -243,7 +253,7 @@ The verified corpus was thin here (the research explicitly flagged these as open
 checklist to reason through per project, not settled doctrine.
 
 - **Determinism boundaries** — decide explicitly where you *force* structure (schemas, validators, deterministic control flow) vs. let the model decide. Reliable agents are "structured coordination with autonomous execution at defined points," not free-for-alls.
-- **Human-in-the-loop** — explicit escalation criteria, confidence-based routing, approval gates for high-stakes/irreversible actions. ([LangChain HITL patterns](https://docs.langchain.com/oss/python/langchain/human-in-the-loop) is a concrete reference.)
+- **Human-in-the-loop** — explicit escalation criteria, confidence-based routing, approval gates for high-stakes/irreversible actions. Concrete mechanism: **LangGraph `interrupt()`** pauses graph execution by raising a special exception, persists state via a checkpointer, and waits indefinitely; you resume by passing **`Command(resume=…)`**, whose value is delivered back to the `interrupt()` call so the node continues — approval gates then route on that value. **[verified]** ([LangGraph interrupts](https://docs.langchain.com/oss/python/langgraph/interrupts)) ⚠️ On resume the node re-runs from its start, so any side effect *before* the interrupt must be idempotent (ties back to §3). **[practice — errored on session limit, unverified]**
 - **Latency & UX** — stream output, show progress on long runs, set timeouts. A correct answer that arrives silently after 4 minutes reads as broken.
 - **Deployment & versioning** — pin and version model + prompt + tool configs together; support rollback; stage rollouts. Log which config version ran each task so a regression is traceable to a change.
 - **Memory hygiene** — decide what persists across sessions, guard against staleness, and prevent a poisoned memory store from corrupting future runs. Verify memory facts (files, flags) still exist before acting on them.
@@ -299,11 +309,21 @@ checklist to reason through per project, not settled doctrine.
 - OpenTelemetry — [GenAI semantic conventions (spans)](https://opentelemetry.io/docs/specs/semconv/gen-ai/gen-ai-spans/) and [GenAI observability blog](https://opentelemetry.io/blog/2026/genai-observability/)
 - Langfuse — [OpenTelemetry integration](https://langfuse.com/integrations/native/opentelemetry) *(single-vendor, medium confidence)*
 
+**Added in the second research pass (failure-handling, routing, HITL):**
+- AWS — [Exponential Backoff and Jitter](https://aws.amazon.com/blogs/architecture/exponential-backoff-and-jitter/)
+- AWS Builders' Library — [Timeouts, Retries and Backoff with Jitter](https://aws.amazon.com/builders-library/timeouts-retries-and-backoff-with-jitter/)
+- [FrugalGPT (arXiv 2305.05176)](https://arxiv.org/pdf/2305.05176) · [Cascade Routing (arXiv 2410.10347)](https://arxiv.org/abs/2410.10347) · [RouteLLM](https://github.com/lm-sys/RouteLLM)
+- Anthropic — [Pricing (Batch discount, model tiering, cache economics)](https://platform.claude.com/docs/en/about-claude/pricing)
+- LangChain — [LangGraph interrupts (HITL pause/resume)](https://docs.langchain.com/oss/python/langgraph/interrupts)
+
 **Known caveats (from the research pass):**
 - Source base skews Anthropic/Claude — principles are provider-agnostic, but specific numbers (25k tool-cap, the long-running-harness patterns) are Claude-anchored case-study defaults, not universal laws.
 - The "~⅓ tokens for concise" figure is one worked example, not an averaged ratio.
 - OTel GenAI conventions are experimental ("Development" stability) — attribute names are current but may still change.
 
-**What the research could NOT confirm (open questions — verify before relying):**
+**Now verified (second pass):** retries/backoff+jitter, retry amplification, token-bucket retry limiting, idempotency keys, model routing/cascades, Batch economics, and the LangGraph HITL pause/resume mechanism — all upgraded above with citations.
+
+**What the research still could NOT confirm (open questions — verify before relying):**
 - Exact token-cost multipliers for agent loops (blog figures like "O(N²)" / "10–100×" did not survive verification — directional only).
-- Authoritative patterns for retries/idempotency, circuit breakers, model routing, multi-agent fan-out cost control, HITL, least-privilege, versioning, and memory hygiene — the **[practice]** sections above are standard engineering, not verified primary sources. Deepen these in a future pass.
+- The specific jitter formulas (Full/Equal/Decorrelated) — **refuted** as stated (0-3); use the named strategies, not memorized formulas.
+- **OWASP least-privilege / permission scoping**, **memory hygiene** (staleness, poisoning defenses, expiry), **deployment/versioning & canarying**, **multi-agent fan-out cost control**, and the broader **LangGraph HITL approval-gate patterns** (approve/edit/review) — these verifications **errored on an account session limit**, not on merit. The `[practice]` items covering them are standard engineering, not yet primary-sourced. A re-run after the limit resets would likely confirm most.
