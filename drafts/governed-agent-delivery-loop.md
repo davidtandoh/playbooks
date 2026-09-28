@@ -9,15 +9,12 @@ created: 2026-09-28
 published: null
 updated: 2026-09-28
 evidence:
-  - repository: davidtandoh/personal-agent-kit
-    commit: cc433018d4df574394c74793e50226ee93385a24
-    path: README.md
-  - repository: davidtandoh/personal-agent-kit
-    commit: cc433018d4df574394c74793e50226ee93385a24
-    path: skills/spec-delivery-loop/SKILL.md
-  - repository: davidtandoh/personal-agent-kit
-    commit: cc433018d4df574394c74793e50226ee93385a24
-    path: global-instructions/rules/tests.md
+  - title: NIST Secure Software Development Framework 1.1
+    url: https://doi.org/10.6028/NIST.SP.800-218
+  - title: GitHub Docs - About protected branches
+    url: https://docs.github.com/en/repositories/configuring-branches-and-merges-in-your-repository/managing-protected-branches/about-protected-branches
+  - title: SLSA 1.2 - Provenance
+    url: https://slsa.dev/spec/v1.2/provenance
 claim_review: pending
 privacy_review: pending
 ---
@@ -168,40 +165,31 @@ A one-line permission change can matter more than a large internal refactor.
 
 The claim classes in this draft are:
 
-- `demonstrated`: a public repository shows the named method or component at an
-  immutable commit.
-- `sourced`: a public source supports the guidance, but the guidance is not an
-  implementation outcome claim.
+- `sourced`: a public primary source supports the stated control. This class is
+  not an implementation outcome claim.
 - `practice`: an operating preference in this guide. A team must validate it in
   its own environment.
 - `proposal`: an option to evaluate. It is not represented as implemented.
 
 | Claim | Class | Evidence |
 |---|---|---|
-| Personal Agent Kit defines a flow from approved intent through bounded implementation, deterministic gates, independent review, human decision, and handoff evidence | `demonstrated` | [`README.md` lines 23-48](https://github.com/davidtandoh/personal-agent-kit/blob/cc433018d4df574394c74793e50226ee93385a24/README.md#L23-L48) and [`skills/spec-delivery-loop/SKILL.md` lines 8-17](https://github.com/davidtandoh/personal-agent-kit/blob/cc433018d4df574394c74793e50226ee93385a24/skills/spec-delivery-loop/SKILL.md#L8-L17) |
-| The public method defines explicit risk tiers, invalidating events, hard stops, bounded repair, and a handoff evidence set | `demonstrated` | [`skills/spec-delivery-loop/SKILL.md` lines 19-154](https://github.com/davidtandoh/personal-agent-kit/blob/cc433018d4df574394c74793e50226ee93385a24/skills/spec-delivery-loop/SKILL.md#L19-L154) and [lines 197-211](https://github.com/davidtandoh/personal-agent-kit/blob/cc433018d4df574394c74793e50226ee93385a24/skills/spec-delivery-loop/SKILL.md#L197-L211) |
-| The public kit documents an aggregate gate and a cross-review runner that prefers a different read-only harness and returns findings rather than approval | `demonstrated` | [`README.md` lines 163-207](https://github.com/davidtandoh/personal-agent-kit/blob/cc433018d4df574394c74793e50226ee93385a24/README.md#L163-L207) |
-| Tests should assert observable outcomes, stay deterministic and isolated, and be followed by the complete relevant quality gate | `sourced` | [`global-instructions/rules/tests.md` lines 16-54](https://github.com/davidtandoh/personal-agent-kit/blob/cc433018d4df574394c74793e50226ee93385a24/global-instructions/rules/tests.md#L16-L54) |
+| Use approved intent, bounded implementation, deterministic gates, independent review, human authority, and an evidence-backed handoff as one delivery loop | `practice` | This guide synthesises the sourced controls below. The public sources do not define or demonstrate the complete agent loop. |
+| Protect code with least-privilege access and have a code owner review and approve changes made by others | `sourced` | [NIST SSDF 1.1, PS.1.1, page 9](https://nvlpubs.nist.gov/nistpubs/SpecialPublications/NIST.SP.800-218.pdf#page=17) |
+| Perform review or automated analysis under organisational policy, then record and triage findings and recommended repairs | `sourced` | [NIST SSDF 1.1, PW.7.1 and PW.7.2, pages 14-15](https://nvlpubs.nist.gov/nistpubs/SpecialPublications/NIST.SP.800-218.pdf#page=22) |
+| Required reviews and status checks can gate a protected branch, and a repository can require approval from someone other than the latest contributor | `sourced` | [GitHub Docs: About protected branches](https://docs.github.com/en/repositories/configuring-branches-and-merges-in-your-repository/managing-protected-branches/about-protected-branches) |
+| Scope, design, perform, and document testing; retain regression tests for previously reported vulnerabilities | `sourced` | [NIST SSDF 1.1, PW.8.2, page 15](https://nvlpubs.nist.gov/nistpubs/SpecialPublications/NIST.SP.800-218.pdf#page=23) |
+| A provenance record can identify where, when, and how a software artifact was produced | `sourced` | [SLSA 1.2: Provenance](https://slsa.dev/spec/v1.2/provenance) |
 | Use an isolated branch or worktree and keep one coherent change per delivery record | `practice` | This guide's operating recommendation; validate it against local repository and deployment controls |
 | Teams can encode the risk decision and evidence ledger as repository checks after the manual loop is stable | `proposal` | Evaluate only after repeated use identifies a deterministic rule with acceptable maintenance and false-positive cost |
 
-The evidence paths above use commit
-`cc433018d4df574394c74793e50226ee93385a24`, not a moving branch. On
-2026-09-28, the cited files at public `main` had the same Git object IDs as the
-immutable evidence commit. This drift check confirms current alignment; it does
-not replace the immutable references.
-
 ## Limits
 
-This evidence proves that the public repository contains the documented method
-and named controls. It does not prove production success, measured reliability,
-throughput, scale, customer outcomes, or suitability for a specific regulatory
-environment.
+The public sources support individual controls in this guide. They do not prove
+that the combined loop has been implemented or that it improves production
+reliability, throughput, scale, customer outcomes, or regulatory compliance.
 
-This draft uses no private prompts, traces, transcripts, repositories, metrics,
-employer material, client material, credentials, or session data. Claim review
-and privacy review remain pending. A human must complete both reviews before
-publication.
+The evidence section cites only public sources. Claim review and privacy review
+remain pending. A human must complete both reviews before publication.
 
 Your team must verify local branch protection, reviewer separation, gate
 coverage, credential boundaries, rollback, continuous integration, and the
