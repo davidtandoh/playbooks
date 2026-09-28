@@ -9,6 +9,15 @@ created: 2026-09-28
 published: null
 updated: 2026-09-28
 evidence:
+  - repository: davidtandoh/personal-agent-kit
+    commit: cc433018d4df574394c74793e50226ee93385a24
+    path: README.md
+  - repository: davidtandoh/personal-agent-kit
+    commit: cc433018d4df574394c74793e50226ee93385a24
+    path: skills/spec-delivery-loop/SKILL.md
+  - repository: davidtandoh/personal-agent-kit
+    commit: cc433018d4df574394c74793e50226ee93385a24
+    path: global-instructions/rules/tests.md
   - title: NIST Secure Software Development Framework 1.1
     url: https://doi.org/10.6028/NIST.SP.800-218
   - title: GitHub Docs - About protected branches
@@ -42,24 +51,64 @@ or recover from failure.
 
 ```mermaid
 flowchart LR
-    H["Human sponsor<br/>intent and authority"] -->|approved task| M
+    H["Human sponsor<br/>intent and authority"] -->|approved task| I["Personal Agent Kit<br/>intent and risk policy"]
+    I -->|bounded task| M
     subgraph W["Write boundary"]
         M["Maker agent<br/>bounded change"]
     end
-    M -->|change + test evidence| G["Deterministic gates"]
-    G -->|passing evidence| R["Independent reviewer<br/>read-only findings"]
-    R -->|findings, not approval| D["Accountable human<br/>delivery decision"]
+    M -->|change + test evidence| G["Focused and<br/>aggregate gates"]
+    subgraph V["Verification boundary"]
+        G -->|passing evidence| R["no-mistakes review<br/>independent findings"]
+    end
+    R -->|findings, not approval| D["Accountable human<br/>merge decision"]
     G -->|gate record| D
-    D -->|explicit grant| P["Repository delivery path"]
+    D -->|explicit grant| P["Repository delivery path<br/>and evidence handoff"]
 ```
 
-Takeaway: the maker can write, the gates can verify fixed rules, the reviewer
-can find defects, and only the accountable human can authorise delivery.
+Takeaway: Personal Agent Kit defines the method, the maker can write, the gates
+can verify fixed rules, the no-mistakes review can find defects, and only the
+accountable human can authorise a merge.
 
 The trust boundaries are deliberate. The maker has write access only to the
 approved workspace. The reviewer receives read-only access and cannot approve
 or merge. The delivery path accepts a recorded human grant, not the maker's
 self-report.
+
+### Worked example: Personal Agent Kit
+
+The public Personal Agent Kit implements and documents this delivery loop at
+commit `cc433018d4df574394c74793e50226ee93385a24`:
+
+1. **Approved intent.** The loop records the approval source, acceptance
+   criteria, non-goals, maximum action, and revocation state before work starts.
+   Implementation approval does not imply publication authority. See the
+   [intent stage](https://github.com/davidtandoh/personal-agent-kit/blob/cc433018d4df574394c74793e50226ee93385a24/skills/spec-delivery-loop/SKILL.md#L54-L65).
+2. **Bounded scope.** The plan maps each criterion to one owning component,
+   change, and check. The agent stops when delivery needs wider scope,
+   credentials, production access, or new authority. See the
+   [planning and hard-stop contract](https://github.com/davidtandoh/personal-agent-kit/blob/cc433018d4df574394c74793e50226ee93385a24/skills/spec-delivery-loop/SKILL.md#L66-L74).
+3. **Deterministic gates.** Focused tests check each criterion. The repository's
+   applicable aggregate gate stops the loop when it is red. The kit also
+   defines tests as observable behaviour and risk claims. See the
+   [gate stages](https://github.com/davidtandoh/personal-agent-kit/blob/cc433018d4df574394c74793e50226ee93385a24/skills/spec-delivery-loop/SKILL.md#L112-L117)
+   and [test rules](https://github.com/davidtandoh/personal-agent-kit/blob/cc433018d4df574394c74793e50226ee93385a24/global-instructions/rules/tests.md#L16-L54).
+4. **Independent no-mistakes review.** In this worked example, no-mistakes is
+   the delivery pipeline stage that applies the kit's review contract. The
+   contract prefers a different harness, gives the reviewer read-only access,
+   keeps the initial review blind to the maker's narrative, and returns
+   findings rather than approval. See the
+   [public review contract](https://github.com/davidtandoh/personal-agent-kit/blob/cc433018d4df574394c74793e50226ee93385a24/skills/spec-delivery-loop/SKILL.md#L75-L127).
+5. **Human merge authority.** Review findings and gate results inform the
+   decision. They do not grant merge authority. The kit requires a recorded,
+   bounded human grant before the delivery workflow can act. See the
+   [authority boundary](https://github.com/davidtandoh/personal-agent-kit/blob/cc433018d4df574394c74793e50226ee93385a24/README.md#L197-L207).
+6. **Evidence handoff.** The loop hands over criterion status, change
+   explanation, gate output, review limitations, finding dispositions,
+   residual risk, and the exact resume boundary. See the
+   [handoff stage](https://github.com/davidtandoh/personal-agent-kit/blob/cc433018d4df574394c74793e50226ee93385a24/skills/spec-delivery-loop/SKILL.md#L143-L151).
+
+These are method-level demonstrations in a public repository. They do not prove
+production outcomes, reliability improvement, throughput, or scale.
 
 ## Decision points
 
@@ -68,7 +117,7 @@ self-report.
 | Risk tier | Low, standard, high, or critical | Higher tiers add review, gate, and rollback work | Credentials, permissions, security boundaries, persisted state, public interfaces, destructive actions, migrations, and uncertainty raise the tier |
 | Implementation boundary | One coherent slice or a wider change | A narrow slice can require later work; a wider change increases review and recovery cost | Acceptance criteria that cannot be verified independently may require a different slice; new outcomes require new approval |
 | Gate scope | Focused tests, repository aggregate gate, or both | More gate coverage costs time and compute | Executable behaviour, shared contracts, dependencies, generated truth, and integration behaviour require the applicable aggregate gate |
-| Review strength | Same-harness check, independent read-only review, or human specialist review | Independence adds latency and setup | A different harness with read-only tools supports a stronger independence claim; unavailable independence must be recorded, not hidden |
+| Review strength | Same-harness check, independent no-mistakes review, or human specialist review | Independence adds latency and setup | A different harness with read-only tools supports a stronger independence claim; unavailable independence must be recorded, not hidden |
 | Delivery authority | Local commit, pushed branch, pull request, merge, or deployment | Each step increases external impact and recovery cost | Proceed only to the highest action covered by a current, specific human grant |
 
 Treat unknown risk as a stop condition. A small diff is not proof of low risk.
@@ -78,7 +127,8 @@ A one-line permission change can matter more than a large internal refactor.
 
 1. **Record approved intent.** Write the outcome, acceptance criteria, non-goals,
    allowed paths, maximum delivery action, and grant source. Record assumptions
-   and unresolved decisions.
+   and unresolved decisions. Personal Agent Kit records these fields before the
+   maker starts.
    **Stop if:** a material requirement or authority boundary is missing.
    **Observable result:** a reviewer can tell what success means and what the
    agent must not do.
@@ -100,6 +150,8 @@ A one-line permission change can matter more than a large internal refactor.
 
 4. **Implement the smallest coherent change.** Work on an isolated branch or
    worktree. Keep edits inside the approved paths. Preserve unrelated user work.
+   The Personal Agent Kit loop maps each edit to an approved criterion and stops
+   when the work needs a wider boundary.
    **Stop if:** implementation needs credentials, production access, destructive
    action, or wider scope.
    **Observable result:** the diff contains one explainable change and no
@@ -114,13 +166,15 @@ A one-line permission change can matter more than a large internal refactor.
 
 6. **Run the applicable aggregate gate.** Use the repository's complete
    relevant lint, type, test, build, and security checks. Do not weaken an
-   assertion or silently skip an applicable check to obtain a pass.
+   assertion or silently skip an applicable check to obtain a pass. Personal
+   Agent Kit makes a red applicable gate a stop condition.
    **Stop if:** the gate is red or its scope cannot be determined.
    **Observable result:** a reproducible command and its result are recorded.
 
-7. **Request independent review.** Give a reviewer the acceptance criteria and
-   diff without the maker's persuasive narrative. Prefer a different harness
-   with read-only tools. The reviewer returns findings, not approval.
+7. **Request independent no-mistakes review.** Give the no-mistakes reviewer the
+   acceptance criteria and diff without the maker's persuasive narrative.
+   Prefer a different harness with read-only tools. The reviewer returns
+   findings, not approval.
    **Stop if:** required review is unavailable. Record weaker separation as a
    limitation and route the decision to a human reviewer.
    **Observable result:** a review record states the reviewer, access level,
@@ -134,7 +188,7 @@ A one-line permission change can matter more than a large internal refactor.
    more than the allowed repair rounds.
    **Observable result:** every material finding has a disposition and evidence.
 
-9. **Return the decision to a human.** Present the intent, criterion status,
+9. **Return the merge decision to a human.** Present the intent, criterion status,
    diff explanation, gate results, review record, finding dispositions,
    recovery path, and residual risk. The human decides whether to revise,
    deliver, or stop.
@@ -143,7 +197,8 @@ A one-line permission change can matter more than a large internal refactor.
 
 10. **Create the handoff record.** Record the exact commit, commands run,
     results, review limitations, unresolved risks, and resume boundary. Keep
-    planned work separate from completed work.
+    planned work separate from completed work. This is the evidence handoff in
+    the Personal Agent Kit loop.
     **Stop if:** a completion claim has no supporting artifact.
     **Observable result:** another engineer can reproduce the checks and continue
     without trusting the agent's memory.
@@ -165,6 +220,8 @@ A one-line permission change can matter more than a large internal refactor.
 
 The claim classes in this draft are:
 
+- `demonstrated`: a public repository at an immutable commit implements or
+  documents the stated method. This class is not a production outcome claim.
 - `sourced`: a public primary source supports the stated control. This class is
   not an implementation outcome claim.
 - `practice`: an operating preference in this guide. A team must validate it in
@@ -173,7 +230,12 @@ The claim classes in this draft are:
 
 | Claim | Class | Evidence |
 |---|---|---|
-| Use approved intent, bounded implementation, deterministic gates, independent review, human authority, and an evidence-backed handoff as one delivery loop | `practice` | This guide synthesises the sourced controls below. The public sources do not define or demonstrate the complete agent loop. |
+| Personal Agent Kit records approved intent, acceptance criteria, non-goals, maximum action, and grant source before implementation | `demonstrated` | [`skills/spec-delivery-loop/SKILL.md` lines 54-65 at `cc433018d4df574394c74793e50226ee93385a24`](https://github.com/davidtandoh/personal-agent-kit/blob/cc433018d4df574394c74793e50226ee93385a24/skills/spec-delivery-loop/SKILL.md#L54-L65) |
+| Personal Agent Kit bounds work to a traceable plan and defines hard stops for scope or authority expansion | `demonstrated` | [`skills/spec-delivery-loop/SKILL.md` lines 66-74](https://github.com/davidtandoh/personal-agent-kit/blob/cc433018d4df574394c74793e50226ee93385a24/skills/spec-delivery-loop/SKILL.md#L66-L74) and [lines 197-205](https://github.com/davidtandoh/personal-agent-kit/blob/cc433018d4df574394c74793e50226ee93385a24/skills/spec-delivery-loop/SKILL.md#L197-L205), both at `cc433018d4df574394c74793e50226ee93385a24` |
+| Personal Agent Kit requires focused tests and an applicable aggregate gate; its test rules check observable behaviour and relevant risk | `demonstrated` | [`skills/spec-delivery-loop/SKILL.md` lines 112-117](https://github.com/davidtandoh/personal-agent-kit/blob/cc433018d4df574394c74793e50226ee93385a24/skills/spec-delivery-loop/SKILL.md#L112-L117) and [`global-instructions/rules/tests.md` lines 16-54](https://github.com/davidtandoh/personal-agent-kit/blob/cc433018d4df574394c74793e50226ee93385a24/global-instructions/rules/tests.md#L16-L54), both at `cc433018d4df574394c74793e50226ee93385a24` |
+| Personal Agent Kit demonstrates independent review that prefers a different harness, uses read-only access, and returns findings rather than approval; this guide names that pipeline stage no-mistakes | `demonstrated` | [`README.md` lines 187-202](https://github.com/davidtandoh/personal-agent-kit/blob/cc433018d4df574394c74793e50226ee93385a24/README.md#L187-L202) and [`skills/spec-delivery-loop/SKILL.md` lines 75-127](https://github.com/davidtandoh/personal-agent-kit/blob/cc433018d4df574394c74793e50226ee93385a24/skills/spec-delivery-loop/SKILL.md#L75-L127), both at `cc433018d4df574394c74793e50226ee93385a24` |
+| Personal Agent Kit separates review findings from human delivery and merge authority | `demonstrated` | [`README.md` lines 197-207](https://github.com/davidtandoh/personal-agent-kit/blob/cc433018d4df574394c74793e50226ee93385a24/README.md#L197-L207) and [lines 295-318](https://github.com/davidtandoh/personal-agent-kit/blob/cc433018d4df574394c74793e50226ee93385a24/README.md#L295-L318), both at `cc433018d4df574394c74793e50226ee93385a24` |
+| Personal Agent Kit requires an evidence handoff with criterion status, gate output, review limitations, finding dispositions, residual risk, and a resume boundary | `demonstrated` | [`skills/spec-delivery-loop/SKILL.md` lines 143-151](https://github.com/davidtandoh/personal-agent-kit/blob/cc433018d4df574394c74793e50226ee93385a24/skills/spec-delivery-loop/SKILL.md#L143-L151) and [lines 207-211](https://github.com/davidtandoh/personal-agent-kit/blob/cc433018d4df574394c74793e50226ee93385a24/skills/spec-delivery-loop/SKILL.md#L207-L211), both at `cc433018d4df574394c74793e50226ee93385a24` |
 | Protect code with least-privilege access and have a code owner review and approve changes made by others | `sourced` | [NIST SSDF 1.1, PS.1.1, page 9](https://nvlpubs.nist.gov/nistpubs/SpecialPublications/NIST.SP.800-218.pdf#page=17) |
 | Perform review or automated analysis under organisational policy, then record and triage findings and recommended repairs | `sourced` | [NIST SSDF 1.1, PW.7.1 and PW.7.2, pages 14-15](https://nvlpubs.nist.gov/nistpubs/SpecialPublications/NIST.SP.800-218.pdf#page=22) |
 | Required reviews and status checks can gate a protected branch, and a repository can require approval from someone other than the latest contributor | `sourced` | [GitHub Docs: About protected branches](https://docs.github.com/en/repositories/configuring-branches-and-merges-in-your-repository/managing-protected-branches/about-protected-branches) |
@@ -184,9 +246,15 @@ The claim classes in this draft are:
 
 ## Limits
 
-The public sources support individual controls in this guide. They do not prove
-that the combined loop has been implemented or that it improves production
-reliability, throughput, scale, customer outcomes, or regulatory compliance.
+The immutable Personal Agent Kit source demonstrates the documented method and
+its public implementation boundaries. It does not prove that a particular
+repository ran every stage, or that the loop improves production reliability,
+throughput, scale, customer outcomes, or regulatory compliance.
+
+This guide does not use private no-mistakes code, prompts, traces, transcripts,
+credentials, repositories, metrics, client material, employer material, or
+operational records as evidence. A team must verify its own no-mistakes setup,
+reviewer separation, and gate configuration before it claims local operation.
 
 The evidence section cites only public sources. Claim review and privacy review
 remain pending. A human must complete both reviews before publication.
