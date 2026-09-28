@@ -198,9 +198,6 @@ evidence described here, narrow the automation or keep the decision manual.
 
 ## Apply it
 
-Use the broader [platform engineering approach](/platform) to place this loop
-within your system's security, observability, and operating boundaries.
-
 For a technical call, bring one proposed repository change, its highest-risk
 boundary, and the gate you trust least. The call can map that concrete task to
 an approval boundary, review plan, and evidence-backed handoff.
