@@ -9,15 +9,6 @@ created: 2026-09-28
 published: null
 updated: 2026-09-28
 evidence:
-  - repository: davidtandoh/personal-agent-kit
-    commit: cc433018d4df574394c74793e50226ee93385a24
-    path: README.md
-  - repository: davidtandoh/personal-agent-kit
-    commit: cc433018d4df574394c74793e50226ee93385a24
-    path: skills/spec-delivery-loop/SKILL.md
-  - repository: davidtandoh/personal-agent-kit
-    commit: cc433018d4df574394c74793e50226ee93385a24
-    path: global-instructions/rules/tests.md
   - title: NIST Secure Software Development Framework 1.1
     url: https://doi.org/10.6028/NIST.SP.800-218
   - title: GitHub Docs - About protected branches
@@ -76,39 +67,54 @@ self-report.
 
 ### Worked example: Personal Agent Kit
 
-The public Personal Agent Kit implements and documents this delivery loop at
-commit `cc433018d4df574394c74793e50226ee93385a24`:
+Personal Agent Kit is the worked example used throughout this guide. The six
+steps below describe the author's operating practice. They do not make a public
+implementation claim. The linked public sources support the general controls,
+not the private details of Personal Agent Kit.
 
 1. **Approved intent.** The loop records the approval source, acceptance
    criteria, non-goals, maximum action, and revocation state before work starts.
-   Implementation approval does not imply publication authority. See the
-   [intent stage](https://github.com/davidtandoh/personal-agent-kit/blob/cc433018d4df574394c74793e50226ee93385a24/skills/spec-delivery-loop/SKILL.md#L54-L65).
+   Implementation approval does not imply publication authority. This is a
+   Personal Agent Kit practice. NIST describes risk-based selection of secure
+   development practices, but does not specify these kit fields. See
+   [NIST SSDF 1.1, pages 2-3](https://nvlpubs.nist.gov/nistpubs/SpecialPublications/NIST.SP.800-218.pdf#page=10).
 2. **Bounded scope.** The plan maps each criterion to one owning component,
    change, and check. The agent stops when delivery needs wider scope,
-   credentials, production access, or new authority. See the
-   [planning and hard-stop contract](https://github.com/davidtandoh/personal-agent-kit/blob/cc433018d4df574394c74793e50226ee93385a24/skills/spec-delivery-loop/SKILL.md#L66-L74).
+   credentials, production access, or new authority. This is a Personal Agent
+   Kit practice. NIST requires organisations to define security requirements
+   for software development and maintain them over time. See
+   [NIST SSDF 1.1, PO.1.2 and PO.1.3, pages 5-6](https://nvlpubs.nist.gov/nistpubs/SpecialPublications/NIST.SP.800-218.pdf#page=13).
 3. **Deterministic gates.** Focused tests check each criterion. The repository's
    applicable aggregate gate stops the loop when it is red. The kit also
-   defines tests as observable behaviour and risk claims. See the
-   [gate stages](https://github.com/davidtandoh/personal-agent-kit/blob/cc433018d4df574394c74793e50226ee93385a24/skills/spec-delivery-loop/SKILL.md#L112-L117)
-   and [test rules](https://github.com/davidtandoh/personal-agent-kit/blob/cc433018d4df574394c74793e50226ee93385a24/global-instructions/rules/tests.md#L16-L54).
+   defines tests as observable behaviour and risk claims. This is a Personal
+   Agent Kit practice. NIST supports designing, performing, recording, and
+   retaining tests. See
+   [NIST SSDF 1.1, PW.8.2, page 15](https://nvlpubs.nist.gov/nistpubs/SpecialPublications/NIST.SP.800-218.pdf#page=23).
 4. **Independent no-mistakes review.** In this worked example, no-mistakes is
    the delivery pipeline stage that applies the kit's review contract. The
    contract prefers a different harness, gives the reviewer read-only access,
    keeps the initial review blind to the maker's narrative, and returns
-   findings rather than approval. See the
-   [public review contract](https://github.com/davidtandoh/personal-agent-kit/blob/cc433018d4df574394c74793e50226ee93385a24/skills/spec-delivery-loop/SKILL.md#L75-L127).
+   findings rather than approval. These separation details are Personal Agent
+   Kit practices. NIST supports review by a code owner and the recording and
+   triage of findings. See [NIST SSDF 1.1, PS.1.1,
+   page 9](https://nvlpubs.nist.gov/nistpubs/SpecialPublications/NIST.SP.800-218.pdf#page=17)
+   and [PW.7, pages
+   14-15](https://nvlpubs.nist.gov/nistpubs/SpecialPublications/NIST.SP.800-218.pdf#page=22).
 5. **Human merge authority.** Review findings and gate results inform the
    decision. They do not grant merge authority. The kit requires a recorded,
-   bounded human grant before the delivery workflow can act. See the
-   [authority boundary](https://github.com/davidtandoh/personal-agent-kit/blob/cc433018d4df574394c74793e50226ee93385a24/README.md#L197-L207).
+   bounded human grant before the delivery workflow can act. This grant model
+   is a Personal Agent Kit practice. GitHub documents branch rules that require
+   approving reviews and status checks before merge. See
+   [GitHub Docs: About protected branches](https://docs.github.com/en/repositories/configuring-branches-and-merges-in-your-repository/managing-protected-branches/about-protected-branches).
 6. **Evidence handoff.** The loop hands over criterion status, change
    explanation, gate output, review limitations, finding dispositions,
-   residual risk, and the exact resume boundary. See the
-   [handoff stage](https://github.com/davidtandoh/personal-agent-kit/blob/cc433018d4df574394c74793e50226ee93385a24/skills/spec-delivery-loop/SKILL.md#L143-L151).
+   residual risk, and the exact resume boundary. This handoff shape is a
+   Personal Agent Kit practice. SLSA defines provenance as verifiable
+   information about where, when, and how an artifact was produced. See
+   [SLSA 1.2: Provenance](https://slsa.dev/spec/v1.2/provenance).
 
-These are method-level demonstrations in a public repository. They do not prove
-production outcomes, reliability improvement, throughput, or scale.
+These practices do not prove production outcomes, reliability improvement,
+throughput, or scale.
 
 ## Decision points
 
@@ -220,8 +226,6 @@ A one-line permission change can matter more than a large internal refactor.
 
 The claim classes in this draft are:
 
-- `demonstrated`: a public repository at an immutable commit implements or
-  documents the stated method. This class is not a production outcome claim.
 - `sourced`: a public primary source supports the stated control. This class is
   not an implementation outcome claim.
 - `practice`: an operating preference in this guide. A team must validate it in
@@ -230,12 +234,7 @@ The claim classes in this draft are:
 
 | Claim | Class | Evidence |
 |---|---|---|
-| Personal Agent Kit records approved intent, acceptance criteria, non-goals, maximum action, and grant source before implementation | `demonstrated` | [`skills/spec-delivery-loop/SKILL.md` lines 54-65 at `cc433018d4df574394c74793e50226ee93385a24`](https://github.com/davidtandoh/personal-agent-kit/blob/cc433018d4df574394c74793e50226ee93385a24/skills/spec-delivery-loop/SKILL.md#L54-L65) |
-| Personal Agent Kit bounds work to a traceable plan and defines hard stops for scope or authority expansion | `demonstrated` | [`skills/spec-delivery-loop/SKILL.md` lines 66-74](https://github.com/davidtandoh/personal-agent-kit/blob/cc433018d4df574394c74793e50226ee93385a24/skills/spec-delivery-loop/SKILL.md#L66-L74) and [lines 197-205](https://github.com/davidtandoh/personal-agent-kit/blob/cc433018d4df574394c74793e50226ee93385a24/skills/spec-delivery-loop/SKILL.md#L197-L205), both at `cc433018d4df574394c74793e50226ee93385a24` |
-| Personal Agent Kit requires focused tests and an applicable aggregate gate; its test rules check observable behaviour and relevant risk | `demonstrated` | [`skills/spec-delivery-loop/SKILL.md` lines 112-117](https://github.com/davidtandoh/personal-agent-kit/blob/cc433018d4df574394c74793e50226ee93385a24/skills/spec-delivery-loop/SKILL.md#L112-L117) and [`global-instructions/rules/tests.md` lines 16-54](https://github.com/davidtandoh/personal-agent-kit/blob/cc433018d4df574394c74793e50226ee93385a24/global-instructions/rules/tests.md#L16-L54), both at `cc433018d4df574394c74793e50226ee93385a24` |
-| Personal Agent Kit demonstrates independent review that prefers a different harness, uses read-only access, and returns findings rather than approval; this guide names that pipeline stage no-mistakes | `demonstrated` | [`README.md` lines 187-202](https://github.com/davidtandoh/personal-agent-kit/blob/cc433018d4df574394c74793e50226ee93385a24/README.md#L187-L202) and [`skills/spec-delivery-loop/SKILL.md` lines 75-127](https://github.com/davidtandoh/personal-agent-kit/blob/cc433018d4df574394c74793e50226ee93385a24/skills/spec-delivery-loop/SKILL.md#L75-L127), both at `cc433018d4df574394c74793e50226ee93385a24` |
-| Personal Agent Kit separates review findings from human delivery and merge authority | `demonstrated` | [`README.md` lines 197-207](https://github.com/davidtandoh/personal-agent-kit/blob/cc433018d4df574394c74793e50226ee93385a24/README.md#L197-L207) and [lines 295-318](https://github.com/davidtandoh/personal-agent-kit/blob/cc433018d4df574394c74793e50226ee93385a24/README.md#L295-L318), both at `cc433018d4df574394c74793e50226ee93385a24` |
-| Personal Agent Kit requires an evidence handoff with criterion status, gate output, review limitations, finding dispositions, residual risk, and a resume boundary | `demonstrated` | [`skills/spec-delivery-loop/SKILL.md` lines 143-151](https://github.com/davidtandoh/personal-agent-kit/blob/cc433018d4df574394c74793e50226ee93385a24/skills/spec-delivery-loop/SKILL.md#L143-L151) and [lines 207-211](https://github.com/davidtandoh/personal-agent-kit/blob/cc433018d4df574394c74793e50226ee93385a24/skills/spec-delivery-loop/SKILL.md#L207-L211), both at `cc433018d4df574394c74793e50226ee93385a24` |
+| Personal Agent Kit records approved intent, bounds implementation, applies deterministic gates and independent review, reserves merge authority for a human, and creates an evidence handoff | `practice` | Author-described operating practice used as the worked example in this guide; the private implementation is not cited as public evidence |
 | Protect code with least-privilege access and have a code owner review and approve changes made by others | `sourced` | [NIST SSDF 1.1, PS.1.1, page 9](https://nvlpubs.nist.gov/nistpubs/SpecialPublications/NIST.SP.800-218.pdf#page=17) |
 | Perform review or automated analysis under organisational policy, then record and triage findings and recommended repairs | `sourced` | [NIST SSDF 1.1, PW.7.1 and PW.7.2, pages 14-15](https://nvlpubs.nist.gov/nistpubs/SpecialPublications/NIST.SP.800-218.pdf#page=22) |
 | Required reviews and status checks can gate a protected branch, and a repository can require approval from someone other than the latest contributor | `sourced` | [GitHub Docs: About protected branches](https://docs.github.com/en/repositories/configuring-branches-and-merges-in-your-repository/managing-protected-branches/about-protected-branches) |
@@ -246,18 +245,20 @@ The claim classes in this draft are:
 
 ## Limits
 
-The immutable Personal Agent Kit source demonstrates the documented method and
-its public implementation boundaries. It does not prove that a particular
-repository ran every stage, or that the loop improves production reliability,
+Personal Agent Kit is an author-described worked example, not public evidence.
+The guide does not prove that the kit or a particular repository ran every
+stage. It also does not prove that the loop improves production reliability,
 throughput, scale, customer outcomes, or regulatory compliance.
 
-This guide does not use private no-mistakes code, prompts, traces, transcripts,
-credentials, repositories, metrics, client material, employer material, or
-operational records as evidence. A team must verify its own no-mistakes setup,
-reviewer separation, and gate configuration before it claims local operation.
+This guide does not use private Personal Agent Kit or no-mistakes code, prompts,
+traces, transcripts, credentials, repositories, metrics, client material,
+employer material, or operational records as evidence. A team must verify its
+own no-mistakes setup, reviewer separation, and gate configuration before it
+claims local operation.
 
-The evidence section cites only public sources. Claim review and privacy review
-remain pending. A human must complete both reviews before publication.
+The evidence section's external citations use only public sources. Claim review
+and privacy review remain pending. A human must complete both reviews before
+publication.
 
 Your team must verify local branch protection, reviewer separation, gate
 coverage, credential boundaries, rollback, continuous integration, and the
