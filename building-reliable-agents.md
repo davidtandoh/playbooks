@@ -1,3 +1,10 @@
+---
+status: published
+published: 2026-07-02
+claim_review: complete
+privacy_review: complete
+---
+
 # Playbook: Building Reliable Agents
 
 Everything between a demo agent and one you'd run in production: observability, token

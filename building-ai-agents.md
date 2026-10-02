@@ -1,3 +1,10 @@
+---
+status: published
+published: 2026-07-01
+claim_review: complete
+privacy_review: complete
+---
+
 # Playbook: Building AI Agents
 
 A practical, opinionated guide for going from "I want an agent" to a system that ships
