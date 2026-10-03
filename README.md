@@ -54,8 +54,8 @@ No indexed playbooks yet.
 
 ## Conventions
 
-- One playbook per Markdown file at the repo root.
+- Keep each published playbook in one Markdown file at the repo root.
 - Every playbook cites its primary sources up top.
 - Favor tables, checklists, and rules-of-thumb over prose — these are references, not essays.
-- Update the index table above when adding a playbook.
+- Update the index above when adding a playbook.
 - Keep drafts under `drafts/`. A separate reviewed change promotes a draft to the root.
