@@ -12,7 +12,9 @@ front matter will adopt it in a separate change.
 
 ### AI-assisted engineering & software factories
 
-No indexed playbooks yet.
+| Playbook | Topics | What it covers |
+| --- | --- | --- |
+| [Local-first CI with hosted acceptance (draft)](drafts/20261011-local-first-ci.md) | `delivery-gates` `verification` `security-and-privacy` `cost` | One tool per CI job, local workflow lint and emulation limits, trust boundaries for actions and runners, required-check and rounded-minute cost rules, and a bounded one-repository pilot |
 
 ### Agent systems
 
