@@ -19,6 +19,13 @@ tools cannot produce. This playbook separates local workflow emulation, Git
 hooks, static workflow security checks, dependency updates, and runner
 infrastructure, because they solve different jobs and fail in different ways.
 
+## Approval and scope
+
+The captain's exact approval was "approve the playbook and fix the bridge errors".
+The approved interpretation authorizes playbook capture only. It does not
+authorize GuideX implementation, including fixing the Bridge workflow errors,
+or any merge. Publication requires separately established repository authority.
+
 ## Sources
 
 All external sources were accessed on **2026-10-11**. Version numbers,
@@ -58,9 +65,12 @@ them before acting on a version-sensitive claim.
   [pricing](https://dagger.io/pricing/)
 - Internal case evidence: *GuideX CI/CD tooling: Bridge-first recommendation*,
   firstmate research report, 11 October 2026, with its linked budget audit,
-  billing diagnosis, and signing-log audit. These reports are not public. The
-  [case study](#case-study-guidex-bridge-11-october-2026) summarizes what
-  they support and does not copy their detail.
+  billing diagnosis, and signing-log audit. The underlying internal research
+  report is not public and is held outside this repository under the captain's
+  approved privacy-preserving exception: "approve the CI playbook internal
+  source note". The supporting reports are also not public. The sanitized,
+  dated [case study](#case-study-guidex-bridge-11-october-2026) summarizes what
+  they support without linking or copying the private reports.
 
 ## At a glance
 
@@ -356,9 +366,12 @@ These are conditions, not an installation queue.
 ## Case study: GuideX Bridge, 11 October 2026
 
 This section records dated observations from one small estate. The source is
-the internal research report named under [Sources](#sources). The
-observations are labeled `observation`. They are not product facts about any
-tool, and they do not claim that the estate deployed the recommended tooling.
+the internal research report named under [Sources](#sources). The report is
+not public and is held outside this repository under the captain's approved
+privacy-preserving exception: "approve the CI playbook internal source note".
+This sanitized, dated case study does not link or copy the private report.
+The observations are labeled `observation`. They are not product facts about
+any tool, and they do not claim that the estate deployed the recommended tooling.
 
 **Context.** Bridge is a Gradle-based service repository in a small
 multi-repository estate. A meta repository distributes one canonical policy
