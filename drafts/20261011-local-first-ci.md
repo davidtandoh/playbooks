@@ -51,8 +51,8 @@ them before acting on a version-sensitive claim.
 - [GitHub Actions secure use: keeping actions secure and up to date](https://docs.github.com/en/actions/reference/security/secure-use#keeping-the-actions-in-your-workflows-secure-and-up-to-date),
   [hardening for self-hosted runners](https://docs.github.com/en/actions/reference/security/secure-use#hardening-for-self-hosted-runners)
 - [Dependabot on Actions: runner options](https://docs.github.com/en/code-security/concepts/supply-chain-security/dependabot-on-actions#runner-options),
-  [Dependabot alerts: limitations](https://docs.github.com/en/code-security/concepts/supply-chain-security/dependabot-alerts#limitations-of-dependabot-alerts),
-  [Dependabot options: target branch](https://docs.github.com/en/code-security/reference/supply-chain-security/dependabot-options-reference#target-branch)
+  [Dependabot alerts: limitations](https://docs.github.com/en/code-security/concepts/supply-chain-security/dependabot-alerts#limitations),
+  [Dependabot options: target branch](https://docs.github.com/en/code-security/reference/supply-chain-security/dependabot-options-reference#target-branch-)
 - [Renovate: GitHub Actions manager](https://docs.renovatebot.com/modules/manager/github-actions/),
   [running Renovate](https://docs.renovatebot.com/getting-started/running/)
 - [GitHub Actions billing](https://docs.github.com/en/billing/concepts/product-billing/github-actions),
@@ -81,7 +81,7 @@ them before acting on a version-sensitive claim.
 | Which two workflow checks pair well? | A syntax and type checker (actionlint) and a security auditor (zizmor). They overlap on injection and differ elsewhere. |
 | Should I add a hook framework? | Not when a working policy gate already owns hook composition. A hook manager installs tools. It does not define policy. |
 | How do I skip irrelevant jobs? | Native `paths` filters for a whole optional workflow. A selector action only when a required aggregate must always report. |
-| Does a full SHA pin make an action safe? | No. A SHA pins one commit. Review provenance and advisories separately. GitHub Actions alerts do not cover SHA-pinned references ([GitHub](https://docs.github.com/en/code-security/concepts/supply-chain-security/dependabot-alerts#limitations-of-dependabot-alerts)). |
+| Does a full SHA pin make an action safe? | No. A SHA pins one commit. Review provenance and advisories separately. GitHub Actions alerts do not cover SHA-pinned references ([GitHub](https://docs.github.com/en/code-security/concepts/supply-chain-security/dependabot-alerts#limitations)). |
 | Is a private repository enough to make a self-hosted runner safe? | No. Private visibility is not a sandbox. Separate admission, isolation, identity, persistence, and recovery. |
 | How do I count hosted cost? | Sum rounded job durations across all attempts. Never credit a saving unless a comparable run was actually avoided. |
 
@@ -172,8 +172,8 @@ during review, not a suggestion.
 | Third-party actions | Treat a file-selection action as an executable dependency. Use reviewed patched commits. Prefer boolean outputs. Keep filenames out of shell-source interpolation. | A high-severity paths-filter advisory affected filename shell escaping; patched versions are 3.0.4 and 4.0.3 ([GHSA-7hc6-8hq5-9q2m](https://github.com/dorny/paths-filter/security/advisories/GHSA-7hc6-8hq5-9q2m)). The separate tj-actions/changed-files compromise shows a selector is supply-chain input; it is not evidence that dorny's project was compromised ([GHSA-mrrh-fwg8-r2c3](https://github.com/advisories/GHSA-mrrh-fwg8-r2c3)). |
 | Local host credentials | Run local emulation in a disposable workspace with no ambient cloud or GitHub credentials, SSH agent, or operator-home mount. | act executes workflow steps. A convenience mount turns a workflow defect into a credential exposure. |
 | Secrets and output | Review secret creation, use, output, and cleanup. `${{ secrets.* }}` references and log masking do not prove a generated file is safe to print. | The [case study](#case-study-guidex-bridge-11-october-2026) records a workflow that printed a generated secret-bearing file while using valid secret references. |
-| Pins | A full SHA pins one commit. Review owner, repository, release-to-commit correspondence, and advisory status. | pinact's offline check verifies SHA shape, not provenance or vulnerabilities ([pinact check](https://github.com/suzuki-shunsuke/pinact/blob/main/docs/check.md)). GitHub Actions alerts cover semantic versions, not SHA versions ([GitHub](https://docs.github.com/en/code-security/concepts/supply-chain-security/dependabot-alerts#limitations-of-dependabot-alerts)). |
-| Update actors | One preparation tool and one recurring update owner. Never two automated writers on the same manifests. Never auto-merge action updates. | pinact prepares new references before merge; a bot maintains accepted references ([GitHub](https://docs.github.com/en/actions/reference/security/secure-use#keeping-the-actions-in-your-workflows-secure-and-up-to-date)). Dependabot security updates use the default branch even when version updates target another branch ([GitHub](https://docs.github.com/en/code-security/reference/supply-chain-security/dependabot-options-reference#target-branch)). |
+| Pins | A full SHA pins one commit. Review owner, repository, release-to-commit correspondence, and advisory status. | pinact's offline check verifies SHA shape, not provenance or vulnerabilities ([pinact check](https://github.com/suzuki-shunsuke/pinact/blob/main/docs/check.md)). GitHub Actions alerts cover semantic versions, not SHA versions ([GitHub](https://docs.github.com/en/code-security/concepts/supply-chain-security/dependabot-alerts#limitations)). |
+| Update actors | One preparation tool and one recurring update owner. Never two automated writers on the same manifests. Never auto-merge action updates. | pinact prepares new references before merge; a bot maintains accepted references ([GitHub](https://docs.github.com/en/actions/reference/security/secure-use#keeping-the-actions-in-your-workflows-secure-and-up-to-date)). Dependabot security updates use the default branch even when version updates target another branch ([GitHub](https://docs.github.com/en/code-security/reference/supply-chain-security/dependabot-options-reference#target-branch-)). |
 | Caches and artifacts | Separate trusted and untrusted caches. Never promote an unreviewed cache or artifact into a privileged job. | A compromised job can poison what a later privileged job consumes ([GitHub](https://docs.github.com/en/actions/concepts/security/compromised-runners)). |
 | Self-hosted runners | Reject a persistent runner in an operator account. If a runner is later approved, use the design below. | Private visibility is not a sandbox. Environment approval controls secret release but does not remove persistence left by an earlier job ([GitHub](https://docs.github.com/en/actions/reference/security/secure-use#hardening-for-self-hosted-runners)). |
 
@@ -207,11 +207,12 @@ allocation entirely. Include every actual input: build files and wrappers,
 containers, resources, tests, contract inputs, and the workflow file itself.
 Do not exclude all Markdown mechanically if a file affects an artifact.
 
-Current GitHub documentation states that push diffs use two dots and pull
-requests three; very large pushes and timeouts run unconditionally; a matching
-file beyond the first 3,000 returned files can be missed
+GitHub documentation accessed on 2026-10-11 states that push diffs use two
+dots and pull requests three. Pushes with more than 1,000 commits and diff
+timeouts run unconditionally. A matching file beyond the first 3,000 returned
+files can be missed
 ([GitHub](https://docs.github.com/en/actions/reference/workflows-and-actions/workflow-syntax#git-diff-comparisons)).
-Record the date next to that limit. It has changed before.
+Recheck these dated limits before changing filters.
 
 ### Respect required-check semantics
 
@@ -420,10 +421,10 @@ Claim classes:
 | Local workflow emulation cannot certify all GitHub controls | `sourced` | act documents missing concurrency, permissions, timeout, environment, and OIDC behavior ([act](https://nektosact.com/not_supported.html)). Do not generalize to every emulator. |
 | A hook manager and a policy implementation are separate responsibilities | `practice` | Supported by [pre-commit stages](https://pre-commit.com/#supported-git-hooks) and [Lefthook](https://lefthook.dev/) capabilities, and by the case study's canonical gate. Not a claim that one manager is best. |
 | Syntax checking and workflow security auditing are complementary | `sourced` + `practice` | [actionlint checks](https://github.com/rhysd/actionlint/blob/main/docs/checks.md), [zizmor audits](https://docs.zizmor.sh/audits/). Recommend both when findings justify the maintenance cost. |
-| Native path filters can skip a whole run but can leave a required check pending | `sourced` | [GitHub path semantics](https://docs.github.com/en/actions/reference/workflows-and-actions/workflow-syntax#onpushpull_requestpull_request_targetpathspaths-ignore). The 3,000-file diff limit is the value documented on 2026-10-11. |
+| Native path filters can skip a whole run but can leave a required check pending | `sourced` | [GitHub path semantics](https://docs.github.com/en/actions/reference/workflows-and-actions/workflow-syntax#onpushpull_requestpull_request_targetpathspaths-ignore). See [Filter events and jobs](#filter-events-and-jobs) for the dated diff limits. |
 | File-selection actions are executable dependencies; filenames are untrusted input | `sourced` + `practice` | [paths-filter README](https://github.com/dorny/paths-filter#readme), [GHSA-7hc6-8hq5-9q2m](https://github.com/dorny/paths-filter/security/advisories/GHSA-7hc6-8hq5-9q2m), [GHSA-mrrh-fwg8-r2c3](https://github.com/advisories/GHSA-mrrh-fwg8-r2c3). The two incidents are distinct. |
 | Pinning and updating solve different parts of dependency control | `practice` | Grounded in [pinact](https://github.com/suzuki-shunsuke/pinact#readme), [Ratchet](https://github.com/sethvargo/ratchet#readme), [Renovate](https://docs.renovatebot.com/modules/manager/github-actions/), and [GitHub](https://docs.github.com/en/actions/reference/security/secure-use#keeping-the-actions-in-your-workflows-secure-and-up-to-date). A full SHA can pin a vulnerable commit. |
-| Dependabot updating SHA references does not give alert coverage for those pins | `sourced` | [Dependabot alert limitations](https://docs.github.com/en/code-security/concepts/supply-chain-security/dependabot-alerts#limitations-of-dependabot-alerts). Do not weaken pinning to obtain alerts. |
+| Dependabot updating SHA references does not give alert coverage for those pins | `sourced` | [Dependabot alert limitations](https://docs.github.com/en/code-security/concepts/supply-chain-security/dependabot-alerts#limitations). Do not weaken pinning to obtain alerts. |
 | Update generation and update-triggered CI are different costs | `sourced` + inference | [Dependabot compute](https://docs.github.com/en/code-security/concepts/supply-chain-security/dependabot-on-actions#runner-options), [billing](https://docs.github.com/en/billing/concepts/product-billing/github-actions). Measure resulting workflow jobs. |
 | Private repositories do not make persistent self-hosted runners safe | `sourced` + `proposal` | [Runner hardening](https://docs.github.com/en/actions/reference/security/secure-use#hardening-for-self-hosted-runners), [compromised runners](https://docs.github.com/en/actions/concepts/security/compromised-runners), [ephemeral runners](https://docs.github.com/en/actions/reference/runners/self-hosted-runners#ephemeral-runners-for-autoscaling). The design table is proposed controls. |
 | Pipeline portability requires a pipeline abstraction, not YAML emulation | `sourced` + `practice` | [Dagger](https://github.com/dagger/dagger#readme), [GitHub integration](https://docs.dagger.io/0.21/getting-started/ci-integrations/github-actions/). No automatic cost-saving claim. |
