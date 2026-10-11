@@ -10,9 +10,16 @@ PUBLISHED_PLAYBOOKS = (
     REPOSITORY_ROOT / "building-ai-agents.md",
     REPOSITORY_ROOT / "building-reliable-agents.md",
 )
-CONTEXTUAL_RETRIEVAL_DRAFT = (
-    REPOSITORY_ROOT / "drafts" / "20261003-contextual-retrieval.md"
-)
+TAXONOMY_DRAFTS = {
+    REPOSITORY_ROOT / "drafts" / "20261003-contextual-retrieval.md": (
+        "Enterprise AI platform",
+        ["retrieval", "evals", "cost"],
+    ),
+    REPOSITORY_ROOT / "drafts" / "20261011-local-first-ci.md": (
+        "AI-assisted engineering & software factories",
+        ["delivery-gates", "verification", "security-and-privacy", "cost"],
+    ),
+}
 APPROVED_CATEGORIES = (
     "AI-assisted engineering & software factories",
     "Agent systems",
@@ -96,16 +103,19 @@ class PublishedPlaybookMetadataTest(unittest.TestCase):
                 self.assertIsInstance(published, str)
                 datetime.date.fromisoformat(published)
 
-    def test_contextual_retrieval_uses_controlled_taxonomy(self) -> None:
-        metadata = read_front_matter(CONTEXTUAL_RETRIEVAL_DRAFT)
+    def test_drafts_use_controlled_taxonomy(self) -> None:
+        for path, (expected_category, expected_topics) in TAXONOMY_DRAFTS.items():
+            with self.subTest(draft=path.name):
+                metadata = read_front_matter(path)
 
-        self.assertIn(metadata.get("category"), APPROVED_CATEGORIES)
-        topics = metadata.get("topics")
-        self.assertIsInstance(topics, list)
-        self.assertTrue(topics)
-        self.assertEqual(len(topics), len(set(topics)))
-        self.assertTrue(set(topics).issubset(APPROVED_TOPICS))
-        self.assertEqual(topics, ["retrieval", "evals", "cost"])
+                self.assertIn(metadata.get("category"), APPROVED_CATEGORIES)
+                self.assertEqual(metadata.get("category"), expected_category)
+                topics = metadata.get("topics")
+                self.assertIsInstance(topics, list)
+                self.assertTrue(topics)
+                self.assertEqual(len(topics), len(set(topics)))
+                self.assertTrue(set(topics).issubset(APPROVED_TOPICS))
+                self.assertEqual(topics, expected_topics)
 
 
 if __name__ == "__main__":
