@@ -33,15 +33,17 @@ This page adds what to compute from those spans and the Model Context Protocol
 | SLI | Computed from |
 | --- | --- |
 | Tool error rate | `execute_tool` spans with `error.type` set, over all `execute_tool` spans |
-| Retries per turn | Repeated tool spans with the same name and arguments inside one turn |
+| Retries per turn | Explicit retry attempts inside one turn: another attempt at a failed operation, or a span marked as a retry |
 | Turns per task | Agent turns counted by task id, including retries |
 | Tokens per task | Token usage summed by task id, including failed and retried attempts |
 | Cost per successful task | All task spend, including failed and retried attempts, divided by the number of successful tasks in the measurement window |
-| Loop suspects | Sessions with the same tool call repeated several times in a row |
+| Loop suspects | Sessions with repeated calls: the same tool name and arguments several times in a row; repetition alone does not establish retries or a loop |
 | Stuck sessions | Time between turns above a threshold |
 
 ## Decision guide
 
+- Count plain repeated identical calls as repeated calls, not retries. Check
+  expected polling before treating repeated calls as a loop.
 - Give each task an explicit task id attribute. If one agent invocation span
   represents the whole task, its span id can serve as the task id. Associate
   all turns, retries, token usage, and spend with that task id.
