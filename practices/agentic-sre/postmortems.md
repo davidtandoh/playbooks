@@ -12,8 +12,8 @@ topics:
 # Postmortems for agent incidents
 
 Run blameless postmortems where contributing factors include prompts, models,
-tools, envelopes, and approval gates. Every postmortem changes an eval, a
-skill or task specification, or an envelope.
+tools, envelopes, and approval gates. Every postmortem adds a regression eval
+case. It may also change a skill, task specification, or envelope.
 
 Skill: `agent-postmortems` (see the [skill index](README.md#skills)).
 
