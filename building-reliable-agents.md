@@ -56,10 +56,13 @@ Use the [OpenTelemetry GenAI semantic conventions](https://opentelemetry.io/docs
 > `prompt_tokens`/`completion_tokens`. The conventions are still marked experimental
 > ("Development" stability) and may evolve. **[verified]**
 
-**Minimum-viable span identity** — bind every span with these three so you can reconstruct a run: **[verified]**
-- `gen_ai.conversation.id` — ties all spans in one run together
+**Minimum-viable span identity** — use these attributes to group spans by session, agent, and operation: **[verified]**
+- `gen_ai.conversation.id` — identifies a conversation, session, or thread
 - `gen_ai.agent.name` — which agent (critical in multi-agent systems)
 - `gen_ai.operation.name` — `chat` / `invoke_agent` / `execute_tool`
+
+For task boundaries and task-level aggregation, see the
+[observability practice](practices/agentic-sre/observability.md#decision-guide).
 
 ### Content capture is privacy-by-default OPT-IN
 
