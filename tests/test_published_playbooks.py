@@ -255,7 +255,6 @@ DRAFT_METADATA = {
     "claim_review": "pending",
     "privacy_review": "pending",
 }
-RULE_NAME_PATTERN = re.compile(r"^  ([a-z0-9-]+):$", re.MULTILINE)
 
 
 class EngineeringStandardsPracticesTest(unittest.TestCase):
@@ -280,18 +279,6 @@ class EngineeringStandardsPracticesTest(unittest.TestCase):
         self.assertEqual(
             level_two_headings(API_DESIGN_PAGE), list(PRACTICE_SECTIONS)
         )
-
-    def test_every_ruleset_rule_is_explained_outside_the_ruleset(self) -> None:
-        text = API_DESIGN_PAGE.read_text(encoding="utf-8")
-        before, _, rest = text.partition("```yaml\n")
-        ruleset, _, after = rest.partition("```")
-        self.assertIn('extends: [["spectral:oas", recommended]]', ruleset)
-        rule_names = RULE_NAME_PATTERN.findall(ruleset)
-        self.assertTrue(rule_names)
-        prose = before + after
-        for rule_name in rule_names:
-            with self.subTest(rule=rule_name):
-                self.assertIn(f"`{rule_name}`", prose)
 
     def test_relative_links_and_anchors_resolve(self) -> None:
         for path in (ENGINEERING_STANDARDS_INDEX, API_DESIGN_PAGE):

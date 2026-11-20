@@ -150,7 +150,11 @@ Check: `oasdiff breaking` against the base branch, with `--fail-on ERR`.
 ### Errors with RFC 9457
 
 - If a request fails, then return `application/problem+json` with the RFC
-  9457 members `type`, `title`, `status`, `detail`, and `instance`.
+  9457 members `type`, `title`, `status`, `detail`, and `instance`. Define
+  these as required properties of the shared `components.schemas.Problem`
+  object: `status` is an integer; the other four members are strings.
+  Error response schemas must declare the same required members and types;
+  reference the shared schema with `$ref` to avoid repeating the definition.
 - If the failure is a validation error, then add an `errors` extension member
   that lists each invalid field. RFC 9457 allows extension members.
 - If the error kind is stable, then give it a stable `type` URI and treat that
@@ -229,7 +233,9 @@ Check: `updates-if-match`.
 - If one service calls another, then use workload identity or short-lived
   service tokens, not shared long-lived secrets.
 - Authorize per resource and deny by default. An operation without a declared
-  security requirement fails the lint unless it is tagged `public`.
+  security requirement fails the lint unless it is tagged `public`. Every
+  security alternative must name at least one scheme; an empty requirement
+  object permits anonymous access and fails unless the operation is public.
 - If a client exceeds its limit, then return 429 with `Retry-After` (RFC
   6585). Advertise the limit with the `RateLimit` and `RateLimit-Policy`
   fields from the IETF draft once your gateway supports them.
@@ -338,20 +344,50 @@ rules:
       function: schema
       functionOptions:
         schema:
-          required: [format]
-          properties: {format: {const: date-time}}
+          type: object
+          required: [type, format]
+          properties: {type: {const: string}, format: {const: date-time}}
 
   # Errors: RFC 9457 problem details on every 4xx and 5xx response.
   problem-schema-defined:
     description: components.schemas.Problem holds the shared problem details schema.
     severity: error
-    given: $.components.schemas
+    given: $
     then:
-      field: Problem
-      function: truthy
+      field: components.schemas.Problem
+      function: schema
+      functionOptions:
+        schema: &problem-schema
+          type: object
+          required: [type, required, properties]
+          properties:
+            type: {const: object}
+            required:
+              type: array
+              allOf:
+                - contains: {const: type}
+                - contains: {const: title}
+                - contains: {const: status}
+                - contains: {const: detail}
+                - contains: {const: instance}
+            properties:
+              type: object
+              required: [type, title, status, detail, instance]
+              properties:
+                type: &string-property
+                  type: object
+                  required: [type]
+                  properties: {type: {const: string}}
+                title: *string-property
+                status:
+                  type: object
+                  required: [type]
+                  properties: {type: {const: integer}}
+                detail: *string-property
+                instance: *string-property
 
   errors-use-problem-json:
-    description: Every 4xx and 5xx response uses application/problem+json.
+    description: Every 4xx and 5xx response declares the required problem details shape.
     severity: error
     given: $.paths[*][get,put,post,patch,delete].responses[?(@property.match(/^[45]/))]
     then:
@@ -361,6 +397,12 @@ rules:
         schema:
           type: object
           required: ["application/problem+json"]
+          properties:
+            application/problem+json:
+              type: object
+              required: [schema]
+              properties:
+                schema: *problem-schema
 
   status-codes-allowed:
     description: Use only the agreed status codes.
@@ -386,20 +428,46 @@ rules:
         schema:
           type: array
           allOf:
-            - contains: {properties: {name: {const: page_size}}, required: [name]}
-            - contains: {properties: {name: {const: page_token}}, required: [name]}
+            - contains:
+                type: object
+                properties: {name: {const: page_size}, in: {const: query}}
+                required: [name, in]
+            - contains:
+                type: object
+                properties: {name: {const: page_token}, in: {const: query}}
+                required: [name, in]
 
   collections-return-next-page-token:
     description: Collection GETs return next_page_token.
     severity: error
-    given: $.paths[?(!@property.match(/[}:][^/]*$/))].get.responses.200.content.application/json.schema
+    given: $.paths[?(!@property.match(/[}:][^/]*$/))].get
     then:
-      field: properties
+      field: responses
       function: schema
       functionOptions:
         schema:
           type: object
-          required: [next_page_token]
+          required: ["200"]
+          properties:
+            "200":
+              type: object
+              required: [content]
+              properties:
+                content:
+                  type: object
+                  required: [application/json]
+                  properties:
+                    application/json:
+                      type: object
+                      required: [schema]
+                      properties:
+                        schema:
+                          type: object
+                          required: [properties]
+                          properties:
+                            properties:
+                              type: object
+                              required: [next_page_token]
 
   # Idempotency and concurrency.
   post-idempotency-key:
@@ -417,7 +485,7 @@ rules:
             required: [name, in]
 
   updates-if-match:
-    description: PATCH and PUT accept an If-Match header.
+    description: PATCH and PUT require an If-Match header.
     severity: error
     given: $.paths[*][patch,put]
     then:
@@ -427,8 +495,12 @@ rules:
         schema:
           type: array
           contains:
-            properties: {name: {const: If-Match}, in: {const: header}}
-            required: [name, in]
+            type: object
+            properties:
+              name: {const: If-Match}
+              in: {const: header}
+              required: {const: true}
+            required: [name, in, required]
 
   # Auth and rate limits.
   operations-secured:
@@ -441,7 +513,11 @@ rules:
         schema:
           anyOf:
             - required: [security]
-              properties: {security: {type: array, minItems: 1}}
+              properties:
+                security:
+                  type: array
+                  minItems: 1
+                  items: {type: object, minProperties: 1}
             - required: [tags]
               properties: {tags: {contains: {const: public}}}
 
@@ -481,7 +557,9 @@ Run it with `npx @stoplight/spectral-cli lint openapi.yaml`. Known limits of
 this example: `operations-secured` checks operation-level `security` only, so
 an API that relies on a root-level `security` block needs the rule adjusted;
 `collections-paginated` reads operation-level parameters, not path-level
-ones; and the timestamp rule checks property names, not every date field.
+ones; the timestamp rule checks property names, not every date field; and
+the problem rules check resolved schemas with explicit object properties and
+required members, so composed schemas must expose that shape directly.
 
 ## Checklist
 
