@@ -299,6 +299,8 @@ replayed `webhook-id` is a no-op.
 The ruleset below is the example the checks above refer to. It extends
 Spectral's recommended OpenAPI rules. Keep it as `.spectral.yaml` at the
 repository root and change the rules there, not on this page.
+Operation-wide rules cover GET, PUT, POST, PATCH, DELETE, HEAD, OPTIONS, and
+TRACE. Method-specific rules apply only to the methods they name.
 
 ```yaml
 # API design ruleset. This file is the source of truth for the conventions;
@@ -390,7 +392,7 @@ rules:
   errors-use-problem-json:
     description: Every 4xx and 5xx response declares the required problem details shape.
     severity: error
-    given: $.paths[*][get,put,post,patch,delete].responses[?(@property.match(/^[45]/))]
+    given: $.paths[*][get,put,post,patch,delete,head,options,trace].responses[?(@property.match(/^[45]/))]
     then:
       field: content
       function: schema
@@ -408,7 +410,7 @@ rules:
   status-codes-allowed:
     description: Use only the agreed status codes.
     severity: error
-    given: $.paths[*][get,put,post,patch,delete].responses
+    given: $.paths[*][get,put,post,patch,delete,head,options,trace].responses
     then:
       field: "@key"
       function: enumeration
@@ -528,7 +530,7 @@ rules:
   operations-declare-429:
     description: Every operation declares a 429 response.
     severity: error
-    given: $.paths[*][get,put,post,patch,delete].responses
+    given: $.paths[*][get,put,post,patch,delete,head,options,trace].responses
     then:
       field: "429"
       function: truthy
@@ -536,7 +538,7 @@ rules:
   retry-after-on-429-and-503:
     description: 429 and 503 responses carry Retry-After.
     severity: error
-    given: $.paths[*][get,put,post,patch,delete].responses[429,503]
+    given: $.paths[*][get,put,post,patch,delete,head,options,trace].responses[429,503]
     then:
       field: headers.Retry-After
       function: truthy
@@ -545,7 +547,7 @@ rules:
   accepted-has-location:
     description: A 202 response points at the operation resource.
     severity: error
-    given: $.paths[*][get,put,post,patch,delete].responses.202
+    given: $.paths[*][get,put,post,patch,delete,head,options,trace].responses.202
     then:
       field: headers
       function: schema
