@@ -15,6 +15,7 @@ front matter will adopt it in a separate change.
 | Playbook | Topics | What it covers |
 | --- | --- | --- |
 | [Local-first CI with hosted acceptance (draft)](drafts/20261011-local-first-ci.md) | `delivery-gates` `verification` `security-and-privacy` `cost` | One tool per CI job, local workflow lint and emulation limits, trust boundaries for actions and runners, required-check and rounded-minute cost rules, and a bounded one-repository pilot |
+| [API design (draft)](practices/engineering-standards/api-design.md) | `architecture` `delivery-gates` `verification` `security-and-privacy` | One default per HTTP API design question, enforced by a Spectral ruleset and an oasdiff breaking-change check: naming, versioning, RFC 9457 errors, pagination, idempotency, auth, rate limits, long-running operations, webhooks and events |
 
 ### Agent systems
 
@@ -61,9 +62,12 @@ front matter will adopt it in a separate change.
 - Every playbook cites its primary sources up top.
 - Favor tables, checklists, and rules-of-thumb over prose — these are references, not essays.
 - Update the index above when adding a playbook.
-- Keep drafts under `drafts/`. A separate reviewed change promotes a draft to the root.
+- Keep standalone playbook drafts under `drafts/`. A separate reviewed change
+  promotes a standalone draft to the root. Draft practice pages stay in their
+  practice set as described below.
 - Keep operating practices under `practices/<set>/`. Each set has a `README.md` index,
-  and each practice page carries the published front matter, a category, and topics.
+  and each practice page carries publication front matter, a category, and topics.
+  A practice page that is still a draft says `status: draft` in its front matter.
   Practice pages link to playbook sections instead of repeating them.
 
 ## License

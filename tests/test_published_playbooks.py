@@ -244,6 +244,65 @@ class AgenticSrePracticesTest(unittest.TestCase):
                     self.assertNotIn(term, text)
 
 
+ENGINEERING_STANDARDS_DIRECTORY = (
+    REPOSITORY_ROOT / "practices" / "engineering-standards"
+)
+ENGINEERING_STANDARDS_INDEX = ENGINEERING_STANDARDS_DIRECTORY / "README.md"
+API_DESIGN_PAGE = ENGINEERING_STANDARDS_DIRECTORY / "api-design.md"
+DRAFT_METADATA = {
+    "status": "draft",
+    "published": "false",
+    "claim_review": "pending",
+    "privacy_review": "pending",
+}
+
+
+class EngineeringStandardsPracticesTest(unittest.TestCase):
+    def test_directory_holds_exactly_the_listed_pages(self) -> None:
+        found = set(ENGINEERING_STANDARDS_DIRECTORY.glob("*.md"))
+        self.assertEqual(found, {ENGINEERING_STANDARDS_INDEX, API_DESIGN_PAGE})
+        index = ENGINEERING_STANDARDS_INDEX.read_text(encoding="utf-8")
+        self.assertIn(f"]({API_DESIGN_PAGE.name})", index)
+
+    def test_api_design_is_a_draft_with_controlled_taxonomy(self) -> None:
+        metadata = read_front_matter(API_DESIGN_PAGE)
+        for key, expected_value in DRAFT_METADATA.items():
+            self.assertEqual(metadata.get(key), expected_value)
+        self.assertIn(metadata.get("category"), APPROVED_CATEGORIES)
+        topics = metadata.get("topics")
+        self.assertIsInstance(topics, list)
+        self.assertTrue(topics)
+        self.assertEqual(len(topics), len(set(topics)))
+        self.assertTrue(set(topics).issubset(APPROVED_TOPICS))
+
+    def test_api_design_uses_the_section_contract(self) -> None:
+        self.assertEqual(
+            level_two_headings(API_DESIGN_PAGE), list(PRACTICE_SECTIONS)
+        )
+
+    def test_relative_links_and_anchors_resolve(self) -> None:
+        for path in (ENGINEERING_STANDARDS_INDEX, API_DESIGN_PAGE):
+            text = path.read_text(encoding="utf-8")
+            for target in LINK_PATTERN.findall(text):
+                if target.startswith("https://"):
+                    continue
+                with self.subTest(page=path.name, link=target):
+                    file_part, _, anchor = target.partition("#")
+                    linked = (
+                        (path.parent / file_part).resolve() if file_part else path
+                    )
+                    self.assertTrue(linked.is_file())
+                    if anchor:
+                        self.assertIn(anchor, heading_anchors(linked))
+
+    def test_practices_omit_private_product_names(self) -> None:
+        for path in (ENGINEERING_STANDARDS_INDEX, API_DESIGN_PAGE):
+            text = path.read_text(encoding="utf-8").lower()
+            for term in PRIVATE_TERMS:
+                with self.subTest(page=path.name, term=term):
+                    self.assertNotIn(term, text)
+
+
 class LicenseTest(unittest.TestCase):
     def test_repository_is_mit_licensed_to_david_tandoh(self) -> None:
         text = (REPOSITORY_ROOT / "LICENSE").read_text(encoding="utf-8")
