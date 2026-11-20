@@ -183,8 +183,8 @@ one real 500 response.
 
 - If an endpoint returns a list, then paginate it with a cursor from the first
   release: request `page_size` and `page_token`, respond with
-  `next_page_token`, which is empty on the last page (AIP-158; Zalando prefers
-  cursors).
+  an object with a string `next_page_token`, which is empty on the last page
+  (AIP-158; Zalando prefers cursors).
 - Our default `page_size` is 50 with a maximum of 500. That is a local choice,
   not a figure from the sources.
 - If a client asks for a total count, then add it as a separate, explicitly
@@ -233,7 +233,8 @@ Check: `updates-if-match`.
 - If one service calls another, then use workload identity or short-lived
   service tokens, not shared long-lived secrets.
 - Authorize per resource and deny by default. An operation without a declared
-  security requirement fails the lint unless it is tagged `public`. Every
+  security requirement fails the lint unless it is tagged `public`. This
+  check covers GET, PUT, POST, PATCH, DELETE, HEAD, OPTIONS, and TRACE. Every
   security alternative must name at least one scheme; an empty requirement
   object permits anonymous access and fails unless the operation is public.
 - If a client exceeds its limit, then return 429 with `Retry-After` (RFC
@@ -438,7 +439,7 @@ rules:
                 required: [name, in]
 
   collections-return-next-page-token:
-    description: Collection GETs return next_page_token.
+    description: Collection GETs return an object with a string next_page_token.
     severity: error
     given: $.paths[?(!@property.match(/[}:][^/]*$/))].get
     then:
@@ -463,11 +464,14 @@ rules:
                       properties:
                         schema:
                           type: object
-                          required: [properties]
+                          required: [type, properties]
                           properties:
+                            type: {const: object}
                             properties:
                               type: object
                               required: [next_page_token]
+                              properties:
+                                next_page_token: *string-property
 
   # Idempotency and concurrency.
   post-idempotency-key:
@@ -506,7 +510,7 @@ rules:
   operations-secured:
     description: Every operation declares security unless it is tagged public.
     severity: error
-    given: $.paths[*][get,put,post,patch,delete]
+    given: $.paths[*][get,put,post,patch,delete,head,options,trace]
     then:
       function: schema
       functionOptions:
