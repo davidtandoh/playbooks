@@ -62,7 +62,9 @@ front matter will adopt it in a separate change.
 - Every playbook cites its primary sources up top.
 - Favor tables, checklists, and rules-of-thumb over prose — these are references, not essays.
 - Update the index above when adding a playbook.
-- Keep drafts under `drafts/`. A separate reviewed change promotes a draft to the root.
+- Keep standalone playbook drafts under `drafts/`. A separate reviewed change
+  promotes a standalone draft to the root. Draft practice pages stay in their
+  practice set as described below.
 - Keep operating practices under `practices/<set>/`. Each set has a `README.md` index,
   and each practice page carries publication front matter, a category, and topics.
   A practice page that is still a draft says `status: draft` in its front matter.

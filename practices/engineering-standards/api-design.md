@@ -579,8 +579,9 @@ For a new or changed endpoint:
 - [ ] Spectral passes with the shared ruleset.
 - [ ] oasdiff reports no breaking change, or the pull request bumps the major
       version and says why.
-- [ ] Schemathesis runs against the app, or a snapshot test proves the
-      generated document matches the committed one.
+- [ ] Schemathesis runs against the app.
+- [ ] If the document is generated from code, a snapshot test proves it
+      matches the committed one.
 - [ ] Problem details, pagination, idempotency, security, and rate-limit
       responses are declared in the document, not described in prose.
 - [ ] Generated client types are regenerated and committed.
