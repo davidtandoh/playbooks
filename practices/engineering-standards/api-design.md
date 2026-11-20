@@ -183,8 +183,9 @@ one real 500 response.
 
 - If an endpoint returns a list, then paginate it with a cursor from the first
   release: request `page_size` and `page_token`, respond with
-  an object with a string `next_page_token`, which is empty on the last page
-  (AIP-158; Zalando prefers cursors).
+  an object with a required string `next_page_token`, which is empty on the
+  last page (AIP-158; Zalando prefers cursors). Include `next_page_token` in
+  the response schema's `required` array so every page carries the token.
 - Our default `page_size` is 50 with a maximum of 500. That is a local choice,
   not a figure from the sources.
 - If a client asks for a total count, then add it as a separate, explicitly
@@ -441,7 +442,7 @@ rules:
                 required: [name, in]
 
   collections-return-next-page-token:
-    description: Collection GETs return an object with a string next_page_token.
+    description: Collection GETs require a string next_page_token in every response.
     severity: error
     given: $.paths[?(!@property.match(/[}:][^/]*$/))].get
     then:
@@ -466,9 +467,12 @@ rules:
                       properties:
                         schema:
                           type: object
-                          required: [type, properties]
+                          required: [type, properties, required]
                           properties:
                             type: {const: object}
+                            required:
+                              type: array
+                              contains: {const: next_page_token}
                             properties:
                               type: object
                               required: [next_page_token]
