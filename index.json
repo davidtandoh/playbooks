@@ -470,6 +470,49 @@
         "quota"
       ],
       "title": "SLOs and error budgets for agents"
+    },
+    {
+      "applies_when": [
+        "adding or changing an HTTP API or its OpenAPI document",
+        "designing webhooks or event payloads consumed by another service"
+      ],
+      "key_rules": [
+        {
+          "rule": "Commit the OpenAPI document and lint it with the shared Spectral ruleset on every pull request.",
+          "source": "practices/engineering-standards/api-design.md#openapi-first-with-spectral-and-oasdiff"
+        },
+        {
+          "rule": "Fail CI on breaking changes with oasdiff; break the contract only with a new major path version.",
+          "source": "practices/engineering-standards/api-design.md#versioning"
+        },
+        {
+          "rule": "Return RFC 9457 problem details with a stable type for every error.",
+          "source": "practices/engineering-standards/api-design.md#errors-with-rfc-9457"
+        },
+        {
+          "rule": "Paginate every list with page_size, page_token, and next_page_token from the first release.",
+          "source": "practices/engineering-standards/api-design.md#pagination"
+        },
+        {
+          "rule": "Accept an Idempotency-Key on every POST.",
+          "source": "practices/engineering-standards/api-design.md#idempotency-keys"
+        },
+        {
+          "rule": "Declare security on every operation and deny by default.",
+          "source": "practices/engineering-standards/api-design.md#auth-and-rate-limits"
+        }
+      ],
+      "path": "practices/engineering-standards/api-design.md",
+      "signals": [
+        "openapi",
+        "openapi.yaml",
+        "spectral",
+        "oasdiff",
+        "endpoint",
+        "webhook",
+        "asyncapi"
+      ],
+      "title": "API design: one default per question, enforced by a linter"
     }
   ],
   "version": 1
