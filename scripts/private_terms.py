@@ -1,10 +1,16 @@
 """Block private names from tracked text files without publishing those names.
 
 The denylist holds only SHA-256 digests of normalized terms. A term is
-normalized by lowercasing it and joining its alphanumeric tokens with single
-spaces, so "Foo-Bar" and "foo bar" share one digest. The scanner hashes every
-one-, two- and three-token phrase in each tracked text file and reports the
-file and line of a match, never the matched text.
+normalized by lowercasing it and joining its ASCII alphanumeric tokens with
+single spaces, so "Foo-Bar" and "foo bar" share one digest. The add command
+rejects empty terms and terms longer than three tokens. The scanner hashes
+every one-, two- and three-token phrase, including phrases across lines.
+
+The scan reads working-tree contents of paths listed by git ls-files, excluding
+this digest-bearing module and files containing NUL bytes. Untracked files and
+Git history are outside its scope. Tracked symlinks, missing files, and files
+larger than 16 MiB fail the scan. A match reports its file and starting line,
+never the matched text.
 
 Usage:
     python3 scripts/private_terms.py add <term>   # print the digest to paste
