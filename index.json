@@ -89,6 +89,46 @@
     },
     {
       "applies_when": [
+        "building or changing a retrieval-augmented generation pipeline",
+        "chunked documents lose context needed to retrieve them",
+        "deciding whether to add BM25, reranking, or full-context prompting"
+      ],
+      "key_rules": [
+        {
+          "rule": "Test putting the whole knowledge base in a cached prompt before building retrieval when it is under 200,000 tokens.",
+          "source": "contextual-retrieval.md#1-start-with-the-simplest-prompt-that-fits"
+        },
+        {
+          "rule": "Generate context from the complete document and one target chunk, and prepend it before both the embedding and BM25 indexes.",
+          "source": "contextual-retrieval.md#2-generate-context-once-per-chunk"
+        },
+        {
+          "rule": "Build a local eval set before choosing the embedding model, fusion settings, chunk shape, or reranker.",
+          "source": "contextual-retrieval.md#3-evaluate-the-combined-retriever"
+        },
+        {
+          "rule": "Add reranking only when the quality gain justifies the added latency and cost.",
+          "source": "contextual-retrieval.md#4-add-reranking-only-when-the-trade-off-works"
+        },
+        {
+          "rule": "Treat the published preprocessing cost as a dated estimate under stated assumptions.",
+          "source": "contextual-retrieval.md#5-price-preprocessing-with-the-source-assumptions-visible"
+        }
+      ],
+      "path": "contextual-retrieval.md",
+      "signals": [
+        "rag",
+        "retrieval",
+        "embedding",
+        "bm25",
+        "rerank",
+        "chunk",
+        "vector store"
+      ],
+      "title": "Contextual Retrieval"
+    },
+    {
+      "applies_when": [
         "granting an agent a new power such as merge, send, spend, or deploy",
         "adding or removing a human approval gate",
         "supervising agents takes more time than the work"
