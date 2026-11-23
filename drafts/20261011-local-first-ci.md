@@ -19,13 +19,6 @@ tools cannot produce. This playbook separates local workflow emulation, Git
 hooks, static workflow security checks, dependency updates, and runner
 infrastructure, because they solve different jobs and fail in different ways.
 
-## Approval and scope
-
-The captain's exact approval was "approve the playbook and fix the bridge errors".
-The approved interpretation authorizes playbook capture only. It does not
-authorize GuideX implementation, including fixing the Bridge workflow errors,
-or any merge. Publication requires separately established repository authority.
-
 ## Sources
 
 All external sources were accessed on **2026-10-11**. Version numbers,
@@ -63,14 +56,6 @@ them before acting on a version-sensitive claim.
 - [Dagger README](https://github.com/dagger/dagger#readme),
   [GitHub Actions integration](https://docs.dagger.io/0.21/getting-started/ci-integrations/github-actions/),
   [pricing](https://dagger.io/pricing/)
-- Internal case evidence: *GuideX CI/CD tooling: Bridge-first recommendation*,
-  firstmate research report, 11 October 2026, with its linked budget audit,
-  billing diagnosis, and signing-log audit. The underlying internal research
-  report is not public and is held outside this repository under the captain's
-  approved privacy-preserving exception: "approve the CI playbook internal
-  source note". The supporting reports are also not public. The sanitized,
-  dated [case study](#case-study-guidex-bridge-11-october-2026) summarizes what
-  they support without linking or copying the private reports.
 
 ## At a glance
 
@@ -171,7 +156,7 @@ during review, not a suggestion.
 | Workflow code | Lint for syntax and audit for security. A workflow can be syntactically correct and still unsafe. | actionlint and zizmor check different properties ([actionlint](https://github.com/rhysd/actionlint/blob/main/docs/checks.md), [zizmor](https://docs.zizmor.sh/audits/)). Neither proves application tests are meaningful. |
 | Third-party actions | Treat a file-selection action as an executable dependency. Use reviewed patched commits. Prefer boolean outputs. Keep filenames out of shell-source interpolation. | A high-severity paths-filter advisory affected filename shell escaping; patched versions are 3.0.4 and 4.0.3 ([GHSA-7hc6-8hq5-9q2m](https://github.com/dorny/paths-filter/security/advisories/GHSA-7hc6-8hq5-9q2m)). The separate tj-actions/changed-files compromise shows a selector is supply-chain input; it is not evidence that dorny's project was compromised ([GHSA-mrrh-fwg8-r2c3](https://github.com/advisories/GHSA-mrrh-fwg8-r2c3)). |
 | Local host credentials | Run local emulation in a disposable workspace with no ambient cloud or GitHub credentials, SSH agent, or operator-home mount. | act executes workflow steps. A convenience mount turns a workflow defect into a credential exposure. |
-| Secrets and output | Review secret creation, use, output, and cleanup. `${{ secrets.* }}` references and log masking do not prove a generated file is safe to print. | The [case study](#case-study-guidex-bridge-11-october-2026) records a workflow that printed a generated secret-bearing file while using valid secret references. |
+| Secrets and output | Review secret creation, use, output, and cleanup. `${{ secrets.* }}` references and log masking do not prove a generated file is safe to print. | A workflow can use only valid secret references and still print a generated file that contains secret material. |
 | Pins | A full SHA pins one commit. Review owner, repository, release-to-commit correspondence, and advisory status. | pinact's offline check verifies SHA shape, not provenance or vulnerabilities ([pinact check](https://github.com/suzuki-shunsuke/pinact/blob/main/docs/check.md)). GitHub Actions alerts cover semantic versions, not SHA versions ([GitHub](https://docs.github.com/en/code-security/concepts/supply-chain-security/dependabot-alerts#limitations)). |
 | Update actors | One preparation tool and one recurring update owner. Never two automated writers on the same manifests. Never auto-merge action updates. | pinact prepares new references before merge; a bot maintains accepted references ([GitHub](https://docs.github.com/en/actions/reference/security/secure-use#keeping-the-actions-in-your-workflows-secure-and-up-to-date)). Dependabot security updates use the default branch even when version updates target another branch ([GitHub](https://docs.github.com/en/code-security/reference/supply-chain-security/dependabot-options-reference#target-branch-)). |
 | Caches and artifacts | Separate trusted and untrusted caches. Never promote an unreviewed cache or artifact into a privileged job. | A compromised job can poison what a later privileged job consumes ([GitHub](https://docs.github.com/en/actions/concepts/security/compromised-runners)). |
@@ -248,13 +233,13 @@ Separate three quantities before claiming a saving:
 | Avoided retries | Minutes of a comparable hosted run that a local check demonstrably prevented | Crediting a historical run size without an actual avoided run |
 | Already-paused work | Minutes of heavy workflows that were already disabled before the change | Counting the pause as a new saving from the new tooling |
 
-Worked scenario from the case study, using that repository's historical rounded
-durations: a test workflow run of about 24.5 minutes, a mutation run of 34, a
-deployment of 10. If 20 optional workflow-quality events cost 40 minutes and
-local checks prevent two otherwise-needed test retries, the modeled net is
-49 − 40 = 9 minutes saved. If no retries are avoided, the net is 40 minutes
-added. The numbers are a scenario, not an observed rate. Deployment retries
-are never a pilot experiment.
+Worked scenario with illustrative rounded durations: a test workflow run of
+about 24.5 minutes, a mutation run of 34, a deployment of 10. If 20 optional
+workflow-quality events cost 40 minutes and local checks prevent two
+otherwise-needed test retries, the modeled net is 49 − 40 = 9 minutes saved.
+If no retries are avoided, the net is 40 minutes added. The numbers are a
+scenario, not an observed rate. Deployment retries are never a pilot
+experiment.
 
 Dependabot update generation on standard hosted runners does not consume
 included Actions minutes. Workflows triggered by its changes still do. Larger
@@ -364,46 +349,6 @@ These are conditions, not an installation queue.
 | Dagger | Measured duplication between local and CI pipeline code justifies owning a pipeline abstraction. Its cloud services are optional and separately priced; running it on a hosted runner still consumes that runner's time ([Dagger](https://dagger.io/pricing/)). |
 | Consolidating the optional quality job into a canonical gate | The pilot shows stable findings and a cross-repository rollout is separately scoped. |
 
-## Case study: GuideX Bridge, 11 October 2026
-
-This section records dated observations from one small estate. The source is
-the internal research report named under [Sources](#sources). The report is
-not public and is held outside this repository under the captain's approved
-privacy-preserving exception: "approve the CI playbook internal source note".
-This sanitized, dated case study does not link or copy the private report.
-The observations are labeled `observation`. They are not product facts about
-any tool, and they do not claim that the estate deployed the recommended tooling.
-
-**Context.** Bridge is a Gradle-based service repository in a small
-multi-repository estate. A meta repository distributes one canonical policy
-gate (GX-007) to consumer hooks and CI. The gate checks secrets, tracked locks,
-digests, ticket references, and merge markers on the outgoing commit range.
-Heavy hosted workflows for tests, mutation testing, and deployment were
-manually paused at the time of the report.
-
-| Observation | What it supports | What it does not support |
-| --- | --- | --- |
-| Zero-job startup failures across several repositories traced to an administrative billing restriction, diagnosed from run annotations and account records. | Diagnose administrative rejection independently of source defects. A run that starts no job is not evidence of defective YAML, zero demand, or a runner migration requirement. | Any claim about the current billing state, or that self-hosting would bypass an account-level restriction. |
-| actionlint 1.7.12 on five downloaded workflows reported two errors: an obsolete `setup-gcloud@v1` action runtime, twice in the deployment workflow. ShellCheck and Pyflakes were disabled. | Static lint finds real defects the billing diagnosis could not. The two defects are separate from the billing rejection. They warrant a reviewed runtime update and pin. | Full shell or Python validation of those workflows. The capture of this playbook did not fix the workflows. |
-| A mobile signing workflow printed a generated key properties file. Several returned runs used that command and built successfully. | Secret references and log masking do not prove generated files are safe to print. Review secret creation, use, output, and cleanup. | Unmasked disclosure or key compromise. Neither was established. No rotation conclusion is drawn here. |
-| Ruleset and branch-protection reads returned insufficient permissions. | Hosted merge enforcement must be read by an authorized operator before filtering or enforcement changes. | That merge enforcement exists or does not exist. |
-| The integration branch's gate workflow ran on pull-request events with a read-only token, a short timeout, and cancellation. The default branch's copy remained manual-only and triggered production deployment on push. | Branches are not interchangeable. Update-bot default-branch semantics need a promotion plan first. | Any branch retirement or default-branch change. |
-| Historical rounded job durations: tests about 24.5 minutes per run, mutation 34, deployment 10. | The scenario arithmetic in [Keep baselines honest](#keep-baselines-honest). Current heavy pauses already provide the avoidance; a new tool cannot claim it again. | New benchmarks or savings from installing any tool. |
-
-**Recommended starting set for that estate, as proposed, not implemented:**
-keep GX-007 and direct Gradle tests; add actionlint and zizmor behind one
-repository-owned command; use pinact in reviewed preparation mode; allowlist
-one secretless act job as an optional diagnostic; add one short optional
-hosted workflow-quality job filtered by native `paths`. Defer Dependabot
-activation until the default-branch and promotion boundary is handled. Defer
-hook-framework migration, runner infrastructure, and Dagger.
-
-**Limits of this case.** The report was a read-only scout. No candidate tool
-except the already installed actionlint was executed against project code.
-No workflow was dispatched. No billing was settled, no monitor verified, no
-secret path repaired, and no required-check enforcement proved. The estate's
-canonical harness is internal code; nothing here grants a licence to reuse it.
-
 ## Evidence
 
 Claim classes:
@@ -413,13 +358,11 @@ Claim classes:
 - `practice`: an operating recommendation in this playbook. Validate it in
   your own environment.
 - `proposal`: an option to evaluate. It is not represented as implemented.
-- `observation`: dated internal case evidence from one estate. Not a general
-  product fact.
 
 | Claim | Class | Evidence |
 | --- | --- | --- |
 | Local workflow emulation cannot certify all GitHub controls | `sourced` | act documents missing concurrency, permissions, timeout, environment, and OIDC behavior ([act](https://nektosact.com/not_supported.html)). Do not generalize to every emulator. |
-| A hook manager and a policy implementation are separate responsibilities | `practice` | Supported by [pre-commit stages](https://pre-commit.com/#supported-git-hooks) and [Lefthook](https://lefthook.dev/) capabilities, and by the case study's canonical gate. Not a claim that one manager is best. |
+| A hook manager and a policy implementation are separate responsibilities | `practice` | Supported by [pre-commit stages](https://pre-commit.com/#supported-git-hooks) and [Lefthook](https://lefthook.dev/) capabilities. Not a claim that one manager is best. |
 | Syntax checking and workflow security auditing are complementary | `sourced` + `practice` | [actionlint checks](https://github.com/rhysd/actionlint/blob/main/docs/checks.md), [zizmor audits](https://docs.zizmor.sh/audits/). Recommend both when findings justify the maintenance cost. |
 | Native path filters can skip a whole run but can leave a required check pending | `sourced` | [GitHub path semantics](https://docs.github.com/en/actions/reference/workflows-and-actions/workflow-syntax#onpushpull_requestpull_request_targetpathspaths-ignore). See [Filter events and jobs](#filter-events-and-jobs) for the dated diff limits. |
 | File-selection actions are executable dependencies; filenames are untrusted input | `sourced` + `practice` | [paths-filter README](https://github.com/dorny/paths-filter#readme), [GHSA-7hc6-8hq5-9q2m](https://github.com/dorny/paths-filter/security/advisories/GHSA-7hc6-8hq5-9q2m), [GHSA-mrrh-fwg8-r2c3](https://github.com/advisories/GHSA-mrrh-fwg8-r2c3). The two incidents are distinct. |
@@ -428,10 +371,9 @@ Claim classes:
 | Update generation and update-triggered CI are different costs | `sourced` + inference | [Dependabot compute](https://docs.github.com/en/code-security/concepts/supply-chain-security/dependabot-on-actions#runner-options), [billing](https://docs.github.com/en/billing/concepts/product-billing/github-actions). Measure resulting workflow jobs. |
 | Private repositories do not make persistent self-hosted runners safe | `sourced` + `proposal` | [Runner hardening](https://docs.github.com/en/actions/reference/security/secure-use#hardening-for-self-hosted-runners), [compromised runners](https://docs.github.com/en/actions/concepts/security/compromised-runners), [ephemeral runners](https://docs.github.com/en/actions/reference/runners/self-hosted-runners#ephemeral-runners-for-autoscaling). The design table is proposed controls. |
 | Pipeline portability requires a pipeline abstraction, not YAML emulation | `sourced` + `practice` | [Dagger](https://github.com/dagger/dagger#readme), [GitHub integration](https://docs.dagger.io/0.21/getting-started/ci-integrations/github-actions/). No automatic cost-saving claim. |
-| Diagnose administrative startup rejection independently of source defects | `observation` | Case study, billing diagnosis and local actionlint result. Captures the method, not payment detail. |
-| Secret references and log masking do not prove generated files are safe to print | `observation` | Case study, signing-log audit. "Unsafe output found; unmasked disclosure not established." |
-| Savings must separate observed use, avoided retries, and already-paused work | `practice` + `observation` | [Runner rounding](https://docs.github.com/en/billing/reference/actions-runner-pricing), case study durations. Zero paid amount is not zero consumption. |
-| The recommended starting set for the case estate | `proposal` | Case study. Not implemented by this capture. |
+| Diagnose administrative startup rejection independently of source defects | `practice` | A run that starts no job is not evidence of defective YAML. Lint the workflows separately. |
+| Secret references and log masking do not prove generated files are safe to print | `practice` | Review secret creation, use, output, and cleanup, not only secret references. |
+| Savings must separate observed use, avoided retries, and already-paused work | `practice` | [Runner rounding](https://docs.github.com/en/billing/reference/actions-runner-pricing). Zero paid amount is not zero consumption. |
 
 ## Limits
 
@@ -442,12 +384,6 @@ against the honest-baselines table.
 Version numbers, advisory patch levels, pricing tiers, and documented limits
 describe 2026-10-11. The [appendix](#appendix-observed-versions-and-licences-2026-10-11)
 is a dated snapshot, not a current-version claim.
-
-The case study is one estate's read-only scout. It does not establish that the
-estate adopted any tool, settled billing, repaired secret output, rotated keys,
-enabled a monitor, or enforces required checks. It contains no logs, secret
-values, identifiers, billing records, or access lists, and it links no private
-repository.
 
 This playbook is not a production runbook. It contains no runner registration
 commands, identity and access changes, key rotation procedure, or deployment
@@ -461,8 +397,8 @@ before promotion from `drafts/`.
 - **Owner:** the repository owner, as for every playbook here.
 - **Review triggers:** a major release of act, actionlint, or zizmor; a change
   to GitHub's path-filter, required-check, Dependabot alert, or runner pricing
-  documentation; a new advisory against any action named here; or new case
-  evidence that contradicts an `observation` row.
+  documentation; a new advisory against any action named here; or new
+  evidence that contradicts a claim here.
 - **On review:** reaccess every source, update the access date, refresh the
   appendix, and move any superseded claim to the Limits section rather than
   deleting its history.
@@ -498,10 +434,10 @@ before promotion from `drafts/`.
 Repository metadata read on 2026-10-11. None of the upstream repositories was
 archived or disabled. Release recency is a maintenance signal, not a security
 warranty. Licence identifiers are repository metadata; dependencies and service
-terms need their own review. The disposition column is the case study's
-proposal for one estate, not a general ranking.
+terms need their own review. The disposition column is an example
+proposal for a small repository estate, not a general ranking.
 
-| Candidate | Latest release observed | Licence | Case-study disposition |
+| Candidate | Latest release observed | Licence | Example disposition |
 | --- | --- | --- | --- |
 | [act](https://github.com/nektos/act/releases/tag/v0.2.89) | v0.2.89, 2026-06-01 | MIT | Adopt as optional diagnostic, one selected secretless job |
 | [runner.server](https://github.com/ChristopherHX/runner.server/releases/tag/v3.14.0) | v3.14.0, 2026-01-24 | MIT | Defer |

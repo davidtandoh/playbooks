@@ -1,0 +1,9 @@
+repos:
+  - repo: local
+    hooks:
+      - id: private-terms
+        name: Block private names in Markdown
+        entry: python3 scripts/private_terms.py scan
+        language: system
+        pass_filenames: false
+        files: \.md$
