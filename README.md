@@ -70,6 +70,19 @@ front matter will adopt it in a separate change.
   A practice page that is still a draft says `status: draft` in its front matter.
   Practice pages link to playbook sections instead of repeating them.
 
+## Private-term check
+
+With Python 3 and pre-commit available, run `pre-commit install` in your clone
+to enable the configured commit hook. Run `python3 scripts/private_terms.py scan`
+for a manual check. A match produces a file and line number and a nonzero exit
+status; the output omits the matched text.
+
+Keep private terms out of repository files, including tests and comments.
+To extend the denylist, run `python3 scripts/private_terms.py add '<term>'`
+locally and add only the printed digest to `DENIED_DIGESTS`. Use synthetic
+terms in tests. See [the scanner's module documentation](scripts/private_terms.py)
+for normalization, phrase limits, and scan scope.
+
 ## License
 
 [MIT](LICENSE). Each playbook and practice credits its sources; quoted or adapted

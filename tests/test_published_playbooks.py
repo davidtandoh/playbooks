@@ -51,7 +51,8 @@ PRACTICE_SECTIONS = (
     "Claim review",
     "Privacy review",
 )
-PRIVATE_TERMS = ("omnigent", "firstmate", "mlflow")
+# Private names are denied by digest in scripts/private_terms.py.
+PRIVATE_TERMS: tuple[str, ...] = ()
 LINK_PATTERN = re.compile(r"\[[^\]]*\]\(([^)\s]+)\)")
 APPROVED_CATEGORIES = (
     "AI-assisted engineering & software factories",
