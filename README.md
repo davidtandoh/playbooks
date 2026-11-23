@@ -221,7 +221,8 @@ published.
 
 ## Conventions
 
-- Keep each published playbook in one Markdown file at the repo root.
+- Keep each published standalone playbook in one Markdown file at the repo root.
+  Practice pages stay in their practice set, as described below.
 - Every playbook cites its primary sources up top.
 - Favor tables, checklists, and rules-of-thumb over prose — these are references, not essays.
 - Update the index above when adding a playbook.

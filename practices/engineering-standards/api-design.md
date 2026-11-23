@@ -169,9 +169,9 @@ Checks: `paths-kebab-case`, `paths-no-verbs`, `properties-snake-case`, and
   compatibility guidance), which is what lets additive changes stay
   non-breaking.
 
-Check: `oasdiff breaking` against the base branch, with `--fail-on ERR`.
-`--fail-on ERR` ignores WARN-level changes, such as removing a request
-parameter; use `--fail-on WARN` to block them too.
+Check: `oasdiff breaking` against the base branch. See
+[OpenAPI-first with Spectral and oasdiff](#openapi-first-with-spectral-and-oasdiff)
+for the command and failure thresholds.
 
 ### Errors with RFC 9457
 
@@ -269,8 +269,9 @@ Check: `updates-if-match`.
   security alternative must name at least one scheme; an empty requirement
   object permits anonymous access and fails unless the operation is public.
 - If a client exceeds its limit, then return 429 with `Retry-After`. RFC 6585
-  makes `Retry-After` optional; this page requires it. Advertise the limit with the `RateLimit` and `RateLimit-Policy`
-  fields from the IETF draft once your gateway supports them.
+  makes `Retry-After` optional; this page requires it. Advertise the limit
+  with the `RateLimit` and `RateLimit-Policy` fields from the IETF draft once
+  your gateway supports them.
 - If the service is overloaded or in maintenance, then return 503 with
   `Retry-After` (RFC 9110).
 
