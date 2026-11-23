@@ -1,9 +1,9 @@
-"""Block private names from Markdown without publishing those names.
+"""Block private names from tracked text files without publishing those names.
 
 The denylist holds only SHA-256 digests of normalized terms. A term is
 normalized by lowercasing it and joining its alphanumeric tokens with single
 spaces, so "Foo-Bar" and "foo bar" share one digest. The scanner hashes every
-one-, two- and three-token phrase in each Markdown file and reports the
+one-, two- and three-token phrase in each tracked text file and reports the
 file and line of a match, never the matched text.
 
 Usage:
@@ -13,11 +13,14 @@ Usage:
 
 from __future__ import annotations
 
+import argparse
 import hashlib
 import pathlib
 import re
+import subprocess
 import sys
 from collections.abc import Iterable, Iterator
+from typing import Optional
 
 
 REPOSITORY_ROOT = pathlib.Path(__file__).resolve().parents[1]
@@ -41,7 +44,10 @@ DENIED_DIGESTS = frozenset(
 
 def digest(term: str) -> str:
     """Return the denylist digest for a term or phrase."""
-    normalized = " ".join(TOKEN_PATTERN.findall(term.lower()))
+    tokens = TOKEN_PATTERN.findall(term.lower())
+    if len(tokens) > MAX_PHRASE_TOKENS:
+        raise ValueError(f"term exceeds {MAX_PHRASE_TOKENS} tokens")
+    normalized = " ".join(tokens)
     if not normalized:
         raise ValueError("term has no letters or digits")
     return hashlib.sha256(normalized.encode("utf-8")).hexdigest()
@@ -69,39 +75,66 @@ def matching_lines(text: str, denied: Iterable[str] = DENIED_DIGESTS) -> list[in
     return sorted(lines)
 
 
-def markdown_files(root: pathlib.Path = REPOSITORY_ROOT) -> list[pathlib.Path]:
-    return sorted(
-        path
-        for path in root.rglob("*.md")
-        if ".git" not in path.relative_to(root).parts
+def tracked_files(root: pathlib.Path = REPOSITORY_ROOT) -> list[pathlib.Path]:
+    result = subprocess.run(
+        ["git", "ls-files", "--cached", "-z"],
+        cwd=root,
+        stdout=subprocess.PIPE,
+        stderr=subprocess.PIPE,
+        check=True,
     )
+    return sorted(
+        root / pathlib.Path(name.decode("utf-8", errors="surrogateescape"))
+        for name in set(result.stdout.split(b"\0"))
+        if name and name != b"scripts/private_terms.py"
+    )
+
+
+def read_tracked_text(path: pathlib.Path) -> Optional[str]:
+    if path.is_symlink():
+        raise ValueError("tracked symlink cannot be scanned")
+    with path.open("rb") as source:
+        content = source.read(16 * 1024 * 1024 + 1)
+    if len(content) > 16 * 1024 * 1024:
+        raise ValueError("tracked file exceeds scan byte limit")
+    if b"\0" in content:
+        return None
+    return content.decode("utf-8", errors="surrogateescape")
 
 
 def scan(
     root: pathlib.Path = REPOSITORY_ROOT, denied: Iterable[str] = DENIED_DIGESTS
 ) -> list[str]:
-    """Return "path:line" findings for every Markdown file under root."""
+    """Return "path:line" findings for every tracked text file under root."""
     findings = []
-    for path in markdown_files(root):
+    for path in tracked_files(root):
         relative = path.relative_to(root)
-        for line_number in matching_lines(
-            path.read_text(encoding="utf-8"), denied
-        ):
+        text = read_tracked_text(path)
+        if text is None:
+            continue
+        for line_number in matching_lines(text, denied):
             findings.append(f"{relative}:{line_number}")
     return findings
 
 
 def main(argv: list[str]) -> int:
-    if len(argv) == 2 and argv[0] == "add":
-        print(digest(argv[1]))
+    parser = argparse.ArgumentParser(description=__doc__)
+    commands = parser.add_subparsers(dest="command", required=True)
+    add = commands.add_parser("add")
+    add.add_argument("term")
+    commands.add_parser("scan")
+    args = parser.parse_args(argv)
+    if args.command == "add":
+        try:
+            value = digest(args.term)
+        except ValueError as error:
+            parser.error(str(error))
+        print(value)
         return 0
-    if argv == ["scan"]:
-        findings = scan()
-        for finding in findings:
-            print(f"{finding}: denied private term", file=sys.stderr)
-        return 1 if findings else 0
-    print(__doc__.strip(), file=sys.stderr)
-    return 2
+    findings = scan()
+    for finding in findings:
+        print(f"{finding}: denied private term", file=sys.stderr)
+    return 1 if findings else 0
 
 
 if __name__ == "__main__":
