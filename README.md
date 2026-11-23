@@ -30,7 +30,7 @@ front matter will adopt it in a separate change.
 
 | Playbook | Topics | What it covers |
 | --- | --- | --- |
-| [Contextual Retrieval (draft)](drafts/20261003-contextual-retrieval.md) | `retrieval` `evals` `cost` | When to add chunk context, combine embeddings with BM25, and test reranking |
+| [Contextual Retrieval](contextual-retrieval.md) | `retrieval` `evals` `cost` | When to add chunk context, combine embeddings with BM25, and test reranking |
 
 <!-- playbook-taxonomy:v1:begin -->
 ### Categories
@@ -93,6 +93,17 @@ published.
   4. Grade outcomes, not paths. ([source](building-reliable-agents.md#grade-the-outcome-not-the-path))
   5. Contain at the environment layer first and steer at the model layer second. ([source](building-reliable-agents.md#0-the-rules-in-one-screen))
   6. Keep prompt and response content capture opt-in. ([source](building-reliable-agents.md#content-capture-is-privacy-by-default-opt-in))
+
+**[Contextual Retrieval](contextual-retrieval.md)**
+
+- Applies when: building or changing a retrieval-augmented generation pipeline; chunked documents lose context needed to retrieve them; deciding whether to add BM25, reranking, or full-context prompting.
+- Signals: `rag`, `retrieval`, `embedding`, `bm25`, `rerank`, `chunk`, `vector store`.
+- Key rules:
+  1. Test putting the whole knowledge base in a cached prompt before building retrieval when it is under 200,000 tokens. ([source](contextual-retrieval.md#1-start-with-the-simplest-prompt-that-fits))
+  2. Generate context from the complete document and one target chunk, and prepend it before both the embedding and BM25 indexes. ([source](contextual-retrieval.md#2-generate-context-once-per-chunk))
+  3. Build a local eval set before choosing the embedding model, fusion settings, chunk shape, or reranker. ([source](contextual-retrieval.md#3-evaluate-the-combined-retriever))
+  4. Add reranking only when the quality gain justifies the added latency and cost. ([source](contextual-retrieval.md#4-add-reranking-only-when-the-trade-off-works))
+  5. Treat the published preprocessing cost as a dated estimate under stated assumptions. ([source](contextual-retrieval.md#5-price-preprocessing-with-the-source-assumptions-visible))
 
 **[Autonomy and approval gates](practices/agentic-sre/autonomy-and-approval.md)**
 

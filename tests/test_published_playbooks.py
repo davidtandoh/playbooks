@@ -23,12 +23,9 @@ from playbook_index import (  # noqa: E402
 PUBLISHED_PLAYBOOKS = (
     REPOSITORY_ROOT / "building-ai-agents.md",
     REPOSITORY_ROOT / "building-reliable-agents.md",
+    REPOSITORY_ROOT / "contextual-retrieval.md",
 )
 TAXONOMY_DRAFTS = {
-    REPOSITORY_ROOT / "drafts" / "20261003-contextual-retrieval.md": (
-        "Enterprise AI platform",
-        ["retrieval", "evals", "cost"],
-    ),
     REPOSITORY_ROOT / "drafts" / "20261011-local-first-ci.md": (
         "AI-assisted engineering & software factories",
         ["delivery-gates", "verification", "security-and-privacy", "cost"],
