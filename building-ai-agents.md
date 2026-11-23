@@ -15,12 +15,12 @@ signals:
   - multi-agent
   - system prompt
 key_rules:
-  - Build an agent only when a single call or a workflow fails the four-criterion gate.
-  - Key loop termination off the structured stop signal; keep the iteration cap as a backstop only.
-  - Give each agent a narrow tool surface; do not give every agent every tool.
-  - Give tools when-to-call descriptions, strict schemas, and structured errors.
-  - Coordinate multiple agents through a task queue and structured shared state, never direct hand-offs.
-  - Validate output at every hand-off and keep a rollback for bad outputs.
+  - Build an agent only when the task passes all four gate criteria; otherwise use a single call or a workflow. (#1-gate-should-you-even-build-an-agent)
+  - Key loop termination off the structured stop signal; keep the iteration cap as a backstop only. (#2-the-atomic-unit-the-react-loop)
+  - Give each agent a narrow tool surface; do not give every agent every tool. (#core-shape-orchestrator--workers)
+  - Give tools when-to-call descriptions, strict schemas, and structured errors. (#8-build-checklist)
+  - Coordinate multiple agents through a task queue and structured shared state, never direct hand-offs. (#communicate-through-a-task-queue-not-direct-hand-offs)
+  - Validate output at every hand-off and keep a rollback for bad outputs. (#7-anti-patterns-memorize-these--theyre-also-exam-bait)
 ---
 
 # Playbook: Building AI Agents

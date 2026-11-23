@@ -16,12 +16,12 @@ signals:
   - sandbox
   - token budget
 key_rules:
-  - Start with the simplest thing and add autonomy only when it demonstrably improves outcomes.
-  - Treat context as finite and degrading; curate it instead of filling it.
-  - Instrument cost per task, not just accuracy.
-  - Grade outcomes, not paths.
-  - Contain at the environment layer first and steer at the model layer second.
-  - Keep prompt and response content capture opt-in.
+  - Start with the simplest thing and add autonomy only when it demonstrably improves outcomes. (#0-the-rules-in-one-screen)
+  - Treat context as finite and degrading; curate it instead of filling it. (#the-core-mental-model-context-is-finite-and-degrading)
+  - Instrument cost per task, not just accuracy. (#measure-cost-per-task-not-just-accuracy)
+  - Grade outcomes, not paths. (#grade-the-outcome-not-the-path)
+  - Contain at the environment layer first and steer at the model layer second. (#0-the-rules-in-one-screen)
+  - Keep prompt and response content capture opt-in. (#content-capture-is-privacy-by-default-opt-in)
 ---
 
 # Playbook: Building Reliable Agents

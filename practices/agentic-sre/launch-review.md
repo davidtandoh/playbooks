@@ -17,11 +17,11 @@ signals:
   - readiness review
   - go-live
 key_rules:
-  - Define the critical user journeys and what correct means for each.
-  - Give every agent feature a fallback without the model.
-  - Review SLOs, autonomy, blast radius, evals, tracing, drift, and incident roles together.
-  - Keep a failure-mode table, a rollback, and degraded modes.
-  - Design reliability in before launch; adding it later costs more.
+  - Define the critical user journeys and what correct means for each. (#checklist)
+  - Give every agent feature a fallback without the model. (#rules-of-thumb)
+  - Review SLOs, autonomy, blast radius, evals, tracing, drift, and incident roles together. (#at-a-glance)
+  - Keep a failure-mode table, a rollback, and degraded modes. (#checklist)
+  - Design reliability in before launch; adding it later costs more. (#rules-of-thumb)
 ---
 # Launch review for agentic products
 

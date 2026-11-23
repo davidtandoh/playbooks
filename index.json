@@ -7,12 +7,30 @@
         "splitting work across multiple agents"
       ],
       "key_rules": [
-        "Build an agent only when a single call or a workflow fails the four-criterion gate.",
-        "Key loop termination off the structured stop signal; keep the iteration cap as a backstop only.",
-        "Give each agent a narrow tool surface; do not give every agent every tool.",
-        "Give tools when-to-call descriptions, strict schemas, and structured errors.",
-        "Coordinate multiple agents through a task queue and structured shared state, never direct hand-offs.",
-        "Validate output at every hand-off and keep a rollback for bad outputs."
+        {
+          "rule": "Build an agent only when the task passes all four gate criteria; otherwise use a single call or a workflow.",
+          "source": "building-ai-agents.md#1-gate-should-you-even-build-an-agent"
+        },
+        {
+          "rule": "Key loop termination off the structured stop signal; keep the iteration cap as a backstop only.",
+          "source": "building-ai-agents.md#2-the-atomic-unit-the-react-loop"
+        },
+        {
+          "rule": "Give each agent a narrow tool surface; do not give every agent every tool.",
+          "source": "building-ai-agents.md#core-shape-orchestrator--workers"
+        },
+        {
+          "rule": "Give tools when-to-call descriptions, strict schemas, and structured errors.",
+          "source": "building-ai-agents.md#8-build-checklist"
+        },
+        {
+          "rule": "Coordinate multiple agents through a task queue and structured shared state, never direct hand-offs.",
+          "source": "building-ai-agents.md#communicate-through-a-task-queue-not-direct-hand-offs"
+        },
+        {
+          "rule": "Validate output at every hand-off and keep a rollback for bad outputs.",
+          "source": "building-ai-agents.md#7-anti-patterns-memorize-these--theyre-also-exam-bait"
+        }
       ],
       "path": "building-ai-agents.md",
       "signals": [
@@ -32,12 +50,30 @@
         "handling untrusted input or prompt injection in an agent"
       ],
       "key_rules": [
-        "Start with the simplest thing and add autonomy only when it demonstrably improves outcomes.",
-        "Treat context as finite and degrading; curate it instead of filling it.",
-        "Instrument cost per task, not just accuracy.",
-        "Grade outcomes, not paths.",
-        "Contain at the environment layer first and steer at the model layer second.",
-        "Keep prompt and response content capture opt-in."
+        {
+          "rule": "Start with the simplest thing and add autonomy only when it demonstrably improves outcomes.",
+          "source": "building-reliable-agents.md#0-the-rules-in-one-screen"
+        },
+        {
+          "rule": "Treat context as finite and degrading; curate it instead of filling it.",
+          "source": "building-reliable-agents.md#the-core-mental-model-context-is-finite-and-degrading"
+        },
+        {
+          "rule": "Instrument cost per task, not just accuracy.",
+          "source": "building-reliable-agents.md#measure-cost-per-task-not-just-accuracy"
+        },
+        {
+          "rule": "Grade outcomes, not paths.",
+          "source": "building-reliable-agents.md#grade-the-outcome-not-the-path"
+        },
+        {
+          "rule": "Contain at the environment layer first and steer at the model layer second.",
+          "source": "building-reliable-agents.md#0-the-rules-in-one-screen"
+        },
+        {
+          "rule": "Keep prompt and response content capture opt-in.",
+          "source": "building-reliable-agents.md#content-capture-is-privacy-by-default-opt-in"
+        }
       ],
       "path": "building-reliable-agents.md",
       "signals": [
@@ -58,11 +94,26 @@
         "supervising agents takes more time than the work"
       ],
       "key_rules": [
-        "Grant no agent full access on day one.",
-        "Record the autonomy level per action type, not one level per agent.",
-        "Start at L2 for critical operations and L3 for minor incidents.",
-        "Write measurable promotion criteria and wire automatic demotion to live risk signals.",
-        "Count approval clicks, re-prompts, and clean-up of agent output as toil."
+        {
+          "rule": "Grant no agent full access on day one.",
+          "source": "practices/agentic-sre/autonomy-and-approval.md#rules-of-thumb"
+        },
+        {
+          "rule": "Record the autonomy level per action type, not one level per agent.",
+          "source": "practices/agentic-sre/autonomy-and-approval.md#rules-of-thumb"
+        },
+        {
+          "rule": "Start at L2 for critical operations and L3 for minor incidents.",
+          "source": "practices/agentic-sre/autonomy-and-approval.md#at-a-glance"
+        },
+        {
+          "rule": "Write measurable promotion criteria and wire automatic demotion to live risk signals.",
+          "source": "practices/agentic-sre/autonomy-and-approval.md#checklist"
+        },
+        {
+          "rule": "Count approval clicks, re-prompts, and clean-up of agent output as toil.",
+          "source": "practices/agentic-sre/autonomy-and-approval.md#rules-of-thumb"
+        }
       ],
       "path": "practices/agentic-sre/autonomy-and-approval.md",
       "signals": [
@@ -80,12 +131,30 @@
         "an agent can write, spend, or reach outside systems"
       ],
       "key_rules": [
-        "Keep authorization downstream of the model; a system prompt is not a control.",
-        "Give each agent its own short-lived, scoped credentials; no shared or developer credentials.",
-        "Cap tokens, cost, tool calls, wall-clock time, and delegation depth per task.",
-        "Dry-run mutating calls before production state changes.",
-        "Stop an agent with a circuit breaker after repeated consecutive failures.",
-        "Keep an emergency stop that pauses in-flight actions, blocks new ones, and revokes L3 permissions fleet-wide."
+        {
+          "rule": "Keep authorization downstream of the model; a system prompt is not a control.",
+          "source": "practices/agentic-sre/blast-radius.md#rules-of-thumb"
+        },
+        {
+          "rule": "Give each agent its own short-lived, scoped credentials; no shared or developer credentials.",
+          "source": "practices/agentic-sre/blast-radius.md#at-a-glance"
+        },
+        {
+          "rule": "Cap tokens, cost, tool calls, wall-clock time, and delegation depth per task.",
+          "source": "practices/agentic-sre/blast-radius.md#at-a-glance"
+        },
+        {
+          "rule": "Dry-run mutating calls before production state changes.",
+          "source": "practices/agentic-sre/blast-radius.md#at-a-glance"
+        },
+        {
+          "rule": "Stop an agent with a circuit breaker after repeated consecutive failures.",
+          "source": "practices/agentic-sre/blast-radius.md#at-a-glance"
+        },
+        {
+          "rule": "Keep an emergency stop that pauses in-flight actions, blocks new ones, and revokes L3 permissions fleet-wide.",
+          "source": "practices/agentic-sre/blast-radius.md#at-a-glance"
+        }
       ],
       "path": "practices/agentic-sre/blast-radius.md",
       "signals": [
@@ -104,11 +173,26 @@
         "trusting an old eval or a model judge"
       ],
       "key_rules": [
-        "Do not trust a judge that has never been compared with human labels.",
-        "Offline evals alone do not detect drift.",
-        "Watch input mix, model version, tool errors, tokens per task, judge agreement, and calibration.",
-        "Tier labels as bronze, silver, and gold.",
-        "Read traces until you stop learning new failure types."
+        {
+          "rule": "Do not trust a judge that has never been compared with human labels.",
+          "source": "practices/agentic-sre/drift.md#rules-of-thumb"
+        },
+        {
+          "rule": "Offline evals alone do not detect drift.",
+          "source": "practices/agentic-sre/drift.md#rules-of-thumb"
+        },
+        {
+          "rule": "Watch input mix, model version, tool errors, tokens per task, judge agreement, and calibration.",
+          "source": "practices/agentic-sre/drift.md#at-a-glance"
+        },
+        {
+          "rule": "Tier labels as bronze, silver, and gold.",
+          "source": "practices/agentic-sre/drift.md#at-a-glance"
+        },
+        {
+          "rule": "Read traces until you stop learning new failure types.",
+          "source": "practices/agentic-sre/drift.md#rules-of-thumb"
+        }
       ],
       "path": "practices/agentic-sre/drift.md",
       "signals": [
@@ -127,11 +211,26 @@
         "an AI product gives harmful output"
       ],
       "key_rules": [
-        "A human is the incident commander, never an agent.",
-        "Agents investigate read-only and propose; the incident commander decides.",
-        "Make every change through one actuation path with pre-flight checks.",
-        "Mitigate first; do not root-cause while damage continues.",
-        "Do not lose transcripts before analysis."
+        {
+          "rule": "A human is the incident commander, never an agent.",
+          "source": "practices/agentic-sre/incidents.md#at-a-glance"
+        },
+        {
+          "rule": "Agents investigate read-only and propose; the incident commander decides.",
+          "source": "practices/agentic-sre/incidents.md#at-a-glance"
+        },
+        {
+          "rule": "Make every change through one actuation path with pre-flight checks.",
+          "source": "practices/agentic-sre/incidents.md#at-a-glance"
+        },
+        {
+          "rule": "Mitigate first; do not root-cause while damage continues.",
+          "source": "practices/agentic-sre/incidents.md#rules-of-thumb"
+        },
+        {
+          "rule": "Do not lose transcripts before analysis.",
+          "source": "practices/agentic-sre/incidents.md#rules-of-thumb"
+        }
       ],
       "path": "practices/agentic-sre/incidents.md",
       "signals": [
@@ -149,11 +248,26 @@
         "signing off reliability before build or before launch"
       ],
       "key_rules": [
-        "Define the critical user journeys and what correct means for each.",
-        "Give every agent feature a fallback without the model.",
-        "Review SLOs, autonomy, blast radius, evals, tracing, drift, and incident roles together.",
-        "Keep a failure-mode table, a rollback, and degraded modes.",
-        "Design reliability in before launch; adding it later costs more."
+        {
+          "rule": "Define the critical user journeys and what correct means for each.",
+          "source": "practices/agentic-sre/launch-review.md#checklist"
+        },
+        {
+          "rule": "Give every agent feature a fallback without the model.",
+          "source": "practices/agentic-sre/launch-review.md#rules-of-thumb"
+        },
+        {
+          "rule": "Review SLOs, autonomy, blast radius, evals, tracing, drift, and incident roles together.",
+          "source": "practices/agentic-sre/launch-review.md#at-a-glance"
+        },
+        {
+          "rule": "Keep a failure-mode table, a rollback, and degraded modes.",
+          "source": "practices/agentic-sre/launch-review.md#checklist"
+        },
+        {
+          "rule": "Design reliability in before launch; adding it later costs more.",
+          "source": "practices/agentic-sre/launch-review.md#rules-of-thumb"
+        }
       ],
       "path": "practices/agentic-sre/launch-review.md",
       "signals": [
@@ -170,11 +284,26 @@
         "computing reliability indicators from agent traces"
       ],
       "key_rules": [
-        "Measure tasks, not spans.",
-        "Compute tool error rate from execute_tool spans with error.type set.",
-        "Include failed and retried attempts in tokens and cost per task.",
-        "Pin the GenAI and MCP convention version you implement and recheck it before an upgrade.",
-        "Do not let reliability data become a data-leak path."
+        {
+          "rule": "Measure tasks, not spans.",
+          "source": "practices/agentic-sre/observability.md#rules-of-thumb"
+        },
+        {
+          "rule": "Compute tool error rate from execute_tool spans with error.type set.",
+          "source": "practices/agentic-sre/observability.md#at-a-glance"
+        },
+        {
+          "rule": "Include failed and retried attempts in tokens and cost per task.",
+          "source": "practices/agentic-sre/observability.md#at-a-glance"
+        },
+        {
+          "rule": "Pin the GenAI and MCP convention version you implement and recheck it before an upgrade.",
+          "source": "practices/agentic-sre/observability.md#rules-of-thumb"
+        },
+        {
+          "rule": "Do not let reliability data become a data-leak path.",
+          "source": "practices/agentic-sre/observability.md#rules-of-thumb"
+        }
       ],
       "path": "practices/agentic-sre/observability.md",
       "signals": [
@@ -192,11 +321,26 @@
         "writing up an agent incident or a notable bad output"
       ],
       "key_rules": [
-        "Stay blameless for humans and agents alike.",
-        "Build the timeline from traces, not memory.",
-        "Classify each incident with one OWASP agentic risk category.",
-        "Add a regression eval case; a postmortem without one is incomplete.",
-        "Give every action item an owner."
+        {
+          "rule": "Stay blameless for humans and agents alike.",
+          "source": "practices/agentic-sre/postmortems.md#rules-of-thumb"
+        },
+        {
+          "rule": "Build the timeline from traces, not memory.",
+          "source": "practices/agentic-sre/postmortems.md#at-a-glance"
+        },
+        {
+          "rule": "Classify each incident with one OWASP agentic risk category.",
+          "source": "practices/agentic-sre/postmortems.md#at-a-glance"
+        },
+        {
+          "rule": "Add a regression eval case; a postmortem without one is incomplete.",
+          "source": "practices/agentic-sre/postmortems.md#rules-of-thumb"
+        },
+        {
+          "rule": "Give every action item an owner.",
+          "source": "practices/agentic-sre/postmortems.md#rules-of-thumb"
+        }
       ],
       "path": "practices/agentic-sre/postmortems.md",
       "signals": [
@@ -212,12 +356,30 @@
         "changing a model, system prompt, skill, tool schema, or agent framework version"
       ],
       "key_rules": [
-        "Version prompts, skills, model ids, tool schemas, and harness versions, and record each on every trace.",
-        "Gate each release per slice against the last known-good baseline.",
-        "Canary on one worker pool or a small share of traffic and compare SLIs per version.",
-        "Abort on quality regression even when infrastructure looks healthy.",
-        "Do not swap models in one big step.",
-        "Add incident cases to the eval set so it does not go stale."
+        {
+          "rule": "Version prompts, skills, model ids, tool schemas, and harness versions, and record each on every trace.",
+          "source": "practices/agentic-sre/releases.md#at-a-glance"
+        },
+        {
+          "rule": "Gate each release per slice against the last known-good baseline.",
+          "source": "practices/agentic-sre/releases.md#at-a-glance"
+        },
+        {
+          "rule": "Canary on one worker pool or a small share of traffic and compare SLIs per version.",
+          "source": "practices/agentic-sre/releases.md#at-a-glance"
+        },
+        {
+          "rule": "Abort on quality regression even when infrastructure looks healthy.",
+          "source": "practices/agentic-sre/releases.md#at-a-glance"
+        },
+        {
+          "rule": "Do not swap models in one big step.",
+          "source": "practices/agentic-sre/releases.md#rules-of-thumb"
+        },
+        {
+          "rule": "Add incident cases to the eval set so it does not go stale.",
+          "source": "practices/agentic-sre/releases.md#rules-of-thumb"
+        }
       ],
       "path": "practices/agentic-sre/releases.md",
       "signals": [
@@ -237,11 +399,26 @@
         "planning agent capacity, provider quotas, or cost"
       ],
       "key_rules": [
-        "Uptime alone is not an SLO for an agent.",
-        "Use pass or fail indicators, not one-to-ten judge scores.",
-        "Set targets per consequence tier and alert on burn rate over two windows.",
-        "Count retries in cost.",
-        "Discover provider quotas in a load test, not in an incident."
+        {
+          "rule": "Uptime alone is not an SLO for an agent.",
+          "source": "practices/agentic-sre/slos-and-error-budgets.md#rules-of-thumb"
+        },
+        {
+          "rule": "Use pass or fail indicators, not one-to-ten judge scores.",
+          "source": "practices/agentic-sre/slos-and-error-budgets.md#rules-of-thumb"
+        },
+        {
+          "rule": "Set targets per consequence tier and alert on burn rate over two windows.",
+          "source": "practices/agentic-sre/slos-and-error-budgets.md#checklist"
+        },
+        {
+          "rule": "Count retries in cost.",
+          "source": "practices/agentic-sre/slos-and-error-budgets.md#rules-of-thumb"
+        },
+        {
+          "rule": "Discover provider quotas in a load test, not in an incident.",
+          "source": "practices/agentic-sre/slos-and-error-budgets.md#rules-of-thumb"
+        }
       ],
       "path": "practices/agentic-sre/slos-and-error-budgets.md",
       "signals": [

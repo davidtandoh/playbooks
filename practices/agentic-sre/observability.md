@@ -18,11 +18,11 @@ signals:
   - trace
   - mcp
 key_rules:
-  - Measure tasks, not spans.
-  - Compute tool error rate from execute_tool spans with error.type set.
-  - Include failed and retried attempts in tokens and cost per task.
-  - Pin the GenAI and MCP convention version you implement and recheck it before an upgrade.
-  - Do not let reliability data become a data-leak path.
+  - Measure tasks, not spans. (#rules-of-thumb)
+  - Compute tool error rate from execute_tool spans with error.type set. (#at-a-glance)
+  - Include failed and retried attempts in tokens and cost per task. (#at-a-glance)
+  - Pin the GenAI and MCP convention version you implement and recheck it before an upgrade. (#rules-of-thumb)
+  - Do not let reliability data become a data-leak path. (#rules-of-thumb)
 ---
 # Observability: SLIs from traces
 

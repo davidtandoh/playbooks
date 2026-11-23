@@ -18,11 +18,11 @@ signals:
   - on-call
   - kill switch
 key_rules:
-  - A human is the incident commander, never an agent.
-  - Agents investigate read-only and propose; the incident commander decides.
-  - Make every change through one actuation path with pre-flight checks.
-  - Mitigate first; do not root-cause while damage continues.
-  - Do not lose transcripts before analysis.
+  - A human is the incident commander, never an agent. (#at-a-glance)
+  - Agents investigate read-only and propose; the incident commander decides. (#at-a-glance)
+  - Make every change through one actuation path with pre-flight checks. (#at-a-glance)
+  - Mitigate first; do not root-cause while damage continues. (#rules-of-thumb)
+  - Do not lose transcripts before analysis. (#rules-of-thumb)
 ---
 # Incident response for agent systems
 

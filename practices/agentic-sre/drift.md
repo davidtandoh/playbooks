@@ -19,11 +19,11 @@ signals:
   - model version
   - quality dashboard
 key_rules:
-  - Do not trust a judge that has never been compared with human labels.
-  - Offline evals alone do not detect drift.
-  - Watch input mix, model version, tool errors, tokens per task, judge agreement, and calibration.
-  - Tier labels as bronze, silver, and gold.
-  - Read traces until you stop learning new failure types.
+  - Do not trust a judge that has never been compared with human labels. (#rules-of-thumb)
+  - Offline evals alone do not detect drift. (#rules-of-thumb)
+  - Watch input mix, model version, tool errors, tokens per task, judge agreement, and calibration. (#at-a-glance)
+  - Tier labels as bronze, silver, and gold. (#at-a-glance)
+  - Read traces until you stop learning new failure types. (#rules-of-thumb)
 ---
 # Drift and silent quality decay
 

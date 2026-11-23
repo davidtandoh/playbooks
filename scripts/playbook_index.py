@@ -12,6 +12,7 @@ from __future__ import annotations
 import argparse
 import json
 import pathlib
+import re
 import sys
 
 
@@ -22,6 +23,7 @@ README_BEGIN = "<!-- playbook-index:v1:begin -->"
 README_END = "<!-- playbook-index:v1:end -->"
 MATCHING_KEYS = ("applies_when", "signals", "key_rules")
 KEY_RULES_RANGE = (3, 7)
+KEY_RULE_CITATION = re.compile(r"(.+) \(#([^\s()]+)\)")
 # A list item must also read as a plain YAML scalar, so that GitHub renders
 # the front matter. These characters cannot start a plain scalar.
 YAML_INDICATORS = tuple("-?:,[]{}#&*!|>'\"%@`")
@@ -104,6 +106,25 @@ def page_title(path: pathlib.Path) -> str:
     raise ValueError(f"{path.name} has no level-one heading")
 
 
+def github_anchor(heading: str) -> str:
+    """Return the anchor GitHub generates for a Markdown heading."""
+    text = heading.strip().lower()
+    text = re.sub(r"[^\w\- ]", "", text)
+    return text.replace(" ", "-")
+
+
+def heading_anchors(path: pathlib.Path) -> set[str]:
+    anchors = set()
+    in_fence = False
+    for line in path.read_text(encoding="utf-8").splitlines():
+        if line.startswith("```"):
+            in_fence = not in_fence
+            continue
+        if not in_fence and line.startswith("#"):
+            anchors.add(github_anchor(line.lstrip("#")))
+    return anchors
+
+
 def matching_metadata_errors(path: pathlib.Path) -> list[str]:
     """Return every problem with a published page's matching metadata."""
     metadata = read_front_matter(path)
@@ -122,6 +143,14 @@ def matching_metadata_errors(path: pathlib.Path) -> list[str]:
     low, high = KEY_RULES_RANGE
     if isinstance(rules, list) and not low <= len(rules) <= high:
         errors.append(f"key_rules must have {low} to {high} items")
+    if isinstance(rules, list):
+        anchors = heading_anchors(path)
+        for rule in rules:
+            citation = KEY_RULE_CITATION.fullmatch(rule)
+            if citation is None:
+                errors.append(f"key_rules item lacks a trailing (#anchor): {rule!r}")
+            elif citation[2] not in anchors:
+                errors.append(f"key_rules item cites a missing heading: {rule!r}")
     return errors
 
 
@@ -133,11 +162,16 @@ def build_entries() -> list[dict[str, object]]:
         if errors:
             raise ValueError(f"{relative}: " + "; ".join(errors))
         metadata = read_front_matter(path)
+        rules = []
+        for rule in metadata["key_rules"]:
+            citation = KEY_RULE_CITATION.fullmatch(rule)
+            rules.append({"rule": citation[1], "source": f"{relative}#{citation[2]}"})
         entries.append(
             {
                 "path": relative,
                 "title": page_title(path),
                 **{key: metadata[key] for key in MATCHING_KEYS},
+                "key_rules": rules,
             }
         )
     return entries
@@ -162,7 +196,7 @@ def render_readme_section(entries: list[dict[str, object]]) -> str:
             "- Key rules:",
         ]
         lines += [
-            f"  {number}. {rule}"
+            f"  {number}. {rule['rule']} ([source]({rule['source']}))"
             for number, rule in enumerate(entry["key_rules"], start=1)
         ]
     lines.append(README_END)

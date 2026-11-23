@@ -61,7 +61,8 @@ front matter will adopt it in a separate change.
 Match the work in front of you to a published page. Each published page lists
 in its front matter when it applies (`applies_when`), the file or keyword
 hints that suggest it (`signals`), and three to seven checkable rules drawn
-from the page (`key_rules`). Agents read the same data from
+from the page (`key_rules`). Each rule ends with a citation to a heading
+in that page, in the form `(#anchor)`. Agents read rule text and source links from
 [`index.json`](index.json). Drafts stay out of this list until they are
 published.
 
@@ -73,125 +74,125 @@ published.
 - Applies when: deciding whether a task needs an agent, a workflow, or a single model call; building or changing an agent loop, its tools, or its context handling; splitting work across multiple agents.
 - Signals: `agent`, `tool use`, `stop_reason`, `orchestrator`, `multi-agent`, `system prompt`.
 - Key rules:
-  1. Build an agent only when a single call or a workflow fails the four-criterion gate.
-  2. Key loop termination off the structured stop signal; keep the iteration cap as a backstop only.
-  3. Give each agent a narrow tool surface; do not give every agent every tool.
-  4. Give tools when-to-call descriptions, strict schemas, and structured errors.
-  5. Coordinate multiple agents through a task queue and structured shared state, never direct hand-offs.
-  6. Validate output at every hand-off and keep a rollback for bad outputs.
+  1. Build an agent only when the task passes all four gate criteria; otherwise use a single call or a workflow. ([source](building-ai-agents.md#1-gate-should-you-even-build-an-agent))
+  2. Key loop termination off the structured stop signal; keep the iteration cap as a backstop only. ([source](building-ai-agents.md#2-the-atomic-unit-the-react-loop))
+  3. Give each agent a narrow tool surface; do not give every agent every tool. ([source](building-ai-agents.md#core-shape-orchestrator--workers))
+  4. Give tools when-to-call descriptions, strict schemas, and structured errors. ([source](building-ai-agents.md#8-build-checklist))
+  5. Coordinate multiple agents through a task queue and structured shared state, never direct hand-offs. ([source](building-ai-agents.md#communicate-through-a-task-queue-not-direct-hand-offs))
+  6. Validate output at every hand-off and keep a rollback for bad outputs. ([source](building-ai-agents.md#7-anti-patterns-memorize-these--theyre-also-exam-bait))
 
 **[Building Reliable Agents](building-reliable-agents.md)**
 
 - Applies when: taking an agent or LLM feature to production; adding observability, cost controls, evals, or security to an agent; handling untrusted input or prompt injection in an agent.
 - Signals: `opentelemetry`, `gen_ai`, `prompt caching`, `eval`, `guardrail`, `sandbox`, `token budget`.
 - Key rules:
-  1. Start with the simplest thing and add autonomy only when it demonstrably improves outcomes.
-  2. Treat context as finite and degrading; curate it instead of filling it.
-  3. Instrument cost per task, not just accuracy.
-  4. Grade outcomes, not paths.
-  5. Contain at the environment layer first and steer at the model layer second.
-  6. Keep prompt and response content capture opt-in.
+  1. Start with the simplest thing and add autonomy only when it demonstrably improves outcomes. ([source](building-reliable-agents.md#0-the-rules-in-one-screen))
+  2. Treat context as finite and degrading; curate it instead of filling it. ([source](building-reliable-agents.md#the-core-mental-model-context-is-finite-and-degrading))
+  3. Instrument cost per task, not just accuracy. ([source](building-reliable-agents.md#measure-cost-per-task-not-just-accuracy))
+  4. Grade outcomes, not paths. ([source](building-reliable-agents.md#grade-the-outcome-not-the-path))
+  5. Contain at the environment layer first and steer at the model layer second. ([source](building-reliable-agents.md#0-the-rules-in-one-screen))
+  6. Keep prompt and response content capture opt-in. ([source](building-reliable-agents.md#content-capture-is-privacy-by-default-opt-in))
 
 **[Autonomy and approval gates](practices/agentic-sre/autonomy-and-approval.md)**
 
 - Applies when: granting an agent a new power such as merge, send, spend, or deploy; adding or removing a human approval gate; supervising agents takes more time than the work.
 - Signals: `approval`, `auto-merge`, `permissions`, `autonomy`, `human-in-the-loop`.
 - Key rules:
-  1. Grant no agent full access on day one.
-  2. Record the autonomy level per action type, not one level per agent.
-  3. Start at L2 for critical operations and L3 for minor incidents.
-  4. Write measurable promotion criteria and wire automatic demotion to live risk signals.
-  5. Count approval clicks, re-prompts, and clean-up of agent output as toil.
+  1. Grant no agent full access on day one. ([source](practices/agentic-sre/autonomy-and-approval.md#rules-of-thumb))
+  2. Record the autonomy level per action type, not one level per agent. ([source](practices/agentic-sre/autonomy-and-approval.md#rules-of-thumb))
+  3. Start at L2 for critical operations and L3 for minor incidents. ([source](practices/agentic-sre/autonomy-and-approval.md#at-a-glance))
+  4. Write measurable promotion criteria and wire automatic demotion to live risk signals. ([source](practices/agentic-sre/autonomy-and-approval.md#checklist))
+  5. Count approval clicks, re-prompts, and clean-up of agent output as toil. ([source](practices/agentic-sre/autonomy-and-approval.md#rules-of-thumb))
 
 **[Blast radius for agent tools](practices/agentic-sre/blast-radius.md)**
 
 - Applies when: giving an agent a tool, credential, memory store, or external channel; an agent can write, spend, or reach outside systems.
 - Signals: `credentials`, `api key`, `service account`, `mcp server`, `tool definition`.
 - Key rules:
-  1. Keep authorization downstream of the model; a system prompt is not a control.
-  2. Give each agent its own short-lived, scoped credentials; no shared or developer credentials.
-  3. Cap tokens, cost, tool calls, wall-clock time, and delegation depth per task.
-  4. Dry-run mutating calls before production state changes.
-  5. Stop an agent with a circuit breaker after repeated consecutive failures.
-  6. Keep an emergency stop that pauses in-flight actions, blocks new ones, and revokes L3 permissions fleet-wide.
+  1. Keep authorization downstream of the model; a system prompt is not a control. ([source](practices/agentic-sre/blast-radius.md#rules-of-thumb))
+  2. Give each agent its own short-lived, scoped credentials; no shared or developer credentials. ([source](practices/agentic-sre/blast-radius.md#at-a-glance))
+  3. Cap tokens, cost, tool calls, wall-clock time, and delegation depth per task. ([source](practices/agentic-sre/blast-radius.md#at-a-glance))
+  4. Dry-run mutating calls before production state changes. ([source](practices/agentic-sre/blast-radius.md#at-a-glance))
+  5. Stop an agent with a circuit breaker after repeated consecutive failures. ([source](practices/agentic-sre/blast-radius.md#at-a-glance))
+  6. Keep an emergency stop that pauses in-flight actions, blocks new ones, and revokes L3 permissions fleet-wide. ([source](practices/agentic-sre/blast-radius.md#at-a-glance))
 
 **[Drift and silent quality decay](practices/agentic-sre/drift.md)**
 
 - Applies when: monitoring production quality of an agent or AI feature; a model, prompt, tool, or input mix changes under a running system; trusting an old eval or a model judge.
 - Signals: `llm-as-judge`, `sampling`, `eval`, `model version`, `quality dashboard`.
 - Key rules:
-  1. Do not trust a judge that has never been compared with human labels.
-  2. Offline evals alone do not detect drift.
-  3. Watch input mix, model version, tool errors, tokens per task, judge agreement, and calibration.
-  4. Tier labels as bronze, silver, and gold.
-  5. Read traces until you stop learning new failure types.
+  1. Do not trust a judge that has never been compared with human labels. ([source](practices/agentic-sre/drift.md#rules-of-thumb))
+  2. Offline evals alone do not detect drift. ([source](practices/agentic-sre/drift.md#rules-of-thumb))
+  3. Watch input mix, model version, tool errors, tokens per task, judge agreement, and calibration. ([source](practices/agentic-sre/drift.md#at-a-glance))
+  4. Tier labels as bronze, silver, and gold. ([source](practices/agentic-sre/drift.md#at-a-glance))
+  5. Read traces until you stop learning new failure types. ([source](practices/agentic-sre/drift.md#rules-of-thumb))
 
 **[Incident response for agent systems](practices/agentic-sre/incidents.md)**
 
 - Applies when: an agent takes a harmful action or a group of agents stalls; a model provider fails during operation; an AI product gives harmful output.
 - Signals: `incident`, `outage`, `runbook`, `on-call`, `kill switch`.
 - Key rules:
-  1. A human is the incident commander, never an agent.
-  2. Agents investigate read-only and propose; the incident commander decides.
-  3. Make every change through one actuation path with pre-flight checks.
-  4. Mitigate first; do not root-cause while damage continues.
-  5. Do not lose transcripts before analysis.
+  1. A human is the incident commander, never an agent. ([source](practices/agentic-sre/incidents.md#at-a-glance))
+  2. Agents investigate read-only and propose; the incident commander decides. ([source](practices/agentic-sre/incidents.md#at-a-glance))
+  3. Make every change through one actuation path with pre-flight checks. ([source](practices/agentic-sre/incidents.md#at-a-glance))
+  4. Mitigate first; do not root-cause while damage continues. ([source](practices/agentic-sre/incidents.md#rules-of-thumb))
+  5. Do not lose transcripts before analysis. ([source](practices/agentic-sre/incidents.md#rules-of-thumb))
 
 **[Launch review for agentic products](practices/agentic-sre/launch-review.md)**
 
 - Applies when: designing or launching an agent-backed product or feature; signing off reliability before build or before launch.
 - Signals: `launch`, `design review`, `readiness review`, `go-live`.
 - Key rules:
-  1. Define the critical user journeys and what correct means for each.
-  2. Give every agent feature a fallback without the model.
-  3. Review SLOs, autonomy, blast radius, evals, tracing, drift, and incident roles together.
-  4. Keep a failure-mode table, a rollback, and degraded modes.
-  5. Design reliability in before launch; adding it later costs more.
+  1. Define the critical user journeys and what correct means for each. ([source](practices/agentic-sre/launch-review.md#checklist))
+  2. Give every agent feature a fallback without the model. ([source](practices/agentic-sre/launch-review.md#rules-of-thumb))
+  3. Review SLOs, autonomy, blast radius, evals, tracing, drift, and incident roles together. ([source](practices/agentic-sre/launch-review.md#at-a-glance))
+  4. Keep a failure-mode table, a rollback, and degraded modes. ([source](practices/agentic-sre/launch-review.md#checklist))
+  5. Design reliability in before launch; adding it later costs more. ([source](practices/agentic-sre/launch-review.md#rules-of-thumb))
 
 **[Observability: SLIs from traces](practices/agentic-sre/observability.md)**
 
 - Applies when: adding tracing or metrics to an agent; computing reliability indicators from agent traces.
 - Signals: `opentelemetry`, `gen_ai`, `execute_tool`, `span`, `trace`, `mcp`.
 - Key rules:
-  1. Measure tasks, not spans.
-  2. Compute tool error rate from execute_tool spans with error.type set.
-  3. Include failed and retried attempts in tokens and cost per task.
-  4. Pin the GenAI and MCP convention version you implement and recheck it before an upgrade.
-  5. Do not let reliability data become a data-leak path.
+  1. Measure tasks, not spans. ([source](practices/agentic-sre/observability.md#rules-of-thumb))
+  2. Compute tool error rate from execute_tool spans with error.type set. ([source](practices/agentic-sre/observability.md#at-a-glance))
+  3. Include failed and retried attempts in tokens and cost per task. ([source](practices/agentic-sre/observability.md#at-a-glance))
+  4. Pin the GenAI and MCP convention version you implement and recheck it before an upgrade. ([source](practices/agentic-sre/observability.md#rules-of-thumb))
+  5. Do not let reliability data become a data-leak path. ([source](practices/agentic-sre/observability.md#rules-of-thumb))
 
 **[Postmortems for agent incidents](practices/agentic-sre/postmortems.md)**
 
 - Applies when: writing up an agent incident or a notable bad output.
 - Signals: `postmortem`, `incident review`, `retrospective`, `root cause`.
 - Key rules:
-  1. Stay blameless for humans and agents alike.
-  2. Build the timeline from traces, not memory.
-  3. Classify each incident with one OWASP agentic risk category.
-  4. Add a regression eval case; a postmortem without one is incomplete.
-  5. Give every action item an owner.
+  1. Stay blameless for humans and agents alike. ([source](practices/agentic-sre/postmortems.md#rules-of-thumb))
+  2. Build the timeline from traces, not memory. ([source](practices/agentic-sre/postmortems.md#at-a-glance))
+  3. Classify each incident with one OWASP agentic risk category. ([source](practices/agentic-sre/postmortems.md#at-a-glance))
+  4. Add a regression eval case; a postmortem without one is incomplete. ([source](practices/agentic-sre/postmortems.md#rules-of-thumb))
+  5. Give every action item an owner. ([source](practices/agentic-sre/postmortems.md#rules-of-thumb))
 
 **[Eval-gated releases and canaries](practices/agentic-sre/releases.md)**
 
 - Applies when: changing a model, system prompt, skill, tool schema, or agent framework version.
 - Signals: `model id`, `prompt`, `skill`, `tool schema`, `canary`, `eval`.
 - Key rules:
-  1. Version prompts, skills, model ids, tool schemas, and harness versions, and record each on every trace.
-  2. Gate each release per slice against the last known-good baseline.
-  3. Canary on one worker pool or a small share of traffic and compare SLIs per version.
-  4. Abort on quality regression even when infrastructure looks healthy.
-  5. Do not swap models in one big step.
-  6. Add incident cases to the eval set so it does not go stale.
+  1. Version prompts, skills, model ids, tool schemas, and harness versions, and record each on every trace. ([source](practices/agentic-sre/releases.md#at-a-glance))
+  2. Gate each release per slice against the last known-good baseline. ([source](practices/agentic-sre/releases.md#at-a-glance))
+  3. Canary on one worker pool or a small share of traffic and compare SLIs per version. ([source](practices/agentic-sre/releases.md#at-a-glance))
+  4. Abort on quality regression even when infrastructure looks healthy. ([source](practices/agentic-sre/releases.md#at-a-glance))
+  5. Do not swap models in one big step. ([source](practices/agentic-sre/releases.md#rules-of-thumb))
+  6. Add incident cases to the eval set so it does not go stale. ([source](practices/agentic-sre/releases.md#rules-of-thumb))
 
 **[SLOs and error budgets for agents](practices/agentic-sre/slos-and-error-budgets.md)**
 
 - Applies when: launching or reviewing an agent and defining how reliable it must be; choosing SLIs, SLO targets, error budgets, or burn-rate alerts; planning agent capacity, provider quotas, or cost.
 - Signals: `slo`, `sli`, `error budget`, `burn rate`, `alerting`, `quota`.
 - Key rules:
-  1. Uptime alone is not an SLO for an agent.
-  2. Use pass or fail indicators, not one-to-ten judge scores.
-  3. Set targets per consequence tier and alert on burn rate over two windows.
-  4. Count retries in cost.
-  5. Discover provider quotas in a load test, not in an incident.
+  1. Uptime alone is not an SLO for an agent. ([source](practices/agentic-sre/slos-and-error-budgets.md#rules-of-thumb))
+  2. Use pass or fail indicators, not one-to-ten judge scores. ([source](practices/agentic-sre/slos-and-error-budgets.md#rules-of-thumb))
+  3. Set targets per consequence tier and alert on burn rate over two windows. ([source](practices/agentic-sre/slos-and-error-budgets.md#checklist))
+  4. Count retries in cost. ([source](practices/agentic-sre/slos-and-error-budgets.md#rules-of-thumb))
+  5. Discover provider quotas in a load test, not in an incident. ([source](practices/agentic-sre/slos-and-error-budgets.md#rules-of-thumb))
 <!-- playbook-index:v1:end -->
 
 ## Conventions

@@ -7,13 +7,18 @@ import re
 import sys
 import tempfile
 import unittest
+from unittest import mock
 
 
 REPOSITORY_ROOT = pathlib.Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(REPOSITORY_ROOT / "scripts"))
 
 import playbook_index  # noqa: E402
-from playbook_index import read_front_matter  # noqa: E402
+from playbook_index import (  # noqa: E402
+    github_anchor,
+    heading_anchors,
+    read_front_matter,
+)
 
 PUBLISHED_PLAYBOOKS = (
     REPOSITORY_ROOT / "building-ai-agents.md",
@@ -116,25 +121,6 @@ class PublishedPlaybookMetadataTest(unittest.TestCase):
                 self.assertEqual(len(topics), len(set(topics)))
                 self.assertTrue(set(topics).issubset(APPROVED_TOPICS))
                 self.assertEqual(topics, expected_topics)
-
-
-def github_anchor(heading: str) -> str:
-    """Return the anchor GitHub generates for a Markdown heading."""
-    text = heading.strip().lower()
-    text = re.sub(r"[^\w\- ]", "", text)
-    return text.replace(" ", "-")
-
-
-def heading_anchors(path: pathlib.Path) -> set[str]:
-    anchors = set()
-    in_fence = False
-    for line in path.read_text(encoding="utf-8").splitlines():
-        if line.startswith("```"):
-            in_fence = not in_fence
-            continue
-        if not in_fence and line.startswith("#"):
-            anchors.add(github_anchor(line.lstrip("#")))
-    return anchors
 
 
 def level_two_headings(path: pathlib.Path) -> list[str]:
@@ -301,7 +287,7 @@ class PlaybookIndexTest(unittest.TestCase):
             page = pathlib.Path(directory) / "page.md"
             page.write_text(
                 "---\nstatus: published\nsignals:\n  - *.proto\n"
-                "key_rules:\n  - One.\n  - Two.\n---\n# Page\n",
+                "key_rules:\n  - One.\n  - Two. (#missing)\n---\n# Page\n",
                 encoding="utf-8",
             )
             errors = playbook_index.matching_metadata_errors(page)
@@ -310,6 +296,43 @@ class PlaybookIndexTest(unittest.TestCase):
         self.assertIn(
             "signals item is not a plain YAML scalar: '*.proto'", errors
         )
+        self.assertIn(
+            "key_rules item lacks a trailing (#anchor): 'One.'", errors
+        )
+        self.assertIn(
+            "key_rules item cites a missing heading: 'Two. (#missing)'", errors
+        )
+
+    def test_key_rules_emit_text_and_section_sources(self) -> None:
+        self.assertEqual(
+            github_anchor("1. Gate: build an agent?"), "1-gate-build-an-agent"
+        )
+        with tempfile.TemporaryDirectory() as directory:
+            root = pathlib.Path(directory)
+            page = root / "page.md"
+            page.write_text(
+                "---\nstatus: published\napplies_when:\n  - building agents\n"
+                "signals:\n  - agent\nkey_rules:\n"
+                "  - Check the gate. (#1-gate-build-an-agent)\n"
+                "  - Keep scope narrow. (#rules-of-thumb)\n"
+                "  - Check outputs. (#rules-of-thumb)\n---\n# Page\n"
+                "## 1. Gate: build an agent?\n## Rules of thumb\n",
+                encoding="utf-8",
+            )
+            with mock.patch.object(playbook_index, "REPOSITORY_ROOT", root):
+                entries = playbook_index.build_entries()
+        expected_rules = [
+            {"rule": "Check the gate.", "source": "page.md#1-gate-build-an-agent"},
+            {"rule": "Keep scope narrow.", "source": "page.md#rules-of-thumb"},
+            {"rule": "Check outputs.", "source": "page.md#rules-of-thumb"},
+        ]
+        index = json.loads(playbook_index.render_index(entries))
+        self.assertEqual(index["playbooks"][0]["key_rules"], expected_rules)
+        readme = playbook_index.render_readme_section(entries)
+        for number, rule in enumerate(expected_rules, start=1):
+            self.assertIn(
+                f"  {number}. {rule['rule']} ([source]({rule['source']}))", readme
+            )
 
 
 class LicenseTest(unittest.TestCase):
