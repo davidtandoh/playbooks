@@ -23,6 +23,7 @@ front matter will adopt it in a separate change.
 | --- | --- | --- |
 | [Building AI Agents](building-ai-agents.md) | `architecture` `orchestration` `tools-and-context` `reliability` | When to build an agent, the ReAct loop, single-agent tool/context design, multi-agent orchestration, failure handling |
 | [Building Reliable Agents](building-reliable-agents.md) | `observability` `cost` `evals` `security-and-privacy` | Observability (OTel GenAI), token cost and economics, reliability engineering and evals, security and prompt injection, and production blind spots |
+| [Persistent agents (draft)](drafts/20261123-persistent-agents.md) | `architecture` `orchestration` `memory` `reliability` `governance` `evals` | What an always-on, proactive agent needs: task versus goal, wake triggers and a wake contract, durable state and recovery, notes-then-curated memory, governance at tool and model choke points, and evals for acting versus staying silent |
 | [Agentic SRE practices](practices/agentic-sre/README.md) | `reliability` `observability` `evals` `governance` `security-and-privacy` `delivery-gates` `cost` | Nine operating practices for agent systems: SLOs and error budgets, autonomy and approval gates, blast radius, observability, eval-gated releases, drift, incidents, postmortems, and launch review |
 
 ### Enterprise AI platform
