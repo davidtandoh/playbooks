@@ -204,12 +204,6 @@ ENGINEERING_STANDARDS_DIRECTORY = (
 )
 ENGINEERING_STANDARDS_INDEX = ENGINEERING_STANDARDS_DIRECTORY / "README.md"
 API_DESIGN_PAGE = ENGINEERING_STANDARDS_DIRECTORY / "api-design.md"
-DRAFT_METADATA = {
-    "status": "draft",
-    "published": "false",
-    "claim_review": "pending",
-    "privacy_review": "pending",
-}
 
 
 class EngineeringStandardsPracticesTest(unittest.TestCase):
@@ -219,10 +213,13 @@ class EngineeringStandardsPracticesTest(unittest.TestCase):
         index = ENGINEERING_STANDARDS_INDEX.read_text(encoding="utf-8")
         self.assertIn(f"]({API_DESIGN_PAGE.name})", index)
 
-    def test_api_design_is_a_draft_with_controlled_taxonomy(self) -> None:
+    def test_api_design_passes_publication_gate_and_taxonomy(self) -> None:
         metadata = read_front_matter(API_DESIGN_PAGE)
-        for key, expected_value in DRAFT_METADATA.items():
+        for key, expected_value in REQUIRED_METADATA.items():
             self.assertEqual(metadata.get(key), expected_value)
+        published = metadata.get("published")
+        self.assertIsInstance(published, str)
+        datetime.date.fromisoformat(published)
         self.assertIn(metadata.get("category"), APPROVED_CATEGORIES)
         topics = metadata.get("topics")
         self.assertIsInstance(topics, list)
@@ -263,7 +260,7 @@ class PlaybookIndexTest(unittest.TestCase):
         pages = playbook_index.published_pages()
         self.assertEqual(
             set(pages),
-            set(PUBLISHED_PLAYBOOKS) | set(AGENTIC_SRE_PRACTICES),
+            set(PUBLISHED_PLAYBOOKS) | set(AGENTIC_SRE_PRACTICES) | {API_DESIGN_PAGE},
         )
         for path in pages:
             with self.subTest(page=path.name):
@@ -279,7 +276,7 @@ class PlaybookIndexTest(unittest.TestCase):
                 playbook_index.INDEX_PATH.read_text(encoding="utf-8")
             )["playbooks"]
         }
-        for path in (*TAXONOMY_DRAFTS, API_DESIGN_PAGE):
+        for path in TAXONOMY_DRAFTS:
             with self.subTest(draft=path.name):
                 relative = path.relative_to(REPOSITORY_ROOT).as_posix()
                 self.assertNotIn(relative, indexed)

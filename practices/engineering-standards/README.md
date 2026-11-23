@@ -13,7 +13,7 @@ point at it. When a page and its check disagree, the check wins.
 
 | Practice | Status | Check | What it covers |
 | --- | --- | --- | --- |
-| [API design](api-design.md) | Draft | Spectral ruleset, oasdiff, Schemathesis | Resource naming, versioning, RFC 9457 errors, pagination, idempotency keys, auth and rate limits, long-running operations, webhooks and events, OpenAPI-first delivery |
+| [API design](api-design.md) | Published | Spectral ruleset, oasdiff, Schemathesis | Resource naming, versioning, RFC 9457 errors, pagination, idempotency keys, auth and rate limits, long-running operations, webhooks and events, OpenAPI-first delivery |
 
 ## Credits
 

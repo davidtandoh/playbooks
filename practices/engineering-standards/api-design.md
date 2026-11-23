@@ -1,14 +1,32 @@
 ---
-status: draft
-published: false
-claim_review: pending
-privacy_review: pending
+status: published
+published: 2026-11-23
+claim_review: complete
+privacy_review: complete
 category: AI-assisted engineering & software factories
 topics:
   - architecture
   - delivery-gates
   - verification
   - security-and-privacy
+applies_when:
+  - adding or changing an HTTP API or its OpenAPI document
+  - designing webhooks or event payloads consumed by another service
+signals:
+  - openapi
+  - openapi.yaml
+  - spectral
+  - oasdiff
+  - endpoint
+  - webhook
+  - asyncapi
+key_rules:
+  - Commit the OpenAPI document and lint it with the shared Spectral ruleset on every pull request. (#openapi-first-with-spectral-and-oasdiff)
+  - Fail CI on breaking changes with oasdiff; break the contract only with a new major path version. (#versioning)
+  - Return RFC 9457 problem details with a stable type for every error. (#errors-with-rfc-9457)
+  - Paginate every list with page_size, page_token, and next_page_token from the first release. (#pagination)
+  - Accept an Idempotency-Key on every POST. (#idempotency-keys)
+  - Declare security on every operation and deny by default. (#auth-and-rate-limits)
 ---
 # API design: one default per question, enforced by a linter
 
@@ -23,7 +41,7 @@ rule, not for a longer page.
 
 ## Sources
 
-All external sources were accessed on 2026-11-20. The IETF documents marked
+All external sources were accessed on 2026-11-23. The IETF documents marked
 draft can still change; recheck them before relying on a header name.
 
 API guidelines:
@@ -32,10 +50,12 @@ API guidelines:
   [AIP-121 resource-oriented design](https://google.aip.dev/121),
   [AIP-122 resource names](https://google.aip.dev/122),
   [AIP-131 to AIP-135 standard methods](https://google.aip.dev/131),
+  [AIP-132 list methods](https://google.aip.dev/132),
   [AIP-136 custom methods](https://google.aip.dev/136),
   [AIP-151 long-running operations](https://google.aip.dev/151),
   [AIP-155 request identification](https://google.aip.dev/155),
   [AIP-158 pagination](https://google.aip.dev/158),
+  [AIP-160 filtering](https://google.aip.dev/160),
   [AIP-180 backwards compatibility](https://google.aip.dev/180),
   [AIP-185 versioning](https://google.aip.dev/185),
   [AIP-193 errors](https://google.aip.dev/193)
@@ -60,7 +80,9 @@ Standards:
   and [RFC 8594: The Sunset HTTP Header Field](https://www.rfc-editor.org/rfc/rfc8594)
 - IETF HTTPAPI drafts:
   [The Idempotency-Key HTTP Header Field](https://datatracker.ietf.org/doc/draft-ietf-httpapi-idempotency-key-header/)
+  (draft-ietf-httpapi-idempotency-key-header-09)
   and [RateLimit header fields for HTTP](https://datatracker.ietf.org/doc/draft-ietf-httpapi-ratelimit-headers/)
+  (draft-ietf-httpapi-ratelimit-headers-12)
 - [Standard Webhooks](https://www.standardwebhooks.com/),
   [CloudEvents](https://cloudevents.io/), and
   [AsyncAPI](https://www.asyncapi.com/)
@@ -114,11 +136,13 @@ reviewer reads the code.
   `POST /invoices/{invoice_id}:send`, not a verb segment such as
   `/invoices/{invoice_id}/send` (AIP-136).
 - If you are naming a path segment, then use a plural kebab-case noun
-  (`/credit-notes`), and keep nesting to two levels (Zalando naming rules).
+  (`/credit-notes`), and keep sub-resource nesting to two levels (a local
+  default; Zalando rule 147 allows up to three).
 - If you are naming a JSON property, then use `snake_case`. Name timestamps
-  `*_at` and send RFC 3339 `date-time` strings in UTC (Zalando).
+  `*_at` (one of the two conventions in Zalando rule 235) and send RFC 3339
+  `date-time` strings in UTC.
 - If you are designing an id, then make it an opaque string. Clients must
-  not parse it (AIP-122).
+  not parse it (Zalando rule 174).
 - If you are choosing a partial-update format, then use JSON Merge Patch
   (RFC 7396). AIP-134 uses a field mask instead; this page picks Merge Patch
   because it needs no extra parameter for JSON clients.
@@ -146,6 +170,8 @@ Checks: `paths-kebab-case`, `paths-no-verbs`, `properties-snake-case`, and
   non-breaking.
 
 Check: `oasdiff breaking` against the base branch, with `--fail-on ERR`.
+`--fail-on ERR` ignores WARN-level changes, such as removing a request
+parameter; use `--fail-on WARN` to block them too.
 
 ### Errors with RFC 9457
 
@@ -163,11 +189,13 @@ Check: `oasdiff breaking` against the base branch, with `--fail-on ERR`.
 - If you have a trace or request id, then add it as a `trace_id` extension
   member so a caller can quote it in a support request.
 - Never return a stack trace, a SQL fragment, or an internal host name in
-  `detail`.
+  `detail` (Zalando: MUST not expose stack traces).
 - Use a small fixed set of status codes: 400 validation, 401 unauthenticated,
   403 forbidden, 404 not found, 409 conflict, 412 precondition failed, 422
-  idempotency-key reuse with a different body, 429 rate limited, 500, and 503
-  with `Retry-After` (RFC 9110; RFC 6585).
+  idempotency-key reuse with a different body, 428 precondition required when
+  `If-Match` is missing, 429 rate limited, 500, and 503 with `Retry-After`
+  (RFC 9110; RFC 6585). The set itself is a local choice; the RFCs define the
+  codes, not which ones an API uses.
 - If the caller must not learn that a resource exists, then return 404
   instead of 403. RFC 9110 allows a server to hide a resource this way.
 
@@ -222,15 +250,17 @@ asserts a single side effect.
 
 - If a resource can be updated by two clients, then return an `ETag` on reads,
   require `If-Match` on `PATCH` and `PUT`, and return 412 on a mismatch (RFC
-  9110; Azure guidelines on conditional requests).
+  9110; Azure guidelines on conditional requests). Requiring `If-Match` is a
+  local choice; Azure says to honour it.
 
 Check: `updates-if-match`.
 
 ### Auth and rate limits
 
 - If a user calls the API, then authenticate with an OAuth 2.0 bearer token in
-  the `Authorization` header. Never accept tokens or API keys in a query
-  string, because URLs end up in logs (RFC 6750; RFC 9700).
+  the `Authorization` header. Never accept bearer tokens in a query string,
+  because URLs end up in logs (RFC 6750 §2.3; RFC 9700). Apply the same rule
+  to API keys.
 - If one service calls another, then use workload identity or short-lived
   service tokens, not shared long-lived secrets.
 - Authorize per resource and deny by default. An operation without a declared
@@ -238,8 +268,8 @@ Check: `updates-if-match`.
   check covers GET, PUT, POST, PATCH, DELETE, HEAD, OPTIONS, and TRACE. Every
   security alternative must name at least one scheme; an empty requirement
   object permits anonymous access and fails unless the operation is public.
-- If a client exceeds its limit, then return 429 with `Retry-After` (RFC
-  6585). Advertise the limit with the `RateLimit` and `RateLimit-Policy`
+- If a client exceeds its limit, then return 429 with `Retry-After`. RFC 6585
+  makes `Retry-After` optional; this page requires it. Advertise the limit with the `RateLimit` and `RateLimit-Policy`
   fields from the IETF draft once your gateway supports them.
 - If the service is overloaded or in maintenance, then return 503 with
   `Retry-After` (RFC 9110).
@@ -254,7 +284,8 @@ flag a route handler that skips the auth dependency.
   `Operation-Location` (Azure) or `Location` header that points at
   `/operations/{operation_id}`.
 - The operation resource carries `done`, and on completion either `error` (a
-  problem details object) or `response` (AIP-151).
+  problem details object; AIP-151 uses `google.rpc.Status`) or `response`
+  (AIP-151).
 - Clients poll the operation with backoff and honour `Retry-After`. A webhook
   can notify completion, but polling stays the contract.
 
@@ -264,17 +295,23 @@ Check: `accepted-has-location`, plus a shared `Operation` schema in
 ### Webhooks and events
 
 - If you send webhooks, then follow Standard Webhooks: sign each delivery with
-  the `webhook-id`, `webhook-timestamp`, and `webhook-signature` headers, using
-  an HMAC-SHA256 signature over the id, timestamp, and body.
+  the `webhook-id`, `webhook-timestamp`, and `webhook-signature` headers. The
+  symmetric `v1` scheme is HMAC-SHA256 over `id.timestamp.body`. The spec
+  also defines an asymmetric ed25519 scheme (`v2a`) and prefers it when you
+  do not control both ends.
 - Receivers verify the signature, reject a timestamp outside a short
-  tolerance window (the reference libraries use five minutes), and
+  tolerance window (the spec leaves the window open; the reference Python
+  library uses five minutes), and
   de-duplicate by `webhook-id`, because senders retry with backoff and a
   receiver will see repeats.
 - If you publish events to a broker, then describe the channels and messages
-  in an AsyncAPI document and wrap each event in a CloudEvents envelope (`id`,
-  `source`, `type`, `time`, `subject`, `data`).
+  in an AsyncAPI document and wrap each event in a CloudEvents envelope: the
+  required `specversion`, `id`, `source`, and `type`, the optional `time` and
+  `subject`, and the payload in `data`.
 - Name event types in reverse-DNS form with a version, such as
   `com.example.invoice.paid.v1`. An event states a fact in the past tense.
+  CloudEvents says `type` SHOULD use a reverse-DNS prefix; the `.v1` suffix
+  and the past tense are local conventions.
 - Treat event schemas as an API: the same compatibility rules apply as for
   HTTP (Zalando event guidelines).
 
@@ -291,7 +328,8 @@ replayed `webhook-id` is a no-op.
 - Lint the document with the ruleset below on every pull request.
 - Run `oasdiff breaking <base.yaml> <revision.yaml> --fail-on ERR` against
   the base branch. A pull request that must break the contract bumps the
-  major version and says why.
+  major version and says why. `--fail-on ERR` ignores WARN-level changes,
+  such as removing a request parameter; use `--fail-on WARN` to block them.
 - Run Schemathesis against the running app so the implementation cannot
   drift from the document.
 - If a frontend or another service calls the API, then generate its client
@@ -310,7 +348,8 @@ extends: [["spectral:oas", recommended]]
 
 rules:
   # Resources: plural kebab-case nouns, snake_case path parameters, an
-  # optional custom method after a colon (/invoices/{invoice_id}:cancel).
+  # optional camelCase custom method after a colon, as in AIP-136
+  # (/invoices/{invoice_id}:cancel, /invoices/{invoice_id}:markPaid).
   paths-kebab-case:
     description: Path segments are kebab-case nouns or {snake_case} parameters.
     severity: error
@@ -319,7 +358,7 @@ rules:
       field: "@key"
       function: pattern
       functionOptions:
-        match: "^(/([a-z0-9]+(-[a-z0-9]+)*|\\{[a-z][a-z0-9_]*\\}))+(:[a-z]+(-[a-z]+)*)?$"
+        match: "^(/([a-z0-9]+(-[a-z0-9]+)*|\\{[a-z][a-z0-9_]*\\}))+(:[a-z]+([A-Z][a-z0-9]*)*)?$"
 
   paths-no-verbs:
     description: Use a standard method or a :verb custom method, not a verb segment.
@@ -329,7 +368,7 @@ rules:
       field: "@key"
       function: pattern
       functionOptions:
-        notMatch: "/(get|list|create|update|delete|remove|fetch|set)(-[a-z0-9-]+)?(/|$)"
+        notMatch: "/(get|list|create|update|delete|remove|fetch|set|send|cancel|approve|archive|publish)(-[a-z0-9-]+)?(/|$)"
 
   properties-snake-case:
     description: JSON property names are snake_case.
@@ -417,7 +456,7 @@ rules:
       function: enumeration
       functionOptions:
         values: ["200", "201", "202", "204", "400", "401", "403", "404",
-                 "409", "412", "422", "429", "500", "503"]
+                 "409", "412", "422", "428", "429", "500", "503"]
 
   # Pagination: every collection GET takes page_size and page_token and
   # returns next_page_token. A collection path ends in a plain segment.
@@ -563,7 +602,7 @@ rules:
             - required: [Operation-Location]
 ```
 
-Run it with `npx @stoplight/spectral-cli lint openapi.yaml`. Known limits of
+Run it with `npx @stoplight/spectral-cli@6 lint openapi.yaml`. Known limits of
 this example: `operations-secured` checks operation-level `security` only, so
 an API that relies on a root-level `security` block needs the rule adjusted;
 `collections-paginated` reads operation-level parameters, not path-level
@@ -597,19 +636,17 @@ For a new or changed endpoint:
   anyone plans.
 - Pick one OpenAPI linter per repository. Spectral and Redocly CLI both work;
   running both duplicates findings.
-- How to run these checks in CI without wasting hosted minutes is in
-  [Local-first CI](../../drafts/20261011-local-first-ci.md#choose-by-job).
 
 ## Claim review
 
-- [ ] Every figure traces to a cited source or is labelled as a local default.
-- [ ] Every factual claim stays within the cited evidence.
-- [ ] Evidence limits and qualifiers remain explicit.
+- [x] Every figure traces to a cited source or is labelled as a local default.
+- [x] Every factual claim stays within the cited evidence.
+- [x] Evidence limits and qualifiers remain explicit.
 
 ## Privacy review
 
-- [ ] No employer material.
-- [ ] No customer material.
-- [ ] No private-repository material.
-- [ ] No trace material.
-- [ ] No transcript material.
+- [x] No employer material.
+- [x] No customer material.
+- [x] No private-repository material.
+- [x] No trace material.
+- [x] No transcript material.

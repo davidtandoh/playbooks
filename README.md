@@ -15,7 +15,7 @@ front matter will adopt it in a separate change.
 | Playbook | Topics | What it covers |
 | --- | --- | --- |
 | [Local-first CI with hosted acceptance (draft)](drafts/20261011-local-first-ci.md) | `delivery-gates` `verification` `security-and-privacy` `cost` | One tool per CI job, local workflow lint and emulation limits, trust boundaries for actions and runners, required-check and rounded-minute cost rules, and a bounded one-repository pilot |
-| [API design (draft)](practices/engineering-standards/api-design.md) | `architecture` `delivery-gates` `verification` `security-and-privacy` | One default per HTTP API design question, enforced by a Spectral ruleset and an oasdiff breaking-change check: naming, versioning, RFC 9457 errors, pagination, idempotency, auth, rate limits, long-running operations, webhooks and events |
+| [API design](practices/engineering-standards/api-design.md) | `architecture` `delivery-gates` `verification` `security-and-privacy` | One default per HTTP API design question, enforced by a Spectral ruleset and an oasdiff breaking-change check: naming, versioning, RFC 9457 errors, pagination, idempotency, auth, rate limits, long-running operations, webhooks and events |
 
 ### Agent systems
 
@@ -205,6 +205,18 @@ published.
   3. Set targets per consequence tier and alert on burn rate over two windows. ([source](practices/agentic-sre/slos-and-error-budgets.md#checklist))
   4. Count retries in cost. ([source](practices/agentic-sre/slos-and-error-budgets.md#rules-of-thumb))
   5. Discover provider quotas in a load test, not in an incident. ([source](practices/agentic-sre/slos-and-error-budgets.md#rules-of-thumb))
+
+**[API design: one default per question, enforced by a linter](practices/engineering-standards/api-design.md)**
+
+- Applies when: adding or changing an HTTP API or its OpenAPI document; designing webhooks or event payloads consumed by another service.
+- Signals: `openapi`, `openapi.yaml`, `spectral`, `oasdiff`, `endpoint`, `webhook`, `asyncapi`.
+- Key rules:
+  1. Commit the OpenAPI document and lint it with the shared Spectral ruleset on every pull request. ([source](practices/engineering-standards/api-design.md#openapi-first-with-spectral-and-oasdiff))
+  2. Fail CI on breaking changes with oasdiff; break the contract only with a new major path version. ([source](practices/engineering-standards/api-design.md#versioning))
+  3. Return RFC 9457 problem details with a stable type for every error. ([source](practices/engineering-standards/api-design.md#errors-with-rfc-9457))
+  4. Paginate every list with page_size, page_token, and next_page_token from the first release. ([source](practices/engineering-standards/api-design.md#pagination))
+  5. Accept an Idempotency-Key on every POST. ([source](practices/engineering-standards/api-design.md#idempotency-keys))
+  6. Declare security on every operation and deny by default. ([source](practices/engineering-standards/api-design.md#auth-and-rate-limits))
 <!-- playbook-index:v1:end -->
 
 ## Conventions
