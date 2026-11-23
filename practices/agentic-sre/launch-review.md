@@ -8,6 +8,20 @@ topics:
   - reliability
   - governance
   - delivery-gates
+applies_when:
+  - designing or launching an agent-backed product or feature
+  - signing off reliability before build or before launch
+signals:
+  - launch
+  - design review
+  - readiness review
+  - go-live
+key_rules:
+  - Define the critical user journeys and what correct means for each.
+  - Give every agent feature a fallback without the model.
+  - Review SLOs, autonomy, blast radius, evals, tracing, drift, and incident roles together.
+  - Keep a failure-mode table, a rollback, and degraded modes.
+  - Design reliability in before launch; adding it later costs more.
 ---
 # Launch review for agentic products
 

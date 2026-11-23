@@ -1,0 +1,259 @@
+{
+  "playbooks": [
+    {
+      "applies_when": [
+        "deciding whether a task needs an agent, a workflow, or a single model call",
+        "building or changing an agent loop, its tools, or its context handling",
+        "splitting work across multiple agents"
+      ],
+      "key_rules": [
+        "Build an agent only when a single call or a workflow fails the four-criterion gate.",
+        "Key loop termination off the structured stop signal; keep the iteration cap as a backstop only.",
+        "Give each agent a narrow tool surface; do not give every agent every tool.",
+        "Give tools when-to-call descriptions, strict schemas, and structured errors.",
+        "Coordinate multiple agents through a task queue and structured shared state, never direct hand-offs.",
+        "Validate output at every hand-off and keep a rollback for bad outputs."
+      ],
+      "path": "building-ai-agents.md",
+      "signals": [
+        "agent",
+        "tool use",
+        "stop_reason",
+        "orchestrator",
+        "multi-agent",
+        "system prompt"
+      ],
+      "title": "Building AI Agents"
+    },
+    {
+      "applies_when": [
+        "taking an agent or LLM feature to production",
+        "adding observability, cost controls, evals, or security to an agent",
+        "handling untrusted input or prompt injection in an agent"
+      ],
+      "key_rules": [
+        "Start with the simplest thing and add autonomy only when it demonstrably improves outcomes.",
+        "Treat context as finite and degrading; curate it instead of filling it.",
+        "Instrument cost per task, not just accuracy.",
+        "Grade outcomes, not paths.",
+        "Contain at the environment layer first and steer at the model layer second.",
+        "Keep prompt and response content capture opt-in."
+      ],
+      "path": "building-reliable-agents.md",
+      "signals": [
+        "opentelemetry",
+        "gen_ai",
+        "prompt caching",
+        "eval",
+        "guardrail",
+        "sandbox",
+        "token budget"
+      ],
+      "title": "Building Reliable Agents"
+    },
+    {
+      "applies_when": [
+        "granting an agent a new power such as merge, send, spend, or deploy",
+        "adding or removing a human approval gate",
+        "supervising agents takes more time than the work"
+      ],
+      "key_rules": [
+        "Grant no agent full access on day one.",
+        "Record the autonomy level per action type, not one level per agent.",
+        "Start at L2 for critical operations and L3 for minor incidents.",
+        "Write measurable promotion criteria and wire automatic demotion to live risk signals.",
+        "Count approval clicks, re-prompts, and clean-up of agent output as toil."
+      ],
+      "path": "practices/agentic-sre/autonomy-and-approval.md",
+      "signals": [
+        "approval",
+        "auto-merge",
+        "permissions",
+        "autonomy",
+        "human-in-the-loop"
+      ],
+      "title": "Autonomy and approval gates"
+    },
+    {
+      "applies_when": [
+        "giving an agent a tool, credential, memory store, or external channel",
+        "an agent can write, spend, or reach outside systems"
+      ],
+      "key_rules": [
+        "Keep authorization downstream of the model; a system prompt is not a control.",
+        "Give each agent its own short-lived, scoped credentials; no shared or developer credentials.",
+        "Cap tokens, cost, tool calls, wall-clock time, and delegation depth per task.",
+        "Dry-run mutating calls before production state changes.",
+        "Stop an agent with a circuit breaker after repeated consecutive failures.",
+        "Keep an emergency stop that pauses in-flight actions, blocks new ones, and revokes L3 permissions fleet-wide."
+      ],
+      "path": "practices/agentic-sre/blast-radius.md",
+      "signals": [
+        "credentials",
+        "api key",
+        "service account",
+        "mcp server",
+        "tool definition"
+      ],
+      "title": "Blast radius for agent tools"
+    },
+    {
+      "applies_when": [
+        "monitoring production quality of an agent or AI feature",
+        "a model, prompt, tool, or input mix changes under a running system",
+        "trusting an old eval or a model judge"
+      ],
+      "key_rules": [
+        "Do not trust a judge that has never been compared with human labels.",
+        "Offline evals alone do not detect drift.",
+        "Watch input mix, model version, tool errors, tokens per task, judge agreement, and calibration.",
+        "Tier labels as bronze, silver, and gold.",
+        "Read traces until you stop learning new failure types."
+      ],
+      "path": "practices/agentic-sre/drift.md",
+      "signals": [
+        "llm-as-judge",
+        "sampling",
+        "eval",
+        "model version",
+        "quality dashboard"
+      ],
+      "title": "Drift and silent quality decay"
+    },
+    {
+      "applies_when": [
+        "an agent takes a harmful action or a group of agents stalls",
+        "a model provider fails during operation",
+        "an AI product gives harmful output"
+      ],
+      "key_rules": [
+        "A human is the incident commander, never an agent.",
+        "Agents investigate read-only and propose; the incident commander decides.",
+        "Make every change through one actuation path with pre-flight checks.",
+        "Mitigate first; do not root-cause while damage continues.",
+        "Do not lose transcripts before analysis."
+      ],
+      "path": "practices/agentic-sre/incidents.md",
+      "signals": [
+        "incident",
+        "outage",
+        "runbook",
+        "on-call",
+        "kill switch"
+      ],
+      "title": "Incident response for agent systems"
+    },
+    {
+      "applies_when": [
+        "designing or launching an agent-backed product or feature",
+        "signing off reliability before build or before launch"
+      ],
+      "key_rules": [
+        "Define the critical user journeys and what correct means for each.",
+        "Give every agent feature a fallback without the model.",
+        "Review SLOs, autonomy, blast radius, evals, tracing, drift, and incident roles together.",
+        "Keep a failure-mode table, a rollback, and degraded modes.",
+        "Design reliability in before launch; adding it later costs more."
+      ],
+      "path": "practices/agentic-sre/launch-review.md",
+      "signals": [
+        "launch",
+        "design review",
+        "readiness review",
+        "go-live"
+      ],
+      "title": "Launch review for agentic products"
+    },
+    {
+      "applies_when": [
+        "adding tracing or metrics to an agent",
+        "computing reliability indicators from agent traces"
+      ],
+      "key_rules": [
+        "Measure tasks, not spans.",
+        "Compute tool error rate from execute_tool spans with error.type set.",
+        "Include failed and retried attempts in tokens and cost per task.",
+        "Pin the GenAI and MCP convention version you implement and recheck it before an upgrade.",
+        "Do not let reliability data become a data-leak path."
+      ],
+      "path": "practices/agentic-sre/observability.md",
+      "signals": [
+        "opentelemetry",
+        "gen_ai",
+        "execute_tool",
+        "span",
+        "trace",
+        "mcp"
+      ],
+      "title": "Observability: SLIs from traces"
+    },
+    {
+      "applies_when": [
+        "writing up an agent incident or a notable bad output"
+      ],
+      "key_rules": [
+        "Stay blameless for humans and agents alike.",
+        "Build the timeline from traces, not memory.",
+        "Classify each incident with one OWASP agentic risk category.",
+        "Add a regression eval case; a postmortem without one is incomplete.",
+        "Give every action item an owner."
+      ],
+      "path": "practices/agentic-sre/postmortems.md",
+      "signals": [
+        "postmortem",
+        "incident review",
+        "retrospective",
+        "root cause"
+      ],
+      "title": "Postmortems for agent incidents"
+    },
+    {
+      "applies_when": [
+        "changing a model, system prompt, skill, tool schema, or agent framework version"
+      ],
+      "key_rules": [
+        "Version prompts, skills, model ids, tool schemas, and harness versions, and record each on every trace.",
+        "Gate each release per slice against the last known-good baseline.",
+        "Canary on one worker pool or a small share of traffic and compare SLIs per version.",
+        "Abort on quality regression even when infrastructure looks healthy.",
+        "Do not swap models in one big step.",
+        "Add incident cases to the eval set so it does not go stale."
+      ],
+      "path": "practices/agentic-sre/releases.md",
+      "signals": [
+        "model id",
+        "prompt",
+        "skill",
+        "tool schema",
+        "canary",
+        "eval"
+      ],
+      "title": "Eval-gated releases and canaries"
+    },
+    {
+      "applies_when": [
+        "launching or reviewing an agent and defining how reliable it must be",
+        "choosing SLIs, SLO targets, error budgets, or burn-rate alerts",
+        "planning agent capacity, provider quotas, or cost"
+      ],
+      "key_rules": [
+        "Uptime alone is not an SLO for an agent.",
+        "Use pass or fail indicators, not one-to-ten judge scores.",
+        "Set targets per consequence tier and alert on burn rate over two windows.",
+        "Count retries in cost.",
+        "Discover provider quotas in a load test, not in an incident."
+      ],
+      "path": "practices/agentic-sre/slos-and-error-budgets.md",
+      "signals": [
+        "slo",
+        "sli",
+        "error budget",
+        "burn rate",
+        "alerting",
+        "quota"
+      ],
+      "title": "SLOs and error budgets for agents"
+    }
+  ],
+  "version": 1
+}

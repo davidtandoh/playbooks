@@ -3,6 +3,24 @@ status: published
 published: 2026-07-01
 claim_review: complete
 privacy_review: complete
+applies_when:
+  - deciding whether a task needs an agent, a workflow, or a single model call
+  - building or changing an agent loop, its tools, or its context handling
+  - splitting work across multiple agents
+signals:
+  - agent
+  - tool use
+  - stop_reason
+  - orchestrator
+  - multi-agent
+  - system prompt
+key_rules:
+  - Build an agent only when a single call or a workflow fails the four-criterion gate.
+  - Key loop termination off the structured stop signal; keep the iteration cap as a backstop only.
+  - Give each agent a narrow tool surface; do not give every agent every tool.
+  - Give tools when-to-call descriptions, strict schemas, and structured errors.
+  - Coordinate multiple agents through a task queue and structured shared state, never direct hand-offs.
+  - Validate output at every hand-off and keep a rollback for bad outputs.
 ---
 
 # Playbook: Building AI Agents

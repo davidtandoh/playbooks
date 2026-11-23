@@ -1,12 +1,20 @@
 from __future__ import annotations
 
 import datetime
+import json
 import pathlib
 import re
+import sys
+import tempfile
 import unittest
 
 
 REPOSITORY_ROOT = pathlib.Path(__file__).resolve().parents[1]
+sys.path.insert(0, str(REPOSITORY_ROOT / "scripts"))
+
+import playbook_index  # noqa: E402
+from playbook_index import read_front_matter  # noqa: E402
+
 PUBLISHED_PLAYBOOKS = (
     REPOSITORY_ROOT / "building-ai-agents.md",
     REPOSITORY_ROOT / "building-reliable-agents.md",
@@ -81,47 +89,6 @@ REQUIRED_METADATA = {
     "claim_review": "complete",
     "privacy_review": "complete",
 }
-
-
-def read_front_matter(path: pathlib.Path) -> dict[str, object]:
-    lines = path.read_text(encoding="utf-8").splitlines()
-    if not lines or lines[0] != "---":
-        raise ValueError(f"{path.name} has no front matter")
-
-    try:
-        closing_delimiter = lines.index("---", 1)
-    except ValueError as error:
-        raise ValueError(f"{path.name} has unterminated front matter") from error
-
-    metadata: dict[str, object] = {}
-    current_list = None
-    for line in lines[1:closing_delimiter]:
-        if line.startswith("  - "):
-            if current_list is None:
-                raise ValueError(
-                    f"{path.name} has a list item without a front matter key"
-                )
-            value = line[4:].strip()
-            if not value:
-                raise ValueError(f"{path.name} has an empty list item")
-            items = metadata[current_list]
-            if not isinstance(items, list):
-                raise ValueError(f"{path.name} has malformed list metadata")
-            items.append(value)
-            continue
-
-        current_list = None
-        key, separator, value = line.partition(":")
-        if not separator or not key:
-            raise ValueError(f"{path.name} has malformed front matter: {line!r}")
-        if key in metadata:
-            raise ValueError(f"{path.name} repeats front matter key {key!r}")
-        if value.strip():
-            metadata[key] = value.strip()
-        else:
-            metadata[key] = []
-            current_list = key
-    return metadata
 
 
 class PublishedPlaybookMetadataTest(unittest.TestCase):
@@ -301,6 +268,48 @@ class EngineeringStandardsPracticesTest(unittest.TestCase):
             for term in PRIVATE_TERMS:
                 with self.subTest(page=path.name, term=term):
                     self.assertNotIn(term, text)
+
+
+class PlaybookIndexTest(unittest.TestCase):
+    def test_every_published_page_has_matching_metadata(self) -> None:
+        pages = playbook_index.published_pages()
+        self.assertEqual(
+            set(pages),
+            set(PUBLISHED_PLAYBOOKS) | set(AGENTIC_SRE_PRACTICES),
+        )
+        for path in pages:
+            with self.subTest(page=path.name):
+                self.assertEqual(playbook_index.matching_metadata_errors(path), [])
+
+    def test_index_and_readme_are_current(self) -> None:
+        self.assertEqual(playbook_index.main(["--check"]), 0)
+
+    def test_drafts_stay_out_of_the_index(self) -> None:
+        indexed = {
+            entry["path"]
+            for entry in json.loads(
+                playbook_index.INDEX_PATH.read_text(encoding="utf-8")
+            )["playbooks"]
+        }
+        for path in (*TAXONOMY_DRAFTS, API_DESIGN_PAGE):
+            with self.subTest(draft=path.name):
+                relative = path.relative_to(REPOSITORY_ROOT).as_posix()
+                self.assertNotIn(relative, indexed)
+
+    def test_missing_metadata_is_reported(self) -> None:
+        with tempfile.TemporaryDirectory() as directory:
+            page = pathlib.Path(directory) / "page.md"
+            page.write_text(
+                "---\nstatus: published\nsignals:\n  - *.proto\n"
+                "key_rules:\n  - One.\n  - Two.\n---\n# Page\n",
+                encoding="utf-8",
+            )
+            errors = playbook_index.matching_metadata_errors(page)
+        self.assertIn("applies_when must be a non-empty list", errors)
+        self.assertIn("key_rules must have 3 to 7 items", errors)
+        self.assertIn(
+            "signals item is not a plain YAML scalar: '*.proto'", errors
+        )
 
 
 class LicenseTest(unittest.TestCase):

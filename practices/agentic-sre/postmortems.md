@@ -8,6 +8,19 @@ topics:
   - reliability
   - evals
   - governance
+applies_when:
+  - writing up an agent incident or a notable bad output
+signals:
+  - postmortem
+  - incident review
+  - retrospective
+  - root cause
+key_rules:
+  - Stay blameless for humans and agents alike.
+  - Build the timeline from traces, not memory.
+  - Classify each incident with one OWASP agentic risk category.
+  - Add a regression eval case; a postmortem without one is incomplete.
+  - Give every action item an owner.
 ---
 # Postmortems for agent incidents
 
