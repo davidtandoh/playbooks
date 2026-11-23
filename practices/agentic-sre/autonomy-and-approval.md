@@ -7,6 +7,22 @@ category: Agent systems
 topics:
   - reliability
   - governance
+applies_when:
+  - granting an agent a new power such as merge, send, spend, or deploy
+  - adding or removing a human approval gate
+  - supervising agents takes more time than the work
+signals:
+  - approval
+  - auto-merge
+  - permissions
+  - autonomy
+  - human-in-the-loop
+key_rules:
+  - Grant no agent full access on day one. (#rules-of-thumb)
+  - Record the autonomy level per action type, not one level per agent. (#rules-of-thumb)
+  - Start at L2 for critical operations and L3 for minor incidents. (#at-a-glance)
+  - Write measurable promotion criteria and wire automatic demotion to live risk signals. (#checklist)
+  - Count approval clicks, re-prompts, and clean-up of agent output as toil. (#rules-of-thumb)
 ---
 # Autonomy and approval gates
 

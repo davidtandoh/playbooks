@@ -8,6 +8,23 @@ topics:
   - reliability
   - observability
   - cost
+applies_when:
+  - launching or reviewing an agent and defining how reliable it must be
+  - choosing SLIs, SLO targets, error budgets, or burn-rate alerts
+  - planning agent capacity, provider quotas, or cost
+signals:
+  - slo
+  - sli
+  - error budget
+  - burn rate
+  - alerting
+  - quota
+key_rules:
+  - Uptime alone is not an SLO for an agent. (#rules-of-thumb)
+  - Use pass or fail indicators, not one-to-ten judge scores. (#rules-of-thumb)
+  - Set targets per consequence tier and alert on burn rate over two windows. (#checklist)
+  - Count retries in cost. (#rules-of-thumb)
+  - Discover provider quotas in a load test, not in an incident. (#rules-of-thumb)
 ---
 # SLOs and error budgets for agents
 

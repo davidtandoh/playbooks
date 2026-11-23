@@ -8,6 +8,22 @@ topics:
   - evals
   - delivery-gates
   - reliability
+applies_when:
+  - changing a model, system prompt, skill, tool schema, or agent framework version
+signals:
+  - model id
+  - prompt
+  - skill
+  - tool schema
+  - canary
+  - eval
+key_rules:
+  - Version prompts, skills, model ids, tool schemas, and harness versions, and record each on every trace. (#at-a-glance)
+  - Gate each release per slice against the last known-good baseline. (#at-a-glance)
+  - Canary on one worker pool or a small share of traffic and compare SLIs per version. (#at-a-glance)
+  - Abort on quality regression even when infrastructure looks healthy. (#at-a-glance)
+  - Do not swap models in one big step. (#rules-of-thumb)
+  - Add incident cases to the eval set so it does not go stale. (#rules-of-thumb)
 ---
 # Eval-gated releases and canaries
 

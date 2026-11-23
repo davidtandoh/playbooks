@@ -8,6 +8,22 @@ topics:
   - security-and-privacy
   - reliability
   - governance
+applies_when:
+  - giving an agent a tool, credential, memory store, or external channel
+  - an agent can write, spend, or reach outside systems
+signals:
+  - credentials
+  - api key
+  - service account
+  - mcp server
+  - tool definition
+key_rules:
+  - Keep authorization downstream of the model; a system prompt is not a control. (#rules-of-thumb)
+  - Give each agent its own short-lived, scoped credentials; no shared or developer credentials. (#at-a-glance)
+  - Cap tokens, cost, tool calls, wall-clock time, and delegation depth per task. (#at-a-glance)
+  - Dry-run mutating calls before production state changes. (#at-a-glance)
+  - Stop an agent with a circuit breaker after repeated consecutive failures. (#at-a-glance)
+  - Keep an emergency stop that pauses in-flight actions, blocks new ones, and revokes L3 permissions fleet-wide. (#at-a-glance)
 ---
 # Blast radius for agent tools
 

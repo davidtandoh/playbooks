@@ -3,6 +3,25 @@ status: published
 published: 2026-07-02
 claim_review: complete
 privacy_review: complete
+applies_when:
+  - taking an agent or LLM feature to production
+  - adding observability, cost controls, evals, or security to an agent
+  - handling untrusted input or prompt injection in an agent
+signals:
+  - opentelemetry
+  - gen_ai
+  - prompt caching
+  - eval
+  - guardrail
+  - sandbox
+  - token budget
+key_rules:
+  - Start with the simplest thing and add autonomy only when it demonstrably improves outcomes. (#0-the-rules-in-one-screen)
+  - Treat context as finite and degrading; curate it instead of filling it. (#the-core-mental-model-context-is-finite-and-degrading)
+  - Instrument cost per task, not just accuracy. (#measure-cost-per-task-not-just-accuracy)
+  - Grade outcomes, not paths. (#grade-the-outcome-not-the-path)
+  - Contain at the environment layer first and steer at the model layer second. (#0-the-rules-in-one-screen)
+  - Keep prompt and response content capture opt-in. (#content-capture-is-privacy-by-default-opt-in)
 ---
 
 # Playbook: Building Reliable Agents

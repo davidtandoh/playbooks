@@ -7,6 +7,22 @@ category: Agent systems
 topics:
   - observability
   - reliability
+applies_when:
+  - adding tracing or metrics to an agent
+  - computing reliability indicators from agent traces
+signals:
+  - opentelemetry
+  - gen_ai
+  - execute_tool
+  - span
+  - trace
+  - mcp
+key_rules:
+  - Measure tasks, not spans. (#rules-of-thumb)
+  - Compute tool error rate from execute_tool spans with error.type set. (#at-a-glance)
+  - Include failed and retried attempts in tokens and cost per task. (#at-a-glance)
+  - Pin the GenAI and MCP convention version you implement and recheck it before an upgrade. (#rules-of-thumb)
+  - Do not let reliability data become a data-leak path. (#rules-of-thumb)
 ---
 # Observability: SLIs from traces
 

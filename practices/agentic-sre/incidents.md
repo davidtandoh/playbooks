@@ -7,6 +7,22 @@ category: Agent systems
 topics:
   - reliability
   - governance
+applies_when:
+  - an agent takes a harmful action or a group of agents stalls
+  - a model provider fails during operation
+  - an AI product gives harmful output
+signals:
+  - incident
+  - outage
+  - runbook
+  - on-call
+  - kill switch
+key_rules:
+  - A human is the incident commander, never an agent. (#at-a-glance)
+  - Agents investigate read-only and propose; the incident commander decides. (#at-a-glance)
+  - Make every change through one actuation path with pre-flight checks. (#at-a-glance)
+  - Mitigate first; do not root-cause while damage continues. (#rules-of-thumb)
+  - Do not lose transcripts before analysis. (#rules-of-thumb)
 ---
 # Incident response for agent systems
 

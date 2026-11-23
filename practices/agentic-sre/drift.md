@@ -8,6 +8,22 @@ topics:
   - evals
   - observability
   - reliability
+applies_when:
+  - monitoring production quality of an agent or AI feature
+  - a model, prompt, tool, or input mix changes under a running system
+  - trusting an old eval or a model judge
+signals:
+  - llm-as-judge
+  - sampling
+  - eval
+  - model version
+  - quality dashboard
+key_rules:
+  - Do not trust a judge that has never been compared with human labels. (#rules-of-thumb)
+  - Offline evals alone do not detect drift. (#rules-of-thumb)
+  - Watch input mix, model version, tool errors, tokens per task, judge agreement, and calibration. (#at-a-glance)
+  - Tier labels as bronze, silver, and gold. (#at-a-glance)
+  - Read traces until you stop learning new failure types. (#rules-of-thumb)
 ---
 # Drift and silent quality decay
 
