@@ -33,6 +33,10 @@ TAXONOMY_DRAFTS = {
         "AI-assisted engineering & software factories",
         ["delivery-gates", "verification", "security-and-privacy", "cost"],
     ),
+    REPOSITORY_ROOT / "drafts" / "20261123-persistent-agents.md": (
+        "Agent systems",
+        ["architecture", "orchestration", "memory", "reliability", "governance", "evals"],
+    ),
 }
 AGENTIC_SRE_DIRECTORY = REPOSITORY_ROOT / "practices" / "agentic-sre"
 AGENTIC_SRE_INDEX = AGENTIC_SRE_DIRECTORY / "README.md"
