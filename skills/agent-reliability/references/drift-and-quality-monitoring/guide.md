@@ -53,7 +53,7 @@ Review: <date>   Agent / version: <id>   Sample: <n> tasks (hash rule <rule>)
 Pass rate: <n>% (week-on-week <delta>)   Judge agreement: <n>%
 Reliability: pass^k <n>; cost/time variance <n>; robustness <n>;
   calibration_delta <n>; per-slice deltas <results>; safety <separate result>
-Distribution shifts: <metric: old -> new>
+Distribution shifts: <metric: old value; new value>
 New gold labels: <n> accepted, <n> modified, <n> rejected
 Candidate eval cases: <ids>   Actions: <owner, item>
 ```
