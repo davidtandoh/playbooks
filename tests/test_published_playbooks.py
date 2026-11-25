@@ -461,7 +461,17 @@ class PlaybookSkillsTest(unittest.TestCase):
                 entrypoint = (SKILLS_DIRECTORY / name / "SKILL.md").read_text(
                     encoding="utf-8"
                 )
-                self.assertTrue(entrypoint.startswith(f"---\nname: {name}\n"))
+                lines = entrypoint.splitlines()
+                self.assertEqual(lines[0], "---")
+                self.assertIn("---", lines[1:])
+                metadata = {
+                    key.strip(): value.strip()
+                    for line in lines[1:lines.index("---", 1)]
+                    if line.strip()
+                    for key, value in [line.split(":", 1)]
+                }
+                self.assertEqual(metadata["name"], name)
+                self.assertTrue(metadata["description"].strip("\"'"))
                 self.assertIn(f"`{name}`", (SKILLS_DIRECTORY / "README.md").read_text(
                     encoding="utf-8"
                 ))
