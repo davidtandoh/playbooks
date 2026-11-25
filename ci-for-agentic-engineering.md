@@ -115,19 +115,13 @@ Keep one canonical gate script, for example `scripts/gate.sh`, so local
 machines, build hosts, hooks, and hosted CI run the same checks without
 workflow YAML drifting from it.
 
-```text
-  Agent edit -> Local or build-host gate (lint, types, impacted tests, workflow lint)
-                        |
-                 [green locally: push once]
-                        v
-             Hosted pull request acceptance (selected scope, no secrets, cancel superseded)
-                        |
-                 [review and approval]
-                        v
-             Merge queue (merge_group, never cancel the default branch) -> default branch
-                        |
-                        v
-             Nightly or post-submit (full suite, mutation audit, heavy end-to-end, cache seed)
+```mermaid
+flowchart TB
+    E["Agent edit"] --> L["Local or build-host gate<br/>lint, types, impacted tests, workflow lint"]
+    L -->|"green locally: push once"| H["Hosted pull request acceptance<br/>selected scope, no secrets, cancel superseded"]
+    H -->|review and approval| Q["Merge queue<br/>merge_group, never cancel the default branch"]
+    Q --> D["Default branch"]
+    D --> N["Nightly or post-submit<br/>full suite, mutation audit, heavy end-to-end, cache seed"]
 ```
 
 Takeaway: agents spend cheap local cycles while iterating; hosted runners

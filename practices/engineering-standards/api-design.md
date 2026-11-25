@@ -98,15 +98,15 @@ Tools:
 
 ## At a glance
 
-```text
-Pull request changes the API
-        |
-        v
-OpenAPI document (committed, or exported from code and snapshot-tested)
-        |
-        +--> Spectral lint ------> design rules on this page   --> fail CI
-        +--> oasdiff breaking ---> diff against the base branch --> fail CI
-        +--> Schemathesis -------> running app versus the spec  --> fail CI
+```mermaid
+flowchart TB
+    PR["Pull request changes the API"] --> DOC["OpenAPI document<br/>committed, or exported from code and snapshot-tested"]
+    DOC --> SP["Spectral lint<br/>design rules on this page"]
+    DOC --> OD["oasdiff breaking<br/>diff against the base branch"]
+    DOC --> ST["Schemathesis<br/>running app versus the spec"]
+    SP --> FAIL["Fail CI"]
+    OD --> FAIL
+    ST --> FAIL
 ```
 
 Takeaway: the contract is a file, and three checks guard it before any
