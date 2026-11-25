@@ -24,13 +24,16 @@ key_rules:
   - Dry-run mutating calls before production state changes. (#at-a-glance)
   - Stop an agent with a circuit breaker after repeated consecutive failures. (#at-a-glance)
   - Keep an emergency stop that pauses in-flight actions, blocks new ones, and revokes L3 permissions fleet-wide. (#at-a-glance)
+skills:
+  - agent-reliability/tool-blast-radius
 ---
 # Blast radius for agent tools
 
 Limit the damage an agent's tools can do before the agent uses them. Put the
 limits in deterministic code downstream of the model, not in the prompt.
 
-Skill: `tool-blast-radius` (see the [skill index](README.md#skills)).
+Skill: `agent-reliability`, topic `tool-blast-radius` (see the
+[skill index](README.md#skills)).
 
 ## Sources
 

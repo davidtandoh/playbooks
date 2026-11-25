@@ -23,6 +23,8 @@ key_rules:
   - Make every change through one actuation path with pre-flight checks. (#at-a-glance)
   - Mitigate first; do not root-cause while damage continues. (#rules-of-thumb)
   - Do not lose transcripts before analysis. (#rules-of-thumb)
+skills:
+  - agent-reliability/agent-incident-response
 ---
 # Incident response for agent systems
 
@@ -30,7 +32,8 @@ Mitigate first, keep a human as incident commander, and let agents do the
 searching. Separate read-only investigation from every action that changes
 state.
 
-Skill: `agent-incident-response` (see the [skill index](README.md#skills)).
+Skill: `agent-reliability`, topic `agent-incident-response` (see the
+[skill index](README.md#skills)).
 
 ## Sources
 

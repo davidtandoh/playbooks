@@ -21,6 +21,8 @@ key_rules:
   - Classify each incident with one OWASP agentic risk category. (#at-a-glance)
   - Add a regression eval case; a postmortem without one is incomplete. (#rules-of-thumb)
   - Give every action item an owner. (#rules-of-thumb)
+skills:
+  - agent-reliability/agent-postmortems
 ---
 # Postmortems for agent incidents
 
@@ -28,7 +30,8 @@ Run blameless postmortems where contributing factors include prompts, models,
 tools, envelopes, and approval gates. Every postmortem adds a regression eval
 case. It may also change a skill, task specification, or envelope.
 
-Skill: `agent-postmortems` (see the [skill index](README.md#skills)).
+Skill: `agent-reliability`, topic `agent-postmortems` (see the
+[skill index](README.md#skills)).
 
 ## Sources
 

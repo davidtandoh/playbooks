@@ -24,6 +24,8 @@ key_rules:
   - Abort on quality regression even when infrastructure looks healthy. (#at-a-glance)
   - Do not swap models in one big step. (#rules-of-thumb)
   - Add incident cases to the eval set so it does not go stale. (#rules-of-thumb)
+skills:
+  - agent-reliability/eval-gated-releases
 ---
 # Eval-gated releases and canaries
 
@@ -31,7 +33,8 @@ Ship prompt, model, skill, tool-schema, and harness changes as versioned
 releases. Gate each one on evals per slice against a known-good baseline, then
 canary it against live SLIs.
 
-Skill: `eval-gated-releases` (see the [skill index](README.md#skills)).
+Skill: `agent-reliability`, topic `eval-gated-releases` (see the
+[skill index](README.md#skills)).
 
 ## Sources
 

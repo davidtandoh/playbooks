@@ -41,6 +41,22 @@
         "multi-agent",
         "system prompt"
       ],
+      "skills": [
+        {
+          "description": "Applies site reliability engineering practice to agents and AI products: SLOs, trace-based SLIs, autonomy levels, tool blast radius, eval-gated releases, drift, incidents, postmortems, capacity, toil and launch review.",
+          "id": "agent-reliability",
+          "public_url": "skills/agent-reliability/SKILL.md",
+          "topics": [
+            "tool-blast-radius",
+            "agentic-product-reliability-review"
+          ]
+        },
+        {
+          "description": "Reviews a design before it is built for boundaries, data ownership, security, reliability, deployment, scale, and synchronous versus asynchronous calls.",
+          "id": "system-design-assessment",
+          "topics": []
+        }
+      ],
       "title": "Building AI Agents"
     },
     {
@@ -84,6 +100,24 @@
         "guardrail",
         "sandbox",
         "token budget"
+      ],
+      "skills": [
+        {
+          "description": "Applies site reliability engineering practice to agents and AI products: SLOs, trace-based SLIs, autonomy levels, tool blast radius, eval-gated releases, drift, incidents, postmortems, capacity, toil and launch review.",
+          "id": "agent-reliability",
+          "public_url": "skills/agent-reliability/SKILL.md",
+          "topics": []
+        },
+        {
+          "description": "Keeps an agent session's context small and traceable with a bounded startup inventory, quiet command output, and checkpoints before compacting or resuming.",
+          "id": "context-efficient-session",
+          "topics": []
+        },
+        {
+          "description": "Adds or reviews logging, trace propagation, metrics and SLOs for backend services.",
+          "id": "service-observability",
+          "topics": []
+        }
       ],
       "title": "Building Reliable Agents"
     },
@@ -137,6 +171,24 @@
         "actionlint",
         "zizmor"
       ],
+      "skills": [
+        {
+          "description": "Finds the playbooks that apply to a change, turns their key rules into acceptance criteria, and records in the pull request which rules the change followed.",
+          "id": "apply-playbooks",
+          "topics": []
+        },
+        {
+          "description": "Turns an approved specification into a verified change through a plan, the smallest coherent change, focused tests, a gate, independent review and bounded repair.",
+          "id": "spec-delivery-loop",
+          "topics": []
+        },
+        {
+          "description": "Turns a mistake that agents keep repeating into a structural guard, such as a type, lint rule, CI check or test, proven against a real past instance.",
+          "id": "correct",
+          "public_url": "https://github.com/cursor/plugins/tree/main/pstack/skills/correct",
+          "topics": []
+        }
+      ],
       "title": "CI for agentic engineering"
     },
     {
@@ -177,6 +229,7 @@
         "chunk",
         "vector store"
       ],
+      "skills": [],
       "title": "Contextual Retrieval"
     },
     {
@@ -214,6 +267,17 @@
         "permissions",
         "autonomy",
         "human-in-the-loop"
+      ],
+      "skills": [
+        {
+          "description": "Applies site reliability engineering practice to agents and AI products: SLOs, trace-based SLIs, autonomy levels, tool blast radius, eval-gated releases, drift, incidents, postmortems, capacity, toil and launch review.",
+          "id": "agent-reliability",
+          "public_url": "skills/agent-reliability/SKILL.md",
+          "topics": [
+            "agent-autonomy-levels",
+            "agent-toil-budget"
+          ]
+        }
       ],
       "title": "Autonomy and approval gates"
     },
@@ -256,6 +320,16 @@
         "mcp server",
         "tool definition"
       ],
+      "skills": [
+        {
+          "description": "Applies site reliability engineering practice to agents and AI products: SLOs, trace-based SLIs, autonomy levels, tool blast radius, eval-gated releases, drift, incidents, postmortems, capacity, toil and launch review.",
+          "id": "agent-reliability",
+          "public_url": "skills/agent-reliability/SKILL.md",
+          "topics": [
+            "tool-blast-radius"
+          ]
+        }
+      ],
       "title": "Blast radius for agent tools"
     },
     {
@@ -293,6 +367,16 @@
         "eval",
         "model version",
         "quality dashboard"
+      ],
+      "skills": [
+        {
+          "description": "Applies site reliability engineering practice to agents and AI products: SLOs, trace-based SLIs, autonomy levels, tool blast radius, eval-gated releases, drift, incidents, postmortems, capacity, toil and launch review.",
+          "id": "agent-reliability",
+          "public_url": "skills/agent-reliability/SKILL.md",
+          "topics": [
+            "drift-and-quality-monitoring"
+          ]
+        }
       ],
       "title": "Drift and silent quality decay"
     },
@@ -332,6 +416,16 @@
         "on-call",
         "kill switch"
       ],
+      "skills": [
+        {
+          "description": "Applies site reliability engineering practice to agents and AI products: SLOs, trace-based SLIs, autonomy levels, tool blast radius, eval-gated releases, drift, incidents, postmortems, capacity, toil and launch review.",
+          "id": "agent-reliability",
+          "public_url": "skills/agent-reliability/SKILL.md",
+          "topics": [
+            "agent-incident-response"
+          ]
+        }
+      ],
       "title": "Incident response for agent systems"
     },
     {
@@ -367,6 +461,16 @@
         "design review",
         "readiness review",
         "go-live"
+      ],
+      "skills": [
+        {
+          "description": "Applies site reliability engineering practice to agents and AI products: SLOs, trace-based SLIs, autonomy levels, tool blast radius, eval-gated releases, drift, incidents, postmortems, capacity, toil and launch review.",
+          "id": "agent-reliability",
+          "public_url": "skills/agent-reliability/SKILL.md",
+          "topics": [
+            "agentic-product-reliability-review"
+          ]
+        }
       ],
       "title": "Launch review for agentic products"
     },
@@ -406,6 +510,16 @@
         "trace",
         "mcp"
       ],
+      "skills": [
+        {
+          "description": "Applies site reliability engineering practice to agents and AI products: SLOs, trace-based SLIs, autonomy levels, tool blast radius, eval-gated releases, drift, incidents, postmortems, capacity, toil and launch review.",
+          "id": "agent-reliability",
+          "public_url": "skills/agent-reliability/SKILL.md",
+          "topics": [
+            "trace-based-slis"
+          ]
+        }
+      ],
       "title": "Observability: SLIs from traces"
     },
     {
@@ -440,6 +554,16 @@
         "incident review",
         "retrospective",
         "root cause"
+      ],
+      "skills": [
+        {
+          "description": "Applies site reliability engineering practice to agents and AI products: SLOs, trace-based SLIs, autonomy levels, tool blast radius, eval-gated releases, drift, incidents, postmortems, capacity, toil and launch review.",
+          "id": "agent-reliability",
+          "public_url": "skills/agent-reliability/SKILL.md",
+          "topics": [
+            "agent-postmortems"
+          ]
+        }
       ],
       "title": "Postmortems for agent incidents"
     },
@@ -482,6 +606,16 @@
         "canary",
         "eval"
       ],
+      "skills": [
+        {
+          "description": "Applies site reliability engineering practice to agents and AI products: SLOs, trace-based SLIs, autonomy levels, tool blast radius, eval-gated releases, drift, incidents, postmortems, capacity, toil and launch review.",
+          "id": "agent-reliability",
+          "public_url": "skills/agent-reliability/SKILL.md",
+          "topics": [
+            "eval-gated-releases"
+          ]
+        }
+      ],
       "title": "Eval-gated releases and canaries"
     },
     {
@@ -520,6 +654,17 @@
         "burn rate",
         "alerting",
         "quota"
+      ],
+      "skills": [
+        {
+          "description": "Applies site reliability engineering practice to agents and AI products: SLOs, trace-based SLIs, autonomy levels, tool blast radius, eval-gated releases, drift, incidents, postmortems, capacity, toil and launch review.",
+          "id": "agent-reliability",
+          "public_url": "skills/agent-reliability/SKILL.md",
+          "topics": [
+            "agent-slo-design",
+            "agent-capacity-and-cost"
+          ]
+        }
       ],
       "title": "SLOs and error budgets for agents"
     },
@@ -564,6 +709,7 @@
         "webhook",
         "asyncapi"
       ],
+      "skills": [],
       "title": "API design: one default per question, enforced by a linter"
     },
     {
@@ -615,6 +761,24 @@
         "mutation testing",
         "coverage",
         "snapshot"
+      ],
+      "skills": [
+        {
+          "description": "Finds the playbooks that apply to a change, turns their key rules into acceptance criteria, and records in the pull request which rules the change followed.",
+          "id": "apply-playbooks",
+          "topics": []
+        },
+        {
+          "description": "Turns an approved specification into a verified change through a plan, the smallest coherent change, focused tests, a gate, independent review and bounded repair.",
+          "id": "spec-delivery-loop",
+          "topics": []
+        },
+        {
+          "description": "Diagnoses a bug, failure or regression before fixing it by reproducing it and testing one hypothesis at a time.",
+          "id": "diagnosing-bugs",
+          "public_url": "https://github.com/mattpocock/skills/tree/main/skills/engineering/diagnosing-bugs",
+          "topics": []
+        }
       ],
       "title": "Testing in agentic engineering"
     }

@@ -24,13 +24,16 @@ key_rules:
   - Watch input mix, model version, tool errors, tokens per task, judge agreement, and calibration. (#at-a-glance)
   - Tier labels as bronze, silver, and gold. (#at-a-glance)
   - Read traces until you stop learning new failure types. (#rules-of-thumb)
+skills:
+  - agent-reliability/drift-and-quality-monitoring
 ---
 # Drift and silent quality decay
 
 Sample production regularly, grade it with calibrated judges, and watch the
 distributions that move when inputs, models, tools, or judges change.
 
-Skill: `drift-and-quality-monitoring` (see the [skill index](README.md#skills)).
+Skill: `agent-reliability`, topic `drift-and-quality-monitoring` (see the
+[skill index](README.md#skills)).
 
 ## Sources
 

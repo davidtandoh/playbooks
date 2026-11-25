@@ -25,13 +25,16 @@ key_rules:
   - Set targets per consequence tier and alert on burn rate over two windows. (#checklist)
   - Count retries in cost. (#rules-of-thumb)
   - Discover provider quotas in a load test, not in an incident. (#rules-of-thumb)
+skills:
+  - agent-reliability/agent-slo-design
+  - agent-reliability/agent-capacity-and-cost
 ---
 # SLOs and error budgets for agents
 
 Measure agent reliability as a profile of binary, outcome-verified indicators.
 Set targets per consequence tier and alert on burn rate over two windows.
 
-Skills: `agent-slo-design`, `agent-capacity-and-cost` (see the
+Skill: `agent-reliability`, topics `agent-slo-design` and `agent-capacity-and-cost` (see the
 [skill index](README.md#skills)).
 
 ## Sources
