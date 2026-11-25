@@ -6,13 +6,8 @@ Usage:
 
 Only pages whose front matter says `status: published` enter the index.
 
-A page may name the agent skills that put it into practice in an optional
-`skills` front matter list. Each item is a skill id, or `<id>/<topic>` for one
-topic of a skill, and the id must appear in skills-public.json. That allowlist
-holds the only public text about each skill: one sentence and, when the skill
-is published, a link. `skills: none` records that no skill exists yet. On
-root playbooks the script also renders a "Skills that put this into practice"
-section between the page's playbook-skills markers.
+See README.md#conventions for skills front matter, the public allowlist,
+and generated page sections.
 """
 
 from __future__ import annotations

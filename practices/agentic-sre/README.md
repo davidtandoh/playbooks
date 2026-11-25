@@ -57,9 +57,8 @@ release.
 Each practice has an agent-executable form: a topic guide in the
 [`agent-reliability`](../../skills/agent-reliability/SKILL.md) skill, published
 in this repository under `skills/`. The skill's entry point routes an agent
-to one topic guide. The copy here is a one-way export from the author's
-private source, so a direct edit here would be overwritten by the next export;
-see [the skills directory](../../skills/README.md).
+to one topic guide. See the [skills directory](../../skills/README.md) for
+the export and contribution policy.
 
 | Topic | Guide | Practice |
 | --- | --- | --- |

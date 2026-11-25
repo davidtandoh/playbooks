@@ -273,15 +273,20 @@ published.
 - Update the index above when adding a playbook.
 - Give every published page `applies_when`, `signals`, and `key_rules` front
   matter, then run `python3 scripts/playbook_index.py` to regenerate
-  `index.json` and the "Which playbook applies" section. CI fails when either
-  is stale.
+  `index.json`, the "Which playbook applies" section, and root playbooks'
+  skills sections. Run `python3 scripts/playbook_index.py --check` to check
+  for drift without writing files. CI fails when any generated content is stale.
 - Name the agent skills that put a published page into practice in its
   `skills` front matter: one `<id>` or `<id>/<topic>` per item, or
   `skills: none`. Every id must appear in
-  [`skills-public.json`](skills-public.json), which holds the only public text
-  about each skill. A root playbook also needs the `playbook-skills` begin and
-  end markers where the generated "Skills that put this into practice"
-  section goes. Published skill copies live in [`skills/`](skills/README.md).
+  [`skills-public.json`](skills-public.json), the authoritative source for each
+  skill's public summary, optional public link, and allowed topic ids. For a
+  skill without a public copy, publish only its id and that summary. A root
+  playbook that declares skills also needs the `playbook-skills:v1:begin` and
+  `playbook-skills:v1:end` HTML comment markers where the generated "Skills
+  that put this into practice" section goes. Practice pages keep their
+  `Skill:` line instead of a generated section. Published skill copies live
+  in [`skills/`](skills/README.md).
 - Keep standalone playbook drafts under `drafts/`. A separate reviewed change
   promotes a standalone draft to the root. Draft practice pages stay in their
   practice set as described below.

@@ -8,10 +8,8 @@ task matches its description.
 | --- | --- |
 | [`agent-reliability`](agent-reliability/SKILL.md) | [Agentic SRE practices](../practices/agentic-sre/README.md), plus parts of [Building AI Agents](../building-ai-agents.md) and [Building Reliable Agents](../building-reliable-agents.md) |
 
-Each playbook lists its skills in a generated "Skills that put this into
-practice" section. Skills without a public copy appear there by id and one
-sentence only. [`skills-public.json`](../skills-public.json) is the allowlist
-that holds that text.
+See the [repository conventions](../README.md#conventions) for how pages
+declare and display skills and where public summaries are maintained.
 
 ## Where these copies come from
 
