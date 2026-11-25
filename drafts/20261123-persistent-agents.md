@@ -110,20 +110,17 @@ enforces limits.
 
 ## The map
 
-```text
-  events, schedules,        +------------------- agent runtime -------------------+
-  user messages,     -----> | front door --> queue --> execution (agent+harness) |
-  agent self-reminders      |  (policy:      (one turn    |   state restored,     |
-                            |   reject,       at a time)  |   progress saved      |
-                            |   queue,                    v                       |
-                            |   steer)            durable session state           |
-                            |  recovery: crashed work goes back in the queue      |
-                            +---------------------------|-------------------------+
-                                                        |
-                         tool gateway / model gateway <-+  (identity, policy,
-                                                        |   approval, audit, cost)
-                                                        v
-                                                 traces --> evals --> fixes
+```mermaid
+flowchart TB
+    WAKE["Events, schedules, user messages,<br/>agent self-reminders"] --> FD
+    subgraph RT["Agent runtime"]
+        FD["Front door<br/>policy: reject, queue, steer"] --> Q["Queue<br/>one turn at a time"]
+        Q --> X["Execution: agent and harness<br/>state restored, progress saved"]
+        X --> S["Durable session state"]
+        S -.->|"recovery: crashed work goes back in the queue"| Q
+    end
+    RT --> GW["Tool gateway and model gateway<br/>identity, policy, approval, audit, cost"]
+    GW --> T["Traces"] --> EV["Evals"] --> FIX["Fixes"]
 ```
 
 Takeaway: every wake enters through one front door, runs one turn at a time,
@@ -203,10 +200,11 @@ Independent evidence points the same way:
 
 ## 4. Memory: notes first, curated later
 
-```text
-  run --> notes buffer --(scheduled curator)--> shared memory --> next run
-            ^                    |
-            +-- traces ----------+  (procedural memory: skills)
+```mermaid
+flowchart LR
+    RUN["Run"] --> N["Notes buffer"] --> CUR["Scheduled curator"]
+    CUR --> M["Shared memory"] --> NEXT["Next run"]
+    CUR -.->|"traces (procedural memory: skills)"| N
 ```
 
 Takeaway: running agents write notes freely; only a curator changes what every

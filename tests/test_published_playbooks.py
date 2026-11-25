@@ -332,6 +332,60 @@ class PlaybookIndexTest(unittest.TestCase):
             )
 
 
+# Arrows and box corners that mark a hand-drawn ASCII diagram.
+ASCII_DIAGRAM_MARKS = ("->", "<-", "+-", "-+", "\u2192")
+
+
+def fenced_blocks(text: str) -> list[tuple[int, str, str]]:
+    """Return (opening line number, info string, body) for each code fence."""
+    blocks = []
+    opening = None
+    body: list[str] = []
+    for number, line in enumerate(text.splitlines(), start=1):
+        stripped = line.strip()
+        if opening is None:
+            if stripped.startswith("```"):
+                opening = (number, stripped[3:].strip())
+                body = []
+        elif stripped == "```":
+            blocks.append((opening[0], opening[1], "\n".join(body)))
+            opening = None
+        else:
+            body.append(line)
+    return blocks
+
+
+def ascii_diagram_errors(text: str) -> list[str]:
+    """Report text fences that hold an ASCII diagram."""
+    errors = []
+    for number, info, body in fenced_blocks(text):
+        if info == "text" and any(mark in body for mark in ASCII_DIAGRAM_MARKS):
+            errors.append(f"line {number}: ASCII diagram; use a mermaid fence")
+    return errors
+
+
+class DiagramTest(unittest.TestCase):
+    def test_markdown_diagrams_use_mermaid(self) -> None:
+        for path in sorted(REPOSITORY_ROOT.glob("**/*.md")):
+            with self.subTest(page=path.relative_to(REPOSITORY_ROOT).as_posix()):
+                text = path.read_text(encoding="utf-8")
+                self.assertEqual(ascii_diagram_errors(text), [])
+
+    def test_only_text_fence_ascii_diagrams_are_reported(self) -> None:
+        text = (
+            "```text\nplain output\n```\n"
+            "```text\nA -> B\n```\n"
+            "```\nA\n```\n"
+            "```mermaid\nflowchart LR\n    A --> B\n```\n"
+        )
+        self.assertEqual(
+            ascii_diagram_errors(text),
+            [
+                "line 4: ASCII diagram; use a mermaid fence",
+            ],
+        )
+
+
 class LicenseTest(unittest.TestCase):
     def test_repository_is_mit_licensed_to_david_tandoh(self) -> None:
         text = (REPOSITORY_ROOT / "LICENSE").read_text(encoding="utf-8")

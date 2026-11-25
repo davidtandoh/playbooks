@@ -107,19 +107,13 @@ and the Testing Trophy puts static analysis under unit, integration, and
 end-to-end layers ([Testing Trophy](https://kentcdodds.com/blog/the-testing-trophy-and-testing-classifications)).
 Both push each check to the cheapest layer that proves the contract.
 
-```text
-        +-----------------------------------+
-        |  End-to-end and held-out journeys |  thin cap, read-only to the agent
-        +-----------------------------------+
-      +---------------------------------------+
-      |  Contract and boundary integration    |  OpenAPI, Pact, real database and I/O
-      +---------------------------------------+
-    +-------------------------------------------+
-    |  Small behaviour and property tests       |  invariants, edge cases, few mocks
-    +-------------------------------------------+
-  +-----------------------------------------------+
-  |  Static floor: types, linters, layer rules    |  cheapest bug catcher
-  +-----------------------------------------------+
+```mermaid
+flowchart BT
+    S["Static floor: types, linters, layer rules<br/>cheapest bug catcher"]
+    B["Small behaviour and property tests<br/>invariants, edge cases, few mocks"]
+    C["Contract and boundary integration<br/>OpenAPI, Pact, real database and I/O"]
+    E["End-to-end and held-out journeys<br/>thin cap, read-only to the agent"]
+    S -->|supports| B -->|supports| C -->|supports| E
 ```
 
 Takeaway: let types, linters, and architecture rules remove whole classes of

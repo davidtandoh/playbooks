@@ -64,11 +64,15 @@ Before writing a loop, check all four. A "no" on any one means drop to a simpler
 
 **Tier ladder — start at the lowest that works:**
 
+```mermaid
+flowchart TB
+    C["Single LLM call<br/>classification, extraction, summarization, Q&A"]
+    W["Workflow: you loop<br/>multi-step, code-orchestrated, deterministic control flow"]
+    A["Agent: the model loops<br/>open-ended, the model decides its own trajectory"]
+    C -->|not enough| W -->|not enough| A
 ```
-Single LLM call      → classification, extraction, summarization, Q&A
-Workflow (you loop)  → multi-step, code-orchestrated, deterministic control flow
-Agent (model loops)  → open-ended, model decides its own trajectory
-```
+
+Takeaway: climb a tier only when the one below it cannot do the task.
 
 Most "agent" ideas are actually workflows. A workflow where *you* own the control flow
 (loops, branches, retries in your code) is more reliable and cheaper than a model-driven

@@ -17,15 +17,22 @@ link to its sections instead of repeating them.
 
 ## Map
 
-```text
-Before launch        Change            Operate              Learn
--------------        ------            -------              -----
-Launch review   ->   Releases     ->   Observability   ->   Postmortems
-  SLOs                 (eval gate,       Drift                 |
-  Autonomy              canary)          Incidents             |
-  Blast radius                                                 |
-      ^                                                        |
-      +---------- new eval cases, envelope and level changes --+
+```mermaid
+flowchart LR
+    subgraph before["Before launch"]
+        LAUNCH["Launch review<br/>SLOs, Autonomy, Blast radius"]
+    end
+    subgraph change["Change"]
+        REL["Releases<br/>eval gate, canary"]
+    end
+    subgraph operate["Operate"]
+        OBS["Observability<br/>Drift, Incidents"]
+    end
+    subgraph learn["Learn"]
+        PM["Postmortems"]
+    end
+    LAUNCH --> REL --> OBS --> PM
+    PM -->|"new eval cases, envelope and level changes"| LAUNCH
 ```
 
 Takeaway: postmortems feed evals and autonomy decisions back into the next
