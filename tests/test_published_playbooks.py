@@ -24,12 +24,10 @@ PUBLISHED_PLAYBOOKS = (
     REPOSITORY_ROOT / "building-ai-agents.md",
     REPOSITORY_ROOT / "building-reliable-agents.md",
     REPOSITORY_ROOT / "contextual-retrieval.md",
+    REPOSITORY_ROOT / "testing-in-agentic-engineering.md",
+    REPOSITORY_ROOT / "ci-for-agentic-engineering.md",
 )
 TAXONOMY_DRAFTS = {
-    REPOSITORY_ROOT / "drafts" / "20261011-local-first-ci.md": (
-        "AI-assisted engineering & software factories",
-        ["delivery-gates", "verification", "security-and-privacy", "cost"],
-    ),
     REPOSITORY_ROOT / "drafts" / "20261123-persistent-agents.md": (
         "Agent systems",
         ["architecture", "orchestration", "memory", "reliability", "governance", "evals"],

@@ -25,7 +25,7 @@ class PrivateTermsScanTest(unittest.TestCase):
     def test_repository_tracked_text_omits_denied_terms(self) -> None:
         paths = private_terms.tracked_files()
         self.assertIn(
-            REPOSITORY_ROOT / "drafts" / "20261011-local-first-ci.md", paths
+            REPOSITORY_ROOT / "ci-for-agentic-engineering.md", paths
         )
         self.assertEqual(private_terms.scan(), [])
 

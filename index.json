@@ -89,6 +89,58 @@
     },
     {
       "applies_when": [
+        "adding or changing a CI workflow, a local gate script, or pre-commit and pre-push hooks",
+        "coding agents open many small pull requests and hosted CI cost or queue time grows",
+        "choosing test selection, caching, sharding, or a merge queue",
+        "handling flaky tests, workflow permissions, secrets, or self-hosted runners"
+      ],
+      "key_rules": [
+        {
+          "rule": "Run one canonical gate script locally before pushing, and use hosted CI only for independent merge evidence.",
+          "source": "ci-for-agentic-engineering.md#1-gate-locally-prove-independently"
+        },
+        {
+          "rule": "Select tests in stages and fail closed to the full suite when a change cannot be classified.",
+          "source": "ci-for-agentic-engineering.md#2-select-tests-in-stages"
+        },
+        {
+          "rule": "Restore caches on pull requests and save them only from trusted default-branch runs.",
+          "source": "ci-for-agentic-engineering.md#3-caching-sharding-and-merge-queues"
+        },
+        {
+          "rule": "Add merge_group triggers and a merge queue once concurrent agent pull requests break the default branch.",
+          "source": "ci-for-agentic-engineering.md#merge-queues-for-parallel-agent-work"
+        },
+        {
+          "rule": "Track flakiness per test, cap retries, and quarantine chronic flakes with an owner and a deadline.",
+          "source": "ci-for-agentic-engineering.md#4-govern-flaky-tests"
+        },
+        {
+          "rule": "Count cost per merged pull request in rounded job minutes across every attempt.",
+          "source": "ci-for-agentic-engineering.md#5-cost-per-merge-time-budgets-and-honest-baselines"
+        },
+        {
+          "rule": "Keep pull request validation secretless and read-only, pin third-party actions to full commit SHAs, and lint workflows with actionlint and zizmor.",
+          "source": "ci-for-agentic-engineering.md#6-trust-boundaries-and-agent-specific-ci-controls"
+        }
+      ],
+      "path": "ci-for-agentic-engineering.md",
+      "signals": [
+        ".github/workflows",
+        "github actions",
+        "workflow",
+        "ci",
+        "merge queue",
+        "merge_group",
+        "runner",
+        "flaky",
+        "actionlint",
+        "zizmor"
+      ],
+      "title": "CI for agentic engineering"
+    },
+    {
+      "applies_when": [
         "building or changing a retrieval-augmented generation pipeline",
         "chunked documents lose context needed to retrieve them",
         "deciding whether to add BM25, reranking, or full-context prompting"
@@ -513,6 +565,58 @@
         "asyncapi"
       ],
       "title": "API design: one default per question, enforced by a linter"
+    },
+    {
+      "applies_when": [
+        "a coding agent writes or changes tests, or writes code and tests together",
+        "reviewing, trimming, or deduplicating a test suite that agents have grown",
+        "deciding which tests a change needs, or whether to use mocks, properties, snapshots, or end-to-end tests",
+        "choosing between software tests and agent evals for a system that contains an agent"
+      ],
+      "key_rules": [
+        {
+          "rule": "Give the agent the map of existing tests that cover the code it will change before it writes new tests.",
+          "source": "testing-in-agentic-engineering.md#3-rules-that-make-agents-write-fewer-better-tests"
+        },
+        {
+          "rule": "Trace every new test to a named requirement, boundary, invariant, contract, or bug reproduction.",
+          "source": "testing-in-agentic-engineering.md#3-rules-that-make-agents-write-fewer-better-tests"
+        },
+        {
+          "rule": "Prefer real collaborators or fakes over mocks, and delete tests that assert only mock calls.",
+          "source": "testing-in-agentic-engineering.md#2-detect-and-trim-what-agents-over-produce"
+        },
+        {
+          "rule": "Use a property-based test when a function obeys an invariant such as a round trip, ordering, or idempotency.",
+          "source": "testing-in-agentic-engineering.md#1-shape-the-test-portfolio"
+        },
+        {
+          "rule": "Judge test quality with mutation testing on changed code, not with raw line coverage.",
+          "source": "testing-in-agentic-engineering.md#1-shape-the-test-portfolio"
+        },
+        {
+          "rule": "Keep acceptance tests read-only or held out from the agent, and review every deleted or weakened assertion.",
+          "source": "testing-in-agentic-engineering.md#2-detect-and-trim-what-agents-over-produce"
+        },
+        {
+          "rule": "Test deterministic code with software tests and agent behaviour with evals; do not substitute one for the other.",
+          "source": "testing-in-agentic-engineering.md#4-software-tests-versus-agent-evals"
+        }
+      ],
+      "path": "testing-in-agentic-engineering.md",
+      "signals": [
+        "test",
+        "tests/",
+        "pytest",
+        "unittest",
+        "mock",
+        "fixture",
+        "hypothesis",
+        "mutation testing",
+        "coverage",
+        "snapshot"
+      ],
+      "title": "Testing in agentic engineering"
     }
   ],
   "version": 1
