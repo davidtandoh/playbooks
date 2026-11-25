@@ -14,7 +14,8 @@ front matter will adopt it in a separate change.
 
 | Playbook | Topics | What it covers |
 | --- | --- | --- |
-| [Local-first CI with hosted acceptance (draft)](drafts/20261011-local-first-ci.md) | `delivery-gates` `verification` `security-and-privacy` `cost` | One tool per CI job, local workflow lint and emulation limits, trust boundaries for actions and runners, required-check and rounded-minute cost rules, and a bounded one-repository pilot |
+| [Testing in agentic engineering](testing-in-agentic-engineering.md) | `verification` `delivery-gates` `evals` `reliability` `cost` | A test portfolio for agent-written code, what agents over-produce (mocks, debug scripts, tampered assertions) and how to trim it, rules for fewer and better agent tests, property-based and mutation testing, and software tests versus agent evals |
+| [CI for agentic engineering](ci-for-agentic-engineering.md) | `delivery-gates` `verification` `security-and-privacy` `cost` `reliability` | Local gate first with hosted merge proof, staged test selection, caching and merge queues, flaky-test governance, rounded-minute cost per merge, and trust boundaries for actions, secrets and runners |
 | [API design](practices/engineering-standards/api-design.md) | `architecture` `delivery-gates` `verification` `security-and-privacy` | One default per HTTP API design question, enforced by a Spectral ruleset and an oasdiff breaking-change check: naming, versioning, RFC 9457 errors, pagination, idempotency, auth, rate limits, long-running operations, webhooks and events |
 
 ### Agent systems
@@ -93,6 +94,19 @@ published.
   4. Grade outcomes, not paths. ([source](building-reliable-agents.md#grade-the-outcome-not-the-path))
   5. Contain at the environment layer first and steer at the model layer second. ([source](building-reliable-agents.md#0-the-rules-in-one-screen))
   6. Keep prompt and response content capture opt-in. ([source](building-reliable-agents.md#content-capture-is-privacy-by-default-opt-in))
+
+**[CI for agentic engineering](ci-for-agentic-engineering.md)**
+
+- Applies when: adding or changing a CI workflow, a local gate script, or pre-commit and pre-push hooks; coding agents open many small pull requests and hosted CI cost or queue time grows; choosing test selection, caching, sharding, or a merge queue; handling flaky tests, workflow permissions, secrets, or self-hosted runners.
+- Signals: `.github/workflows`, `github actions`, `workflow`, `ci`, `merge queue`, `merge_group`, `runner`, `flaky`, `actionlint`, `zizmor`.
+- Key rules:
+  1. Run one canonical gate script locally before pushing, and use hosted CI only for independent merge evidence. ([source](ci-for-agentic-engineering.md#1-gate-locally-prove-independently))
+  2. Select tests in stages and fail closed to the full suite when a change cannot be classified. ([source](ci-for-agentic-engineering.md#2-select-tests-in-stages))
+  3. Restore caches on pull requests and save them only from trusted default-branch runs. ([source](ci-for-agentic-engineering.md#3-caching-sharding-and-merge-queues))
+  4. Add merge_group triggers and a merge queue once concurrent agent pull requests break the default branch. ([source](ci-for-agentic-engineering.md#merge-queues-for-parallel-agent-work))
+  5. Track flakiness per test, cap retries, and quarantine chronic flakes with an owner and a deadline. ([source](ci-for-agentic-engineering.md#4-govern-flaky-tests))
+  6. Count cost per merged pull request in rounded job minutes across every attempt. ([source](ci-for-agentic-engineering.md#5-cost-per-merge-time-budgets-and-honest-baselines))
+  7. Keep pull request validation secretless and read-only, pin third-party actions to full commit SHAs, and lint workflows with actionlint and zizmor. ([source](ci-for-agentic-engineering.md#6-trust-boundaries-and-agent-specific-ci-controls))
 
 **[Contextual Retrieval](contextual-retrieval.md)**
 
@@ -217,6 +231,19 @@ published.
   4. Paginate every list with page_size, page_token, and next_page_token from the first release. ([source](practices/engineering-standards/api-design.md#pagination))
   5. Accept an Idempotency-Key on every POST. ([source](practices/engineering-standards/api-design.md#idempotency-keys))
   6. Declare security on every operation and deny by default. ([source](practices/engineering-standards/api-design.md#auth-and-rate-limits))
+
+**[Testing in agentic engineering](testing-in-agentic-engineering.md)**
+
+- Applies when: a coding agent writes or changes tests, or writes code and tests together; reviewing, trimming, or deduplicating a test suite that agents have grown; deciding which tests a change needs, or whether to use mocks, properties, snapshots, or end-to-end tests; choosing between software tests and agent evals for a system that contains an agent.
+- Signals: `test`, `tests/`, `pytest`, `unittest`, `mock`, `fixture`, `hypothesis`, `mutation testing`, `coverage`, `snapshot`.
+- Key rules:
+  1. Give the agent the map of existing tests that cover the code it will change before it writes new tests. ([source](testing-in-agentic-engineering.md#3-rules-that-make-agents-write-fewer-better-tests))
+  2. Trace every new test to a named requirement, boundary, invariant, contract, or bug reproduction. ([source](testing-in-agentic-engineering.md#3-rules-that-make-agents-write-fewer-better-tests))
+  3. Prefer real collaborators or fakes over mocks, and delete tests that assert only mock calls. ([source](testing-in-agentic-engineering.md#2-detect-and-trim-what-agents-over-produce))
+  4. Use a property-based test when a function obeys an invariant such as a round trip, ordering, or idempotency. ([source](testing-in-agentic-engineering.md#1-shape-the-test-portfolio))
+  5. Judge test quality with mutation testing on changed code, not with raw line coverage. ([source](testing-in-agentic-engineering.md#1-shape-the-test-portfolio))
+  6. Keep acceptance tests read-only or held out from the agent, and review every deleted or weakened assertion. ([source](testing-in-agentic-engineering.md#2-detect-and-trim-what-agents-over-produce))
+  7. Test deterministic code with software tests and agent behaviour with evals; do not substitute one for the other. ([source](testing-in-agentic-engineering.md#4-software-tests-versus-agent-evals))
 <!-- playbook-index:v1:end -->
 
 ## Conventions
