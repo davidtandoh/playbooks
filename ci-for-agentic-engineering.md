@@ -162,7 +162,7 @@ redundancy.
 | Workflow syntax check | `actionlint`, with ShellCheck when installed | None | Not applicable ([actionlint](https://github.com/rhysd/actionlint/blob/main/docs/checks.md)). |
 | Workflow security audit | `zizmor --offline`; record any online run | None | Not applicable ([zizmor](https://docs.zizmor.sh/usage/)). |
 | Skip irrelevant optional workflows | Native `paths` and `paths-ignore` | `dorny/paths-filter` at a patched SHA, outputs used as booleans only | A required aggregate check must always report while expensive child jobs skip ([GitHub](https://docs.github.com/en/actions/reference/workflows-and-actions/workflow-syntax)). |
-| Pin third-party actions to SHAs | `pinact` (`pinact run --check`, or `--no-api` offline) | Ratchet | The estate spans CI systems beyond GitHub Actions ([pinact](https://github.com/suzuki-shunsuke/pinact)). |
+| Pin third-party actions to SHAs | `pinact` (`pinact run --check`, or `pinact run --fix=false --no-api` offline) | Ratchet | The estate spans CI systems beyond GitHub Actions ([pinact](https://github.com/suzuki-shunsuke/pinact)). |
 | Keep pins current | Dependabot for `github-actions`, grouped weekly, no auto-merge | Renovate, after reviewing its AGPL-3.0 licence and hosting | You need cross-ecosystem grouping or custom regex managers ([Dependabot](https://docs.github.com/en/code-security/concepts/supply-chain-security/dependabot-on-actions), [Renovate](https://docs.renovatebot.com/modules/manager/github-actions/)). |
 | Portable pipeline code | Gate script plus project runners | Dagger | Measured duplication between local and CI pipelines justifies maintaining pipeline code ([Dagger](https://dagger.io/pricing/)). |
 
