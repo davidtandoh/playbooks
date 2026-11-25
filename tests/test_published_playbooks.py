@@ -356,12 +356,10 @@ def fenced_blocks(text: str) -> list[tuple[int, str, str]]:
 
 
 def ascii_diagram_errors(text: str) -> list[str]:
-    """Report untyped fences and text fences that hold an ASCII diagram."""
+    """Report text fences that hold an ASCII diagram."""
     errors = []
     for number, info, body in fenced_blocks(text):
-        if not info:
-            errors.append(f"line {number}: fence declares no language")
-        elif info == "text" and any(mark in body for mark in ASCII_DIAGRAM_MARKS):
+        if info == "text" and any(mark in body for mark in ASCII_DIAGRAM_MARKS):
             errors.append(f"line {number}: ASCII diagram; use a mermaid fence")
     return errors
 
@@ -373,7 +371,7 @@ class DiagramTest(unittest.TestCase):
                 text = path.read_text(encoding="utf-8")
                 self.assertEqual(ascii_diagram_errors(text), [])
 
-    def test_ascii_diagrams_and_untyped_fences_are_reported(self) -> None:
+    def test_only_text_fence_ascii_diagrams_are_reported(self) -> None:
         text = (
             "```text\nplain output\n```\n"
             "```text\nA -> B\n```\n"
@@ -384,7 +382,6 @@ class DiagramTest(unittest.TestCase):
             ascii_diagram_errors(text),
             [
                 "line 4: ASCII diagram; use a mermaid fence",
-                "line 7: fence declares no language",
             ],
         )
 

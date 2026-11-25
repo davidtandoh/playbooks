@@ -254,8 +254,7 @@ published.
 - Favor tables, checklists, and rules-of-thumb over prose — these are references, not essays.
 - Draw every diagram in a `mermaid` fence, not as ASCII art, and put a
   one-line `Takeaway:` below it. The site renders Mermaid to images when it
-  builds. Give every code fence a language; keep `text` fences for plain
-  output. CI fails on an untyped fence or an ASCII diagram in a `text` fence.
+  builds. CI fails on an ASCII diagram in a `text` fence.
 - Update the index above when adding a playbook.
 - Give every published page `applies_when`, `signals`, and `key_rules` front
   matter, then run `python3 scripts/playbook_index.py` to regenerate
