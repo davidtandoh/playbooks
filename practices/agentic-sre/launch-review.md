@@ -22,13 +22,15 @@ key_rules:
   - Review SLOs, autonomy, blast radius, evals, tracing, drift, and incident roles together. (#at-a-glance)
   - Keep a failure-mode table, a rollback, and degraded modes. (#checklist)
   - Design reliability in before launch; adding it later costs more. (#rules-of-thumb)
+skills:
+  - agent-reliability/agentic-product-reliability-review
 ---
 # Launch review for agentic products
 
 Review reliability before you build and again before you launch. The review
 pulls the other practice pages into one sign-off.
 
-Skill: `agentic-product-reliability-review` (see the
+Skill: `agent-reliability`, topic `agentic-product-reliability-review` (see the
 [skill index](README.md#skills)).
 
 ## Sources

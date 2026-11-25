@@ -23,6 +23,9 @@ key_rules:
   - Start at L2 for critical operations and L3 for minor incidents. (#at-a-glance)
   - Write measurable promotion criteria and wire automatic demotion to live risk signals. (#checklist)
   - Count approval clicks, re-prompts, and clean-up of agent output as toil. (#rules-of-thumb)
+skills:
+  - agent-reliability/agent-autonomy-levels
+  - agent-reliability/agent-toil-budget
 ---
 # Autonomy and approval gates
 
@@ -30,7 +33,7 @@ Decide how much an agent may do without a human, one action type at a time.
 Agents earn a higher level with evidence and lose it automatically when risk
 rises.
 
-Skills: `agent-autonomy-levels`, `agent-toil-budget` (see the
+Skill: `agent-reliability`, topics `agent-autonomy-levels` and `agent-toil-budget` (see the
 [skill index](README.md#skills)).
 
 ## Sources

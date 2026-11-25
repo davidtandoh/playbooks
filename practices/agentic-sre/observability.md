@@ -23,13 +23,16 @@ key_rules:
   - Include failed and retried attempts in tokens and cost per task. (#at-a-glance)
   - Pin the GenAI and MCP convention version you implement and recheck it before an upgrade. (#rules-of-thumb)
   - Do not let reliability data become a data-leak path. (#rules-of-thumb)
+skills:
+  - agent-reliability/trace-based-slis
 ---
 # Observability: SLIs from traces
 
 Compute agent service level indicators (SLIs) from OpenTelemetry (OTel) traces.
 Aggregate task metrics by task identity and session metrics by session identity.
 
-Skill: `trace-based-slis` (see the [skill index](README.md#skills)).
+Skill: `agent-reliability`, topic `trace-based-slis` (see the
+[skill index](README.md#skills)).
 
 ## Sources
 

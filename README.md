@@ -75,6 +75,7 @@ published.
 
 - Applies when: deciding whether a task needs an agent, a workflow, or a single model call; building or changing an agent loop, its tools, or its context handling; splitting work across multiple agents.
 - Signals: `agent`, `tool use`, `stop_reason`, `orchestrator`, `multi-agent`, `system prompt`.
+- Skills: [`agent-reliability`](skills/agent-reliability/SKILL.md) (`tool-blast-radius`, `agentic-product-reliability-review`), `system-design-assessment`.
 - Key rules:
   1. Build an agent only when the task passes all four gate criteria; otherwise use a single call or a workflow. ([source](building-ai-agents.md#1-gate-should-you-even-build-an-agent))
   2. Key loop termination off the structured stop signal; keep the iteration cap as a backstop only. ([source](building-ai-agents.md#2-the-atomic-unit-the-react-loop))
@@ -87,6 +88,7 @@ published.
 
 - Applies when: taking an agent or LLM feature to production; adding observability, cost controls, evals, or security to an agent; handling untrusted input or prompt injection in an agent.
 - Signals: `opentelemetry`, `gen_ai`, `prompt caching`, `eval`, `guardrail`, `sandbox`, `token budget`.
+- Skills: [`agent-reliability`](skills/agent-reliability/SKILL.md), `context-efficient-session`, `service-observability`.
 - Key rules:
   1. Start with the simplest thing and add autonomy only when it demonstrably improves outcomes. ([source](building-reliable-agents.md#0-the-rules-in-one-screen))
   2. Treat context as finite and degrading; curate it instead of filling it. ([source](building-reliable-agents.md#the-core-mental-model-context-is-finite-and-degrading))
@@ -99,6 +101,7 @@ published.
 
 - Applies when: adding or changing a CI workflow, a local gate script, or pre-commit and pre-push hooks; coding agents open many small pull requests and hosted CI cost or queue time grows; choosing test selection, caching, sharding, or a merge queue; handling flaky tests, workflow permissions, secrets, or self-hosted runners.
 - Signals: `.github/workflows`, `github actions`, `workflow`, `ci`, `merge queue`, `merge_group`, `runner`, `flaky`, `actionlint`, `zizmor`.
+- Skills: `apply-playbooks`, `spec-delivery-loop`, [`correct`](https://github.com/cursor/plugins/tree/main/pstack/skills/correct).
 - Key rules:
   1. Run one canonical gate script locally before pushing, and use hosted CI only for independent merge evidence. ([source](ci-for-agentic-engineering.md#1-gate-locally-prove-independently))
   2. Select tests in stages and fail closed to the full suite when a change cannot be classified. ([source](ci-for-agentic-engineering.md#2-select-tests-in-stages))
@@ -112,6 +115,7 @@ published.
 
 - Applies when: building or changing a retrieval-augmented generation pipeline; chunked documents lose context needed to retrieve them; deciding whether to add BM25, reranking, or full-context prompting.
 - Signals: `rag`, `retrieval`, `embedding`, `bm25`, `rerank`, `chunk`, `vector store`.
+- Skills: none yet.
 - Key rules:
   1. Test putting the whole knowledge base in a cached prompt before building retrieval when it is under 200,000 tokens. ([source](contextual-retrieval.md#1-start-with-the-simplest-prompt-that-fits))
   2. Generate context from the complete document and one target chunk, and prepend it before both the embedding and BM25 indexes. ([source](contextual-retrieval.md#2-generate-context-once-per-chunk))
@@ -123,6 +127,7 @@ published.
 
 - Applies when: granting an agent a new power such as merge, send, spend, or deploy; adding or removing a human approval gate; supervising agents takes more time than the work.
 - Signals: `approval`, `auto-merge`, `permissions`, `autonomy`, `human-in-the-loop`.
+- Skills: [`agent-reliability`](skills/agent-reliability/SKILL.md) (`agent-autonomy-levels`, `agent-toil-budget`).
 - Key rules:
   1. Grant no agent full access on day one. ([source](practices/agentic-sre/autonomy-and-approval.md#rules-of-thumb))
   2. Record the autonomy level per action type, not one level per agent. ([source](practices/agentic-sre/autonomy-and-approval.md#rules-of-thumb))
@@ -134,6 +139,7 @@ published.
 
 - Applies when: giving an agent a tool, credential, memory store, or external channel; an agent can write, spend, or reach outside systems.
 - Signals: `credentials`, `api key`, `service account`, `mcp server`, `tool definition`.
+- Skills: [`agent-reliability`](skills/agent-reliability/SKILL.md) (`tool-blast-radius`).
 - Key rules:
   1. Keep authorization downstream of the model; a system prompt is not a control. ([source](practices/agentic-sre/blast-radius.md#rules-of-thumb))
   2. Give each agent its own short-lived, scoped credentials; no shared or developer credentials. ([source](practices/agentic-sre/blast-radius.md#at-a-glance))
@@ -146,6 +152,7 @@ published.
 
 - Applies when: monitoring production quality of an agent or AI feature; a model, prompt, tool, or input mix changes under a running system; trusting an old eval or a model judge.
 - Signals: `llm-as-judge`, `sampling`, `eval`, `model version`, `quality dashboard`.
+- Skills: [`agent-reliability`](skills/agent-reliability/SKILL.md) (`drift-and-quality-monitoring`).
 - Key rules:
   1. Do not trust a judge that has never been compared with human labels. ([source](practices/agentic-sre/drift.md#rules-of-thumb))
   2. Offline evals alone do not detect drift. ([source](practices/agentic-sre/drift.md#rules-of-thumb))
@@ -157,6 +164,7 @@ published.
 
 - Applies when: an agent takes a harmful action or a group of agents stalls; a model provider fails during operation; an AI product gives harmful output.
 - Signals: `incident`, `outage`, `runbook`, `on-call`, `kill switch`.
+- Skills: [`agent-reliability`](skills/agent-reliability/SKILL.md) (`agent-incident-response`).
 - Key rules:
   1. A human is the incident commander, never an agent. ([source](practices/agentic-sre/incidents.md#at-a-glance))
   2. Agents investigate read-only and propose; the incident commander decides. ([source](practices/agentic-sre/incidents.md#at-a-glance))
@@ -168,6 +176,7 @@ published.
 
 - Applies when: designing or launching an agent-backed product or feature; signing off reliability before build or before launch.
 - Signals: `launch`, `design review`, `readiness review`, `go-live`.
+- Skills: [`agent-reliability`](skills/agent-reliability/SKILL.md) (`agentic-product-reliability-review`).
 - Key rules:
   1. Define the critical user journeys and what correct means for each. ([source](practices/agentic-sre/launch-review.md#checklist))
   2. Give every agent feature a fallback without the model. ([source](practices/agentic-sre/launch-review.md#rules-of-thumb))
@@ -179,6 +188,7 @@ published.
 
 - Applies when: adding tracing or metrics to an agent; computing reliability indicators from agent traces.
 - Signals: `opentelemetry`, `gen_ai`, `execute_tool`, `span`, `trace`, `mcp`.
+- Skills: [`agent-reliability`](skills/agent-reliability/SKILL.md) (`trace-based-slis`).
 - Key rules:
   1. Measure tasks, not spans. ([source](practices/agentic-sre/observability.md#rules-of-thumb))
   2. Compute tool error rate from execute_tool spans with error.type set. ([source](practices/agentic-sre/observability.md#at-a-glance))
@@ -190,6 +200,7 @@ published.
 
 - Applies when: writing up an agent incident or a notable bad output.
 - Signals: `postmortem`, `incident review`, `retrospective`, `root cause`.
+- Skills: [`agent-reliability`](skills/agent-reliability/SKILL.md) (`agent-postmortems`).
 - Key rules:
   1. Stay blameless for humans and agents alike. ([source](practices/agentic-sre/postmortems.md#rules-of-thumb))
   2. Build the timeline from traces, not memory. ([source](practices/agentic-sre/postmortems.md#at-a-glance))
@@ -201,6 +212,7 @@ published.
 
 - Applies when: changing a model, system prompt, skill, tool schema, or agent framework version.
 - Signals: `model id`, `prompt`, `skill`, `tool schema`, `canary`, `eval`.
+- Skills: [`agent-reliability`](skills/agent-reliability/SKILL.md) (`eval-gated-releases`).
 - Key rules:
   1. Version prompts, skills, model ids, tool schemas, and harness versions, and record each on every trace. ([source](practices/agentic-sre/releases.md#at-a-glance))
   2. Gate each release per slice against the last known-good baseline. ([source](practices/agentic-sre/releases.md#at-a-glance))
@@ -213,6 +225,7 @@ published.
 
 - Applies when: launching or reviewing an agent and defining how reliable it must be; choosing SLIs, SLO targets, error budgets, or burn-rate alerts; planning agent capacity, provider quotas, or cost.
 - Signals: `slo`, `sli`, `error budget`, `burn rate`, `alerting`, `quota`.
+- Skills: [`agent-reliability`](skills/agent-reliability/SKILL.md) (`agent-slo-design`, `agent-capacity-and-cost`).
 - Key rules:
   1. Uptime alone is not an SLO for an agent. ([source](practices/agentic-sre/slos-and-error-budgets.md#rules-of-thumb))
   2. Use pass or fail indicators, not one-to-ten judge scores. ([source](practices/agentic-sre/slos-and-error-budgets.md#rules-of-thumb))
@@ -224,6 +237,7 @@ published.
 
 - Applies when: adding or changing an HTTP API or its OpenAPI document; designing webhooks or event payloads consumed by another service.
 - Signals: `openapi`, `openapi.yaml`, `spectral`, `oasdiff`, `endpoint`, `webhook`, `asyncapi`.
+- Skills: none yet.
 - Key rules:
   1. Commit the OpenAPI document and lint it with the shared Spectral ruleset on every pull request. ([source](practices/engineering-standards/api-design.md#openapi-first-with-spectral-and-oasdiff))
   2. Fail CI on breaking changes with oasdiff; break the contract only with a new major path version. ([source](practices/engineering-standards/api-design.md#versioning))
@@ -236,6 +250,7 @@ published.
 
 - Applies when: a coding agent writes or changes tests, or writes code and tests together; reviewing, trimming, or deduplicating a test suite that agents have grown; deciding which tests a change needs, or whether to use mocks, properties, snapshots, or end-to-end tests; choosing between software tests and agent evals for a system that contains an agent.
 - Signals: `test`, `tests/`, `pytest`, `unittest`, `mock`, `fixture`, `hypothesis`, `mutation testing`, `coverage`, `snapshot`.
+- Skills: `apply-playbooks`, `spec-delivery-loop`, [`diagnosing-bugs`](https://github.com/mattpocock/skills/tree/main/skills/engineering/diagnosing-bugs).
 - Key rules:
   1. Give the agent the map of existing tests that cover the code it will change before it writes new tests. ([source](testing-in-agentic-engineering.md#3-rules-that-make-agents-write-fewer-better-tests))
   2. Trace every new test to a named requirement, boundary, invariant, contract, or bug reproduction. ([source](testing-in-agentic-engineering.md#3-rules-that-make-agents-write-fewer-better-tests))
@@ -260,6 +275,13 @@ published.
   matter, then run `python3 scripts/playbook_index.py` to regenerate
   `index.json` and the "Which playbook applies" section. CI fails when either
   is stale.
+- Name the agent skills that put a published page into practice in its
+  `skills` front matter: one `<id>` or `<id>/<topic>` per item, or
+  `skills: none`. Every id must appear in
+  [`skills-public.json`](skills-public.json), which holds the only public text
+  about each skill. A root playbook also needs the `playbook-skills` begin and
+  end markers where the generated "Skills that put this into practice"
+  section goes. Published skill copies live in [`skills/`](skills/README.md).
 - Keep standalone playbook drafts under `drafts/`. A separate reviewed change
   promotes a standalone draft to the root. Draft practice pages stay in their
   practice set as described below.

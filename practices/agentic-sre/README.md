@@ -40,7 +40,7 @@ release.
 
 ## Practices
 
-| Practice | Skills | What it covers |
+| Practice | Skill topics | What it covers |
 | --- | --- | --- |
 | [Autonomy and approval gates](autonomy-and-approval.md) | `agent-autonomy-levels`, `agent-toil-budget` | L0 to L4 levels per action type, promotion with evidence, automatic demotion, approval toil |
 | [Blast radius](blast-radius.md) | `tool-blast-radius` | Tool inventory, distinct identities, envelopes, dry run, circuit breakers, emergency stop |
@@ -54,24 +54,26 @@ release.
 
 ## Skills
 
-Each practice names one or more agent skills by id. A skill is the
-agent-executable form of a practice. The canonical copy of each skill lives in
-Personal Agent Kit at `skills/<id>/SKILL.md`, which is published separately
-from this repository.
+Each practice has an agent-executable form: a topic guide in the
+[`agent-reliability`](../../skills/agent-reliability/SKILL.md) skill, published
+in this repository under `skills/`. The skill's entry point routes an agent
+to one topic guide. The copy here is a one-way export from the author's
+private source, so a direct edit here would be overwritten by the next export;
+see [the skills directory](../../skills/README.md).
 
-| Skill id | Personal Agent Kit path | Practice |
+| Topic | Guide | Practice |
 | --- | --- | --- |
-| `agent-autonomy-levels` | `skills/agent-autonomy-levels/` | [Autonomy and approval gates](autonomy-and-approval.md) |
-| `agent-capacity-and-cost` | `skills/agent-capacity-and-cost/` | [SLOs and error budgets](slos-and-error-budgets.md) |
-| `agent-incident-response` | `skills/agent-incident-response/` | [Incidents](incidents.md) |
-| `agent-postmortems` | `skills/agent-postmortems/` | [Postmortems](postmortems.md) |
-| `agent-slo-design` | `skills/agent-slo-design/` | [SLOs and error budgets](slos-and-error-budgets.md) |
-| `agent-toil-budget` | `skills/agent-toil-budget/` | [Autonomy and approval gates](autonomy-and-approval.md) |
-| `agentic-product-reliability-review` | `skills/agentic-product-reliability-review/` | [Launch review](launch-review.md) |
-| `drift-and-quality-monitoring` | `skills/drift-and-quality-monitoring/` | [Drift](drift.md) |
-| `eval-gated-releases` | `skills/eval-gated-releases/` | [Releases](releases.md) |
-| `tool-blast-radius` | `skills/tool-blast-radius/` | [Blast radius](blast-radius.md) |
-| `trace-based-slis` | `skills/trace-based-slis/` | [Observability](observability.md) |
+| `agent-autonomy-levels` | [guide](../../skills/agent-reliability/references/agent-autonomy-levels/guide.md) | [Autonomy and approval gates](autonomy-and-approval.md) |
+| `agent-capacity-and-cost` | [guide](../../skills/agent-reliability/references/agent-capacity-and-cost/guide.md) | [SLOs and error budgets](slos-and-error-budgets.md) |
+| `agent-incident-response` | [guide](../../skills/agent-reliability/references/agent-incident-response/guide.md) | [Incidents](incidents.md) |
+| `agent-postmortems` | [guide](../../skills/agent-reliability/references/agent-postmortems/guide.md) | [Postmortems](postmortems.md) |
+| `agent-slo-design` | [guide](../../skills/agent-reliability/references/agent-slo-design/guide.md) | [SLOs and error budgets](slos-and-error-budgets.md) |
+| `agent-toil-budget` | [guide](../../skills/agent-reliability/references/agent-toil-budget/guide.md) | [Autonomy and approval gates](autonomy-and-approval.md) |
+| `agentic-product-reliability-review` | [guide](../../skills/agent-reliability/references/agentic-product-reliability-review/guide.md) | [Launch review](launch-review.md) |
+| `drift-and-quality-monitoring` | [guide](../../skills/agent-reliability/references/drift-and-quality-monitoring/guide.md) | [Drift](drift.md) |
+| `eval-gated-releases` | [guide](../../skills/agent-reliability/references/eval-gated-releases/guide.md) | [Releases](releases.md) |
+| `tool-blast-radius` | [guide](../../skills/agent-reliability/references/tool-blast-radius/guide.md) | [Blast radius](blast-radius.md) |
+| `trace-based-slis` | [guide](../../skills/agent-reliability/references/trace-based-slis/guide.md) | [Observability](observability.md) |
 
 ## Credits
 

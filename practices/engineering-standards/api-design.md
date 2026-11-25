@@ -27,6 +27,7 @@ key_rules:
   - Paginate every list with page_size, page_token, and next_page_token from the first release. (#pagination)
   - Accept an Idempotency-Key on every POST. (#idempotency-keys)
   - Declare security on every operation and deny by default. (#auth-and-rate-limits)
+skills: none
 ---
 # API design: one default per question, enforced by a linter
 
@@ -38,6 +39,8 @@ answers, so that neither a reviewer nor a coding agent has to remember them.
 rule exists. When the page and the ruleset disagree, the ruleset wins and the
 page is the bug. A convention that no check enforces is a candidate for a new
 rule, not for a longer page.
+
+Skill: none yet.
 
 ## Sources
 
