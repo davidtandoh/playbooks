@@ -416,7 +416,39 @@ published.
   A practice page that is still a draft says `status: draft` in its front matter.
   Practice pages link to playbook sections instead of repeating them.
 
-## Private-term check
+## Repository checks
+
+Use Node.js 22 or later and Python 3.9 or later. Install the pinned tools
+before running the same non-mutating gate used by CI:
+
+```sh
+python3 -m venv .venv
+source .venv/bin/activate
+python3 -m pip install -r requirements-dev.txt
+npm ci --ignore-scripts
+npm run check
+```
+
+The gate checks Markdown structure, Ruff lint and formatting for Python,
+private terms in tracked text, and the full metadata test suite. Any failure
+stops the command with a nonzero exit code. Missing tools fail the gate.
+
+Markdown includes root pages, drafts, practices, and published skills.
+`.markdownlint-cli2.jsonc` selects heading hierarchy and syntax, one visible
+title, fenced code blocks with languages, link fragments, unused reference
+definitions, and table structure. Front matter titles do not count as visible
+headings. Prose layout, line length, bare URLs, and inline HTML stay optional.
+Python includes scripts and tests, targets Python 3.9, and uses `ruff.toml`.
+Dependency directories are excluded. No diagnostic debt baseline is used.
+Repository reviewers own rule changes and exceptions.
+
+For quick feedback, run `npx --no-install markdownlint-cli2 path/to/page.md`
+or `python3 -m ruff check path/to/file.py` and
+`python3 -m ruff format --check path/to/file.py`. To repair Python style,
+run `python3 -m ruff check --fix .` and `python3 -m ruff format .`, then
+review the diff. Checks never repair files automatically.
+
+### Private-term check
 
 With Python 3 and pre-commit available, run `pre-commit install` in your clone
 to enable the configured commit hook. Run `python3 scripts/private_terms.py scan`

@@ -16,7 +16,19 @@ jobs:
     steps:
       - name: Check out repository
         uses: actions/checkout@v4
-      - name: Validate publication metadata
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.9"
+      - name: Install check dependencies
+        run: |
+          npm ci --ignore-scripts
+          python3 -m pip install -r requirements-dev.txt
+      - name: Run repository checks
         env:
           PYTHONDONTWRITEBYTECODE: "1"
-        run: python3 -m unittest discover -s tests -v
+        run: npm run check

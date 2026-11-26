@@ -10,7 +10,6 @@ import tempfile
 import unittest
 from unittest import mock
 
-
 REPOSITORY_ROOT = pathlib.Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(REPOSITORY_ROOT / "scripts"))
 
@@ -31,7 +30,14 @@ PUBLISHED_PLAYBOOKS = (
 TAXONOMY_DRAFTS = {
     REPOSITORY_ROOT / "drafts" / "20261123-persistent-agents.md": (
         "Agent systems",
-        ["architecture", "orchestration", "memory", "reliability", "governance", "evals"],
+        [
+            "architecture",
+            "orchestration",
+            "memory",
+            "reliability",
+            "governance",
+            "evals",
+        ],
     ),
 }
 AGENTIC_SRE_DIRECTORY = REPOSITORY_ROOT / "practices" / "agentic-sre"
@@ -44,9 +50,7 @@ AGENTIC_SRE_PRACTICES = {
     AGENTIC_SRE_DIRECTORY / "blast-radius.md": ("tool-blast-radius",),
     AGENTIC_SRE_DIRECTORY / "drift.md": ("drift-and-quality-monitoring",),
     AGENTIC_SRE_DIRECTORY / "incidents.md": ("agent-incident-response",),
-    AGENTIC_SRE_DIRECTORY / "launch-review.md": (
-        "agentic-product-reliability-review",
-    ),
+    AGENTIC_SRE_DIRECTORY / "launch-review.md": ("agentic-product-reliability-review",),
     AGENTIC_SRE_DIRECTORY / "observability.md": ("trace-based-slis",),
     AGENTIC_SRE_DIRECTORY / "postmortems.md": ("agent-postmortems",),
     AGENTIC_SRE_DIRECTORY / "releases.md": ("eval-gated-releases",),
@@ -160,9 +164,7 @@ class AgenticSrePracticesTest(unittest.TestCase):
     def test_practices_use_the_section_contract(self) -> None:
         for path in AGENTIC_SRE_PRACTICES:
             with self.subTest(practice=path.name):
-                self.assertEqual(
-                    level_two_headings(path), list(PRACTICE_SECTIONS)
-                )
+                self.assertEqual(level_two_headings(path), list(PRACTICE_SECTIONS))
                 text = path.read_text(encoding="utf-8")
                 self.assertIn("../../building-reliable-agents.md#", text)
                 self.assertNotIn("- [ ]", text.split("## Claim review")[1])
@@ -193,9 +195,7 @@ class AgenticSrePracticesTest(unittest.TestCase):
                     continue
                 with self.subTest(page=path.name, link=target):
                     file_part, _, anchor = target.partition("#")
-                    linked = (
-                        (path.parent / file_part).resolve() if file_part else path
-                    )
+                    linked = (path.parent / file_part).resolve() if file_part else path
                     self.assertTrue(linked.is_file())
                     if anchor:
                         self.assertIn(anchor, heading_anchors(linked))
@@ -265,9 +265,7 @@ class EngineeringStandardsPracticesTest(unittest.TestCase):
                     continue
                 with self.subTest(page=path.name, link=target):
                     file_part, _, anchor = target.partition("#")
-                    linked = (
-                        (path.parent / file_part).resolve() if file_part else path
-                    )
+                    linked = (path.parent / file_part).resolve() if file_part else path
                     self.assertTrue(linked.is_file())
                     if anchor:
                         self.assertIn(anchor, heading_anchors(linked))
@@ -285,7 +283,9 @@ class PlaybookIndexTest(unittest.TestCase):
         pages = playbook_index.published_pages()
         self.assertEqual(
             set(pages),
-            set(PUBLISHED_PLAYBOOKS) | set(AGENTIC_SRE_PRACTICES) | set(ENGINEERING_PAGES),
+            set(PUBLISHED_PLAYBOOKS)
+            | set(AGENTIC_SRE_PRACTICES)
+            | set(ENGINEERING_PAGES),
         )
         for path in pages:
             with self.subTest(page=path.name):
@@ -317,12 +317,8 @@ class PlaybookIndexTest(unittest.TestCase):
             errors = playbook_index.matching_metadata_errors(page)
         self.assertIn("applies_when must be a non-empty list", errors)
         self.assertIn("key_rules must have 3 to 7 items", errors)
-        self.assertIn(
-            "signals item is not a plain YAML scalar: '*.proto'", errors
-        )
-        self.assertIn(
-            "key_rules item lacks a trailing (#anchor): 'One.'", errors
-        )
+        self.assertIn("signals item is not a plain YAML scalar: '*.proto'", errors)
+        self.assertIn("key_rules item lacks a trailing (#anchor): 'One.'", errors)
         self.assertIn(
             "key_rules item cites a missing heading: 'Two. (#missing)'", errors
         )
@@ -428,8 +424,10 @@ class PathGlobsTest(unittest.TestCase):
     def test_optional_globs_compile_without_changing_text_hints(self) -> None:
         for declaration, expected in (
             ("", None),
-            ('path_globs:\n  - "**/openapi*.y*ml"\n  - "**/*.proto"\n',
-             ["**/openapi*.y*ml", "**/*.proto"]),
+            (
+                'path_globs:\n  - "**/openapi*.y*ml"\n  - "**/*.proto"\n',
+                ["**/openapi*.y*ml", "**/*.proto"],
+            ),
         ):
             with self.subTest(declaration=declaration):
                 with tempfile.TemporaryDirectory() as directory:
@@ -441,12 +439,12 @@ class PathGlobsTest(unittest.TestCase):
                 self.assertEqual(entry["signals"], ["agent"])
                 rendered = playbook_index.render_readme_section([entry])
                 if expected:
-                    self.assertIn('`**/openapi*.y*ml`', rendered)
+                    self.assertIn("`**/openapi*.y*ml`", rendered)
                 else:
                     self.assertNotIn("Path globs", rendered)
 
     def test_malformed_glob_quoting_is_rejected(self) -> None:
-        for pattern in ('**/*.proto', '"**/*.proto', '"**/*.proto" extra'):
+        for pattern in ("**/*.proto", '"**/*.proto', '"**/*.proto" extra'):
             with self.subTest(pattern=pattern):
                 with tempfile.TemporaryDirectory() as directory:
                     root = pathlib.Path(directory)
@@ -512,43 +510,80 @@ class PathGlobsTest(unittest.TestCase):
         for entry in entries:
             with self.subTest(page=entry["path"]):
                 patterns = entry["path_globs"]
-                self.assertTrue(any(fnmatch.fnmatchcase(examples[entry["path"]], p) for p in patterns))
+                self.assertTrue(
+                    any(
+                        fnmatch.fnmatchcase(examples[entry["path"]], p)
+                        for p in patterns
+                    )
+                )
                 for unrelated in (
-                    "README.md", "src/main.py", "docs/agent.md",
-                    "src/prompt.py", "src/trace.py", "src/test_utils.py",
-                    "docs/agent-notes.md", "src/skill.py", "src/mcp.py",
+                    "README.md",
+                    "src/main.py",
+                    "docs/agent.md",
+                    "src/prompt.py",
+                    "src/trace.py",
+                    "src/test_utils.py",
+                    "docs/agent-notes.md",
+                    "src/skill.py",
+                    "src/mcp.py",
                 ):
                     with self.subTest(unrelated=unrelated):
-                        self.assertFalse(any(fnmatch.fnmatchcase(unrelated, p) for p in patterns))
+                        self.assertFalse(
+                            any(fnmatch.fnmatchcase(unrelated, p) for p in patterns)
+                        )
 
         fixtures = {path: {page} for page, path in examples.items()}
-        fixtures.update({
-            "openapi.yaml": {"practices/engineering-standards/api-design.md"},
-            "service.proto": {"practices/engineering-standards/api-design.md"},
-            ".github/workflows/ci.yml": {"ci-for-agentic-engineering.md"},
-            "config/otel-collector.yaml": {"practices/agentic-sre/observability.md"},
-        })
-        fixtures.update({
-            prefix + name: {
-                "practices/engineering-standards/code-style-and-static-analysis.md"
+        fixtures.update(
+            {
+                "openapi.yaml": {"practices/engineering-standards/api-design.md"},
+                "service.proto": {"practices/engineering-standards/api-design.md"},
+                ".github/workflows/ci.yml": {"ci-for-agentic-engineering.md"},
+                "config/otel-collector.yaml": {
+                    "practices/agentic-sre/observability.md"
+                },
             }
-            for name in (
-                "eslint.config.mjs", ".prettierrc.json", "ruff.toml",
-                ".golangci.yml", "clippy.toml", ".clang-tidy",
-                ".rubocop.yml", "analysis_options.yaml",
-                ".clippy.toml", "rustfmt.toml", ".rustfmt.toml",
-                ".clang-format", ".editorconfig", "mypy.ini", ".mypy.ini",
-                "pyrightconfig.json", ".scalafmt.conf", ".swiftlint.yml",
-                ".swift-format", ".shellcheckrc", ".markdownlint.jsonc",
-                ".sqlfluff", "eslint-suppressions.json", ".rubocop_todo.yml",
-                "detekt.yml", "checkstyle.xml",
-            )
-            for prefix in ("", "config/", "packages/app/")
-        })
+        )
+        fixtures.update(
+            {
+                prefix + name: {
+                    "practices/engineering-standards/code-style-and-static-analysis.md"
+                }
+                for name in (
+                    "eslint.config.mjs",
+                    ".prettierrc.json",
+                    "ruff.toml",
+                    ".golangci.yml",
+                    "clippy.toml",
+                    ".clang-tidy",
+                    ".rubocop.yml",
+                    "analysis_options.yaml",
+                    ".clippy.toml",
+                    "rustfmt.toml",
+                    ".rustfmt.toml",
+                    ".clang-format",
+                    ".editorconfig",
+                    "mypy.ini",
+                    ".mypy.ini",
+                    "pyrightconfig.json",
+                    ".scalafmt.conf",
+                    ".swiftlint.yml",
+                    ".swift-format",
+                    ".shellcheckrc",
+                    ".markdownlint.jsonc",
+                    ".sqlfluff",
+                    "eslint-suppressions.json",
+                    ".rubocop_todo.yml",
+                    "detekt.yml",
+                    "checkstyle.xml",
+                )
+                for prefix in ("", "config/", "packages/app/")
+            }
+        )
         for path, expected in fixtures.items():
             with self.subTest(path=path):
                 matched = {
-                    entry["path"] for entry in entries
+                    entry["path"]
+                    for entry in entries
                     if any(fnmatch.fnmatchcase(path, p) for p in entry["path_globs"])
                 }
                 self.assertEqual(matched, expected)
@@ -558,10 +593,14 @@ class PathGlobsTest(unittest.TestCase):
             root = pathlib.Path(directory)
             write_page(root, "page.md", 'path_globs:\n  - "**/*.proto"\n')
             readme = root / "README.md"
-            readme.write_text(playbook_index.README_BEGIN + "\n" + playbook_index.README_END)
+            readme.write_text(
+                playbook_index.README_BEGIN + "\n" + playbook_index.README_END
+            )
             with mock.patch.multiple(
-                playbook_index, REPOSITORY_ROOT=root,
-                INDEX_PATH=root / "index.json", README_PATH=readme,
+                playbook_index,
+                REPOSITORY_ROOT=root,
+                INDEX_PATH=root / "index.json",
+                README_PATH=readme,
             ):
                 self.assertEqual(playbook_index.main([]), 0)
                 self.assertEqual(playbook_index.main(["--check"]), 0)
@@ -629,15 +668,16 @@ class PlaybookSkillsTest(unittest.TestCase):
                 self.assertIn("---", lines[1:])
                 metadata = {
                     key.strip(): value.strip()
-                    for line in lines[1:lines.index("---", 1)]
+                    for line in lines[1 : lines.index("---", 1)]
                     if line.strip()
                     for key, value in [line.split(":", 1)]
                 }
                 self.assertEqual(metadata["name"], name)
                 self.assertTrue(metadata["description"].strip("\"'"))
-                self.assertIn(f"`{name}`", (SKILLS_DIRECTORY / "README.md").read_text(
-                    encoding="utf-8"
-                ))
+                self.assertIn(
+                    f"`{name}`",
+                    (SKILLS_DIRECTORY / "README.md").read_text(encoding="utf-8"),
+                )
 
     def test_reliability_topics_match_the_exported_guides(self) -> None:
         topics = playbook_index.load_public_skills()[RELIABILITY_SKILL]["topics"]
@@ -712,7 +752,11 @@ class PlaybookSkillsTest(unittest.TestCase):
                     "topics": ["first-topic"],
                     "public_url": "https://example.com/linked-skill",
                 },
-                {"id": "private-skill", "description": "Does another thing.", "topics": []},
+                {
+                    "id": "private-skill",
+                    "description": "Does another thing.",
+                    "topics": [],
+                },
             ],
         )
         self.assertEqual(by_path["none.md"]["skills"], [])

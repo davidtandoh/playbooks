@@ -8,13 +8,11 @@ import sys
 import tempfile
 import unittest
 
-
 REPOSITORY_ROOT = pathlib.Path(__file__).resolve().parents[1]
 SCRIPT = REPOSITORY_ROOT / "scripts" / "private_terms.py"
 sys.path.insert(0, str(SCRIPT.parent))
 
 import private_terms  # noqa: E402
-
 
 EXAMPLE_DENIED = frozenset(
     {private_terms.digest("examplecorp"), private_terms.digest("acme rocket")}
@@ -24,9 +22,7 @@ EXAMPLE_DENIED = frozenset(
 class PrivateTermsScanTest(unittest.TestCase):
     def test_repository_tracked_text_omits_denied_terms(self) -> None:
         paths = private_terms.tracked_files()
-        self.assertIn(
-            REPOSITORY_ROOT / "ci-for-agentic-engineering.md", paths
-        )
+        self.assertIn(REPOSITORY_ROOT / "ci-for-agentic-engineering.md", paths)
         self.assertEqual(private_terms.scan(), [])
 
     def test_denylist_holds_only_digests(self) -> None:
@@ -50,9 +46,7 @@ class PrivateTermsScanTest(unittest.TestCase):
     def test_ignores_partial_words_and_single_words_of_a_phrase(self) -> None:
         for text in ("examplecorporation", "acme tools", "rocket science", ""):
             with self.subTest(text=text):
-                self.assertEqual(
-                    private_terms.matching_lines(text, EXAMPLE_DENIED), []
-                )
+                self.assertEqual(private_terms.matching_lines(text, EXAMPLE_DENIED), [])
 
     def test_digest_normalizes_case_and_separators(self) -> None:
         self.assertEqual(
@@ -81,12 +75,20 @@ class PrivateTermsScanTest(unittest.TestCase):
             for arguments in (
                 ["init", "--quiet"],
                 [
-                    "add", "drafts", "notes.txt", "fixture.py",
-                    "binary.dat", "legacy.txt", "scripts",
+                    "add",
+                    "drafts",
+                    "notes.txt",
+                    "fixture.py",
+                    "binary.dat",
+                    "legacy.txt",
+                    "scripts",
                 ],
             ):
                 subprocess.run(
-                    ["git", *arguments], cwd=root, env=env, check=True,
+                    ["git", *arguments],
+                    cwd=root,
+                    env=env,
+                    check=True,
                     capture_output=True,
                 )
             findings = private_terms.scan(root, EXAMPLE_DENIED)
@@ -99,7 +101,8 @@ class PrivateTermsScanTest(unittest.TestCase):
         term = " ".join(["synthetic"] * (private_terms.MAX_PHRASE_TOKENS + 1))
         result = subprocess.run(
             [sys.executable, str(SCRIPT), "add", term],
-            capture_output=True, text=True,
+            capture_output=True,
+            text=True,
         )
         self.assertNotEqual(result.returncode, 0)
         self.assertEqual(result.stdout, "")
