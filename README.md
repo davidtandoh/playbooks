@@ -20,6 +20,7 @@ front matter will adopt it in a separate change.
 | [Performance and memory](practices/engineering-standards/performance-and-memory.md) | `architecture` `memory` `verification` `delivery-gates` `cost` | Data structures and complexity, allocation and copying, runtime costs, resource budgets, bounded memory, and hot-path regression gates |
 | [Data-intensive systems](practices/engineering-standards/data-intensive-systems.md) | `architecture` `verification` `delivery-gates` `security-and-privacy` | Storage and schema decisions, replication guarantees, partitioning, isolation, retry-safe effects, batch and streams, CDC and derived data, with workload and failure checks |
 | [Domain-driven design](practices/engineering-standards/domain-driven-design.md) | `architecture` `reliability` `verification` `delivery-gates` | Model business rules and ownership with bounded contexts, small aggregates, explicit events, ports and adapters, architecture tests, and ADRs |
+| [Secure and reliable systems](practices/engineering-standards/secure-reliable-systems.md) | `architecture` `security-and-privacy` `reliability` `delivery-gates` `verification` | Least privilege, safe APIs, isolation, secret rotation, supply-chain verification, bounded recovery, safe rollouts, and incident readiness |
 
 ### Agent systems
 
@@ -290,6 +291,20 @@ published.
   5. Set explicit memory limits for every service and job, including runtime overhead and worker concurrency. ([source](practices/engineering-standards/performance-and-memory.md#set-service-and-job-limits))
   6. Choose the simplest structure that meets the budget and optimise only measured misses. ([source](practices/engineering-standards/performance-and-memory.md#choose-the-simplest-structure))
   7. Gate hot paths against absolute budgets and an agreed regression margin. ([source](practices/engineering-standards/performance-and-memory.md#gate-performance-regressions))
+
+**[Secure and reliable systems: make the safe path the default](practices/engineering-standards/secure-reliable-systems.md)**
+
+- Applies when: designing or changing trust boundaries in a data platform, ML platform, or service; adding dependency access, credentials, recovery paths, or deployment controls; reviewing overload behaviour, resilience tests, or incident readiness.
+- Signals: `least privilege`, `zero trust`, `threat model`, `untrusted input`, `secret rotation`, `supply chain`, `provenance`, `retry`, `backoff`, `load shedding`, `rollback`, `recovery`, `incident readiness`.
+- Skills: none yet.
+- Key rules:
+  1. Authenticate each caller and authorize each resource operation with least privilege; deny by default. ([source](practices/engineering-standards/secure-reliable-systems.md#least-privilege-and-zero-trust))
+  2. Parse untrusted input into validated domain types and enforce safe defaults through shared APIs. ([source](practices/engineering-standards/secure-reliable-systems.md#safe-construction-and-untrusted-input))
+  3. Bound tenant resource use and isolate failure domains with independent controls. ([source](practices/engineering-standards/secure-reliable-systems.md#defence-in-depth-and-blast-radius))
+  4. Use short-lived credentials and prove rotation and revocation without exposing secrets. ([source](practices/engineering-standards/secure-reliable-systems.md#secrets-and-rotation))
+  5. Pin build inputs and verify artifact provenance against an explicit deployment policy. ([source](practices/engineering-standards/secure-reliable-systems.md#supply-chain-security))
+  6. Bound retries by deadlines and budgets; make replay safe before enabling retries. ([source](practices/engineering-standards/secure-reliable-systems.md#recovery-and-overload))
+  7. Rehearse recovery, canary aborts, and incident access before release. ([source](practices/engineering-standards/secure-reliable-systems.md#verification-and-incident-readiness))
 
 **[Testing in agentic engineering](testing-in-agentic-engineering.md)**
 
