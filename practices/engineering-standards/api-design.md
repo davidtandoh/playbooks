@@ -42,6 +42,8 @@ rule, not for a longer page.
 
 Skill: none yet.
 
+See [Secure and reliable systems](secure-reliable-systems.md) for trust boundaries, credential rotation, bounded retries, and recovery checks.
+
 ## Sources
 
 All external sources were accessed on 2026-11-23. The IETF documents marked

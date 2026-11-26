@@ -714,6 +714,7 @@
     },
     {
       "applies_when": [
+<<<<<<< HEAD
         "building or changing a service, job, or data pipeline with latency, throughput, or memory constraints",
         "reviewing a hot path, resource limit, benchmark, or performance regression"
       ],
@@ -771,6 +772,60 @@
       ],
       "skills": [],
       "title": "Performance and memory: budgets before building"
+=======
+        "designing or changing trust boundaries in a data platform, ML platform, or service",
+        "adding dependency access, credentials, recovery paths, or deployment controls",
+        "reviewing overload behaviour, resilience tests, or incident readiness"
+      ],
+      "key_rules": [
+        {
+          "rule": "Authenticate each caller and authorize each resource operation with least privilege; deny by default.",
+          "source": "practices/engineering-standards/secure-reliable-systems.md#least-privilege-and-zero-trust"
+        },
+        {
+          "rule": "Parse untrusted input into validated domain types and enforce safe defaults through shared APIs.",
+          "source": "practices/engineering-standards/secure-reliable-systems.md#safe-construction-and-untrusted-input"
+        },
+        {
+          "rule": "Bound tenant resource use and isolate failure domains with independent controls.",
+          "source": "practices/engineering-standards/secure-reliable-systems.md#defence-in-depth-and-blast-radius"
+        },
+        {
+          "rule": "Use short-lived credentials and prove rotation and revocation without exposing secrets.",
+          "source": "practices/engineering-standards/secure-reliable-systems.md#secrets-and-rotation"
+        },
+        {
+          "rule": "Pin build inputs and verify artifact provenance against an explicit deployment policy.",
+          "source": "practices/engineering-standards/secure-reliable-systems.md#supply-chain-security"
+        },
+        {
+          "rule": "Bound retries by deadlines and budgets; make replay safe before enabling retries.",
+          "source": "practices/engineering-standards/secure-reliable-systems.md#recovery-and-overload"
+        },
+        {
+          "rule": "Rehearse recovery, canary aborts, and incident access before release.",
+          "source": "practices/engineering-standards/secure-reliable-systems.md#verification-and-incident-readiness"
+        }
+      ],
+      "path": "practices/engineering-standards/secure-reliable-systems.md",
+      "signals": [
+        "least privilege",
+        "zero trust",
+        "threat model",
+        "untrusted input",
+        "secret rotation",
+        "supply chain",
+        "provenance",
+        "retry",
+        "backoff",
+        "load shedding",
+        "rollback",
+        "recovery",
+        "incident readiness"
+      ],
+      "skills": [],
+      "title": "Secure and reliable systems: make the safe path the default"
+>>>>>>> 12bf60f (Add secure and reliable systems playbook)
     },
     {
       "applies_when": [
