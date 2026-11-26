@@ -17,6 +17,7 @@ front matter will adopt it in a separate change.
 | [Testing in agentic engineering](testing-in-agentic-engineering.md) | `verification` `delivery-gates` `evals` `reliability` `cost` | A test portfolio for agent-written code, what agents over-produce (mocks, debug scripts, tampered assertions) and how to trim it, rules for fewer and better agent tests, property-based and mutation testing, and software tests versus agent evals |
 | [CI for agentic engineering](ci-for-agentic-engineering.md) | `delivery-gates` `verification` `security-and-privacy` `cost` `reliability` | Local gate first with hosted merge proof, staged test selection, caching and merge queues, flaky-test governance, rounded-minute cost per merge, and trust boundaries for actions, secrets and runners |
 | [API design](practices/engineering-standards/api-design.md) | `architecture` `delivery-gates` `verification` `security-and-privacy` | One default per HTTP API design question, enforced by a Spectral ruleset and an oasdiff breaking-change check: naming, versioning, RFC 9457 errors, pagination, idempotency, auth, rate limits, long-running operations, webhooks and events |
+| [Observability](practices/engineering-standards/observability.md) | `observability` `reliability` `cost` `verification` | User-outcome SLIs and SLOs, budget-burn alerts, golden signals, RED and USE, correlated telemetry, OpenTelemetry propagation, cardinality and sampling budgets, data-pipeline indicators, runbooks and toil |
 
 ### Agent systems
 
@@ -245,6 +246,20 @@ published.
   4. Paginate every list with page_size, page_token, and next_page_token from the first release. ([source](practices/engineering-standards/api-design.md#pagination))
   5. Accept an Idempotency-Key on every POST. ([source](practices/engineering-standards/api-design.md#idempotency-keys))
   6. Declare security on every operation and deny by default. ([source](practices/engineering-standards/api-design.md#auth-and-rate-limits))
+
+**[Observability: measure user outcomes, then explain failures](practices/engineering-standards/observability.md)**
+
+- Applies when: adding or reviewing logs, metrics, tracing, or alerts for a service or data platform; defining service or data-pipeline SLIs, SLOs, and error-budget policy; controlling telemetry cardinality, sampling, retention, or collector resource use.
+- Signals: `observability`, `telemetry`, `opentelemetry`, `tracing`, `structured logging`, `metrics`, `alerting`, `golden signals`, `burn rate`, `slo`, `sli`, `freshness`, `cardinality`, `sampling`, `collector`.
+- Skills: none yet.
+- Key rules:
+  1. Define good and valid events per user journey before choosing an SLO target. ([source](practices/engineering-standards/observability.md#slis-slos-and-error-budgets))
+  2. Page on user-visible symptoms and require both windows of each burn-rate condition. ([source](practices/engineering-standards/observability.md#alerts-that-protect-the-budget))
+  3. Correlate structured logs and spans with trace and request identity; keep those identifiers out of metric labels. ([source](practices/engineering-standards/observability.md#logs-metrics-and-traces))
+  4. Propagate context across HTTP and queues and route telemetry through an OpenTelemetry Collector. ([source](practices/engineering-standards/observability.md#instrumentation-and-propagation))
+  5. Bound cardinality, buffers, sampling state, and retention; test exporter failure under load. ([source](practices/engineering-standards/observability.md#cardinality-sampling-and-cost))
+  6. Measure data freshness, completeness, correctness, and lateness at the consumer boundary. ([source](practices/engineering-standards/observability.md#data-pipeline-indicators))
+  7. Link every paging alert to an owned runbook and test the alert rule before release. ([source](practices/engineering-standards/observability.md#dashboards-runbooks-and-toil))
 
 **[Testing in agentic engineering](testing-in-agentic-engineering.md)**
 
