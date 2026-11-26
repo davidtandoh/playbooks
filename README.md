@@ -270,7 +270,7 @@ published.
 
 - Applies when: adding or changing formatters, linters, type checks, or compiler diagnostics; wiring static analysis into editor hooks, agent hooks, Git hooks, or CI; adopting static checks in a repository with existing diagnostic debt.
 - Signals: `code style`, `static analysis`, `lint`, `formatter`, `typecheck`, `pre-commit`, `lint-on-edit`, `suppression`, `clippy`, `clang-tidy`, `RuboCop`.
-- Path globs (PR gate): `**/eslint.config.*`, `**/.prettierrc*`, `**/ruff.toml`, `**/.golangci.*`, `**/clippy.toml`, `**/.clang-tidy`, `**/.rubocop.yml`, `**/analysis_options.yaml`, `.pre-commit-config.yaml`, `.githooks/**`.
+- Path globs (PR gate): `eslint.config.*`, `**/eslint.config.*`, `.prettierrc*`, `**/.prettierrc*`, `ruff.toml`, `**/ruff.toml`, `.golangci.*`, `**/.golangci.*`, `clippy.toml`, `**/clippy.toml`, `.clang-tidy`, `**/.clang-tidy`, `.rubocop.yml`, `**/.rubocop.yml`, `analysis_options.yaml`, `**/analysis_options.yaml`, `.pre-commit-config.yaml`, `.githooks/**`.
 - Skills: none yet.
 - Key rules:
   1. Give each static-check responsibility one repository-owned definition with pinned tools and explicit scope. ([source](practices/engineering-standards/code-style-and-static-analysis.md#define-the-repository-contract))

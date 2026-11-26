@@ -528,6 +528,17 @@ class PathGlobsTest(unittest.TestCase):
             ".github/workflows/ci.yml": {"ci-for-agentic-engineering.md"},
             "config/otel-collector.yaml": {"practices/agentic-sre/observability.md"},
         })
+        fixtures.update({
+            prefix + name: {
+                "practices/engineering-standards/code-style-and-static-analysis.md"
+            }
+            for name in (
+                "eslint.config.mjs", ".prettierrc.json", "ruff.toml",
+                ".golangci.yml", "clippy.toml", ".clang-tidy",
+                ".rubocop.yml", "analysis_options.yaml",
+            )
+            for prefix in ("", "config/", "packages/app/")
+        })
         for path, expected in fixtures.items():
             with self.subTest(path=path):
                 matched = {

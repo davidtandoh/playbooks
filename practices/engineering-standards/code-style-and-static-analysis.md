@@ -26,13 +26,21 @@ signals:
   - clang-tidy
   - RuboCop
 path_globs:
+  - "eslint.config.*"
   - "**/eslint.config.*"
+  - ".prettierrc*"
   - "**/.prettierrc*"
+  - "ruff.toml"
   - "**/ruff.toml"
+  - ".golangci.*"
   - "**/.golangci.*"
+  - "clippy.toml"
   - "**/clippy.toml"
+  - ".clang-tidy"
   - "**/.clang-tidy"
+  - ".rubocop.yml"
   - "**/.rubocop.yml"
+  - "analysis_options.yaml"
   - "**/analysis_options.yaml"
   - ".pre-commit-config.yaml"
   - ".githooks/**"
