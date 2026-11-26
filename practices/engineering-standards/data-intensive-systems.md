@@ -54,6 +54,9 @@ This is an original decision guide informed by the following public sources.
 The recommendations and synthetic examples are this playbook's synthesis;
 they are not quotations or claims of production results. Web references were
 checked on 2026-11-26. Pin product documentation to the deployed version.
+Kafka links below target 4.1 and Avro targets 1.12.0. PostgreSQL `/current/`
+links, Flink `stable` links and other rolling guides can change after this
+review; select the matching release before applying product-specific advice.
 
 - Martin Kleppmann, [Designing Data-Intensive Applications](https://dataintensive.net/),
   first edition: chapters 2–4 on models, storage and encoding; 5–9 on
@@ -75,6 +78,33 @@ checked on 2026-11-26. Pin product documentation to the deployed version.
   delivery guarantees and the boundary of transactional processing.
 - [Apache Beam: Basics of the Beam Model](https://beam.apache.org/documentation/basics/):
   event time, windows, watermarks and late data.
+- [Jepsen: Consistency Models](https://jepsen.io/consistency),
+  [Linearizability](https://jepsen.io/consistency/models/linearizable) and
+  [Strong Serializability](https://jepsen.io/consistency/models/strict-serializable):
+  formal guarantees and the anomalies that distinguish them.
+- Diego Ongaro and John Ousterhout,
+  [The Raft Consensus Algorithm](https://raft.github.io/):
+  majority voting, leader election and replicated logs.
+- PostgreSQL Documentation:
+  [WAL Reliability](https://www.postgresql.org/docs/current/wal-reliability.html),
+  [Continuous Archiving and Point-in-Time Recovery](https://www.postgresql.org/docs/current/continuous-archiving.html),
+  [Routine Vacuuming](https://www.postgresql.org/docs/current/routine-vacuuming.html),
+  [initdb](https://www.postgresql.org/docs/current/app-initdb.html),
+  [CREATE INDEX](https://www.postgresql.org/docs/current/sql-createindex.html) and
+  [Client Connection Defaults](https://www.postgresql.org/docs/current/runtime-config-client.html):
+  durability, maintenance, checksums and migration controls.
+- [Apache Iceberg Table Specification](https://iceberg.apache.org/spec/):
+  snapshots, field identity and atomic table metadata commits.
+- [Apache Flink: Checkpointing](https://nightlies.apache.org/flink/flink-docs-stable/docs/dev/datastream/fault-tolerance/checkpointing/):
+  coordinated state recovery and checkpoint controls.
+- Rajesh Nishtala and colleagues,
+  [Scaling Memcache at Facebook](https://www.usenix.org/conference/nsdi13/technical-sessions/presentation/nishtala),
+  USENIX NSDI 2013: cache leases, stale-set protection and refill load.
+- Stripe Engineering,
+  [Online Migrations at Scale](https://stripe.com/blog/online-migrations):
+  phased migration and comparison before cutover.
+- [Debezium: Outbox Event Router](https://debezium.io/documentation/reference/stable/transformations/outbox-event-router.html):
+  aggregate-key routing and event/header mapping.
 
 ## At a glance
 
@@ -149,6 +179,38 @@ skew. Include warm and cold caches, sustained compaction, index growth and
 recovery. Set latency, throughput and disk-headroom thresholds before the run;
 record the plans and results with the design decision.
 
+#### Crash durability and maintenance
+
+Write-ahead logging (WAL) persists recovery information before changed data
+pages. Check the commit acknowledgement policy and whether flush requests
+reach nonvolatile storage through operating-system and device caches. A fast
+acknowledgement is insufficient evidence of power-loss durability. Keep
+PostgreSQL `fsync` and `full_page_writes` enabled unless a reviewed storage
+contract justifies an alternative. Full-page images protect against partial
+page writes during crashes; checksums detect corruption and do not repair it.
+See [WAL Reliability](https://www.postgresql.org/docs/current/wal-reliability.html).
+
+Verify data-page checksum settings during provisioning and restoration.
+PostgreSQL WAL records carry their own integrity checks; page checksums are
+a separate facility, not a switch that enables WAL checksumming. Temporary
+files and unlogged relations do not provide the same crash-recovery contract
+as logged durable tables. Verify the deployed version's coverage rather than
+promising a checksum over every byte in the system.
+
+Multiversion concurrency control (MVCC) retains older row versions for
+concurrent readers. In PostgreSQL, let autovacuum reclaim eligible dead
+tuples and freeze transaction identifiers (XIDs) before wraparound threatens
+availability. Monitor dead tuples, table/index growth, vacuum progress and
+XID age. Bound transaction duration and investigate old snapshots or idle
+transactions that hold back cleanup. Vacuum commonly makes space reusable
+inside a relation; it does not generally shrink files back to the filesystem.
+See [Routine Vacuuming](https://www.postgresql.org/docs/current/routine-vacuuming.html).
+
+Checks: exercise crash recovery on disposable infrastructure and validate
+recovered records and checksums. Under sustained updates, verify vacuum keeps
+up, snapshots do not retain unbounded history, and alerts fire before disk or
+XID exhaustion. These checks complement the storage benchmark above.
+
 ### Encoding and schema evolution
 
 An encoding chooses bytes on disk or on the wire. JSON is inspectable but
@@ -183,6 +245,22 @@ deploy compatible readers, backfill with reconciliation, then retire the old
 representation after rollback and replay needs expire. Record the owner and
 removal condition for any temporary dual path.
 
+For a live store migration, use staged writes, idempotent backfill, shadow
+reads and controlled read cutover, following
+[Online Migrations at Scale](https://stripe.com/blog/online-migrations).
+Keep one authoritative writer and a durable repair path for the second store;
+two independent writes still have the partial-failure problem described below.
+Compare keyed values and query results over a representative workload and
+declare the acceptable mismatch criteria before cutover. Keep the read switch
+reversible while the old path remains supported, then remove temporary writes.
+
+Set a bounded PostgreSQL `lock_timeout` for migration statements so a waiting
+schema change cannot build an unbounded lock queue. Evaluate
+`CREATE INDEX CONCURRENTLY` when writes must continue: it has extra work and
+failure modes, can leave an invalid index, and cannot run inside a transaction
+block. Test cleanup and retry; “online” does not mean lock-free. Use the cited
+CREATE INDEX and Client Connection Defaults guides for exact constraints.
+
 Checks: block incompatible schema changes in continuous integration (CI).
 Keep serialized fixtures for supported versions and test mixed deployments,
 unknown fields, absent fields and rollback. Link exposed event contracts to
@@ -210,7 +288,23 @@ For leaderless systems, `R + W > N` creates read/write quorum overlap only
 under assumptions about the same replica set and successful operations.
 It does not establish linearizability by itself. Concurrent versions, failed
 writes, membership changes and sloppy quorums require separate treatment.
+Even strict quorum intersection alone does not prevent a read from observing
+an in-flight value that a later read misses. Atomic-register protocols need
+additional version and propagation rules, such as synchronous read write-back
+before returning. Read repair is one part of such a protocol, not by itself
+a proof of linearizability. Require the complete algorithm and its failure
+assumptions; use the Jepsen consistency definitions when reviewing claims.
 Last-write-wins based on wall time can silently discard a valid update.
+
+For automatic leader election, use a maintained implementation of quorum
+consensus, such as Raft or Paxos, rather than constructing failover from
+heartbeat timeouts. A majority of `2f + 1` voters can progress with `f`
+unavailable voters; three and five are common sizes. Odd sizes use voters
+efficiently, but even-sized groups are not inherently unsafe. Two voters need
+both for a majority, so losing either stops progress. Place voters across
+failure domains, use supported membership changes, and fence the old writer
+at the storage boundary. A witness counts only under the product's documented
+protocol. See [The Raft Consensus Algorithm](https://raft.github.io/).
 
 | Guarantee | What a reader can rely on | Implementation direction to verify |
 | --- | --- | --- |
@@ -219,6 +313,7 @@ Last-write-wins based on wall time can silently discard a valid update.
 | Monotonic reads | A session does not move backward to an older version | Track version position across requests and replica changes |
 | Causal consistency | A dependent change is not visible before its cause | Carry dependencies; test cross-key observations |
 | Linearizability | Each operation appears atomic between its call and response | Use the product's documented strong path and test failover |
+| Strict serializability | Transactions have a serial order that respects completion before a later invocation | Verify both transaction isolation and real-time order across clients |
 
 Example: after creating a model version, return a commit-position token.
 A read carrying that token waits for a sufficiently caught-up replica or
@@ -229,11 +324,27 @@ During a network partition, a system cannot guarantee both linearizable
 operations and a successful response to every request. Decide which operations
 wait or fail and which tolerate stale results. Scope guarantees per operation;
 serializable transactions alone do not promise real-time ordering.
+Strict serializability, also called strong serializability or external
+consistency, adds that ordering requirement to serializability. A completed
+transaction must precede a transaction invoked afterward. Overlapping
+transactions still need a valid serial order. Compare product claims against
+[Jepsen's model definitions](https://jepsen.io/consistency/models/strict-serializable)
+and test transaction histories, not only final values.
 
 Checks: delay a replica, partition the leader, promote a replica and reconnect
 the old leader. Verify fencing, session guarantees and acknowledged-write
 survival. Alert on lag in time and log distance; test restoring an independent
 backup to the declared recovery time objective (maximum accepted downtime).
+
+For recovery points between base backups, retain a complete WAL archive and
+test point-in-time recovery (PITR). In PostgreSQL, restore the base backup and
+replay archived WAL to a chosen supported target before the bad change.
+Measure archive lag against the data-loss objective and rehearse missing WAL,
+restore duration and post-restore integrity in an isolated environment. Keep
+archive access separate from serving credentials. An archive gap can break
+the recovery chain even while replicas are healthy. Recheck backup procedures
+after storage-layout changes. See
+[Continuous Archiving and PITR](https://www.postgresql.org/docs/current/continuous-archiving.html).
 
 ### Partitioning and hot keys
 
@@ -297,6 +408,15 @@ Hold the guard lock through the worker update and commit. The separate check
 gets a fresh snapshot that includes the previous guard holder's commit.
 Locking an unchanged guard row alone is insufficient under PostgreSQL
 Repeatable Read: a waiting transaction can retain an older snapshot.
+The snapshot begins with the first query or data modification, including
+`SELECT ... FOR UPDATE`. If the previous holder updates the guard row,
+the waiting Repeatable Read transaction instead fails serialization and must
+retry the whole transaction. An explicit table lock taken before that first
+query is a different protocol: snapshot creation happens after the wait.
+Choose its lock mode to exclude the competing writers and budget contention.
+`SELECT ... FOR UPDATE` cannot lock a row that does not exist. Use a
+pre-existing parent/sentinel row, serializable isolation or an appropriate
+unique/exclusion constraint for that invariant.
 A row lock on each worker's own row is also insufficient. See the cited
 Data Consistency Checks guide.
 
@@ -385,6 +505,29 @@ prediction time. Joining historical labels to today's dimension can leak
 future information. Keep feature definitions and source versions aligned
 between training and serving, and test point-in-time correctness.
 
+For mutable analytical tables on object storage, consider an open table format
+such as [Apache Iceberg](https://iceberg.apache.org/spec/) when atomic
+publication and history justify the catalog and maintenance work. Commit
+through the catalog's supported atomic metadata protocol; listing a directory
+of Parquet files does not establish a table snapshot. Record snapshot IDs,
+schema and transformation versions with a training run. Field IDs support
+schema evolution, while partition evolution avoids making physical directory
+layout the reader contract. Schedule compaction and snapshot expiration.
+Retain referenced snapshots and files for the reproducibility period; an ID
+alone cannot recover expired data. Coordinate multiple table snapshots when
+the dataset needs a common consistency point.
+
+For stateful streams, persist a consistent checkpoint of operator state and
+replay positions on durable storage. In
+[Flink](https://nightlies.apache.org/flink/flink-docs-stable/docs/dev/datastream/fault-tolerance/checkpointing/),
+configure checkpoint interval, timeout, retention and storage explicitly.
+Checkpoints support automatic recovery; savepoints support planned upgrades
+and moves, subject to compatible operator identities and state serializers.
+Monitor completion age, duration, alignment delay, state size and failed
+attempts. A completed checkpoint protects processing state, but end-to-end
+effects still require replayable sources and cooperating transactional or
+idempotent sinks. Rehearse recovery and an upgrade before relying on either.
+
 Reprocessing needs retained input, schema versions, code/configuration versions
 and stable identities. Remove dependence on today's clock or an unversioned
 lookup. Replay into a separate output generation, compare with expectations,
@@ -425,6 +568,26 @@ feed is not automatically a domain event history.
 | Transactional outbox | State changes must reliably publish semantic events | Delivery lag, duplicate handling and outbox cleanup |
 | Event sourcing | Domain history and replay justify an event-first model | Event evolution, projection operations and retention/deletion design |
 | Cache-aside | Reads can tolerate a defined stale interval | Invalidation races, stampedes and stale fills after invalidation |
+
+For a hot cache miss, coalesce concurrent fills per key and bound refill
+concurrency so expiry or a cold start cannot overwhelm the source database.
+Coalescing limits duplicate work; it does not stop a slow fill from installing
+an old value after invalidation. Use an invalidation-aware lease token or
+source-version check that the cache enforces atomically on fill. Expire or
+revoke tokens when the source changes. Limit cold-cache warming separately
+from interactive traffic. These controls follow the lease and refill lessons
+in [Scaling Memcache at Facebook](https://www.usenix.org/conference/nsdi13/technical-sessions/presentation/nishtala).
+
+For an outbox that needs log-based delivery, evaluate
+[Debezium's Outbox Event Router](https://debezium.io/documentation/reference/stable/transformations/outbox-event-router.html).
+Map the event ID to deduplication identity, the aggregate ID to the message
+key, the aggregate type to routing and the intended domain payload to the
+body. Map permitted trace context to headers without publishing internal row
+details. Aggregate keys preserve ordering only within the chosen partition.
+Test duplicate delivery and snapshot/restart behavior; the transform does not
+make every downstream effect transactional. Clean outbox rows only under a
+verified connector/snapshot recovery policy. Polling remains an option when
+its lag, query cost and operational simplicity meet the requirements.
 
 Avoid independently writing a database and index on the request path. Failure
 between writes leaves them inconsistent. A projector should apply a source
