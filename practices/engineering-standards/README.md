@@ -3,6 +3,8 @@
 Standards for building and changing software. Each page defines its requirements
 and verification guidance. The table below identifies the checks for each
 practice; each page specifies which checks to implement in your repository.
+When a page supplies an automatic check and its prose disagrees with that
+check, the check wins.
 
 ## Start here
 
@@ -16,8 +18,8 @@ practice; each page specifies which checks to implement in your repository.
    failure checks against your selected products.
 5. Read [Domain-driven design](domain-driven-design.md) when business rules or
    ownership boundaries need a model, then enforce dependencies and invariants.
-
-6. Read [Secure and reliable systems](secure-reliable-systems.md) before changing trust boundaries or recovery paths.
+6. Read [Secure and reliable systems](secure-reliable-systems.md) before changing
+   trust boundaries or recovery paths.
 
 ## Practices
 
