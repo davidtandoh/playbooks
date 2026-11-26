@@ -280,7 +280,7 @@ policy; telemetry failure must not create unbounded application memory growth.
 [Scaling the Collector](https://opentelemetry.io/docs/collector/scaling/)
 
 For profiling and application resource budgets, use the companion
-[performance and memory playbook](https://github.com/davidtandoh/playbooks/blob/fm/pb-performance-memory/practices/engineering-standards/performance-and-memory.md)
+[performance and memory playbook](performance-and-memory.md)
 (under review separately when this page was authored).
 
 Check: load-test representative telemetry with the backend unavailable. Verify
