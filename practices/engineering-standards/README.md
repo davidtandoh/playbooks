@@ -26,6 +26,7 @@ its prose disagrees with that check, the check wins.
 | [Performance and memory](performance-and-memory.md) | Published | Project hot-path benchmark and budget comparison in the gate | Data structures, complexity, allocation, layout, I/O, concurrency, and language notes; resource budgets, bounded memory, and regression margins |
 | [Data-intensive systems](data-intensive-systems.md) | Published | Workload, compatibility, concurrency, fault-injection and replay checks | Storage models and engines, schema evolution, replication, partitioning, isolation, retries, batch and streams, CDC and derived views |
 | [Domain-driven design](domain-driven-design.md) | Published | Architecture tests, invariant tests, persistence and event contract tests | Language, bounded contexts, context maps, aggregates, entities and values, events, repositories, ports and adapters, ADRs |
+| [Secure and reliable systems](secure-reliable-systems.md) | Published | Authorization and policy tests, parser fuzzing, artifact verification, recovery rehearsals in the service repository | Least privilege, safe construction, isolation, credentials, supply chain, overload, rollout and incident readiness |
 
 ## Credits
 

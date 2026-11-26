@@ -45,6 +45,8 @@ Skill: none yet.
 See [Data-intensive systems](data-intensive-systems.md) for storage consistency, schema evolution, transaction isolation and retry-safe effects behind API contracts.
 See [Domain-driven design](domain-driven-design.md) for model ownership, consistency boundaries, and the distinction between domain and integration events.
 
+See [Secure and reliable systems](secure-reliable-systems.md) for trust boundaries, credential rotation, bounded retries, and recovery checks.
+
 ## Sources
 
 All external sources were accessed on 2026-11-23. The IETF documents marked
