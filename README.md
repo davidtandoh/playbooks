@@ -442,7 +442,7 @@ Python includes scripts and tests, targets Python 3.9, and uses `ruff.toml`.
 Dependency directories are excluded. No diagnostic debt baseline is used.
 Repository reviewers own rule changes and exceptions.
 
-For quick feedback, run `npx --no-install markdownlint-cli2 path/to/page.md`
+For quick feedback, run `npx --no-install markdownlint-cli2 --no-globs path/to/page.md`
 or `python3 -m ruff check path/to/file.py` and
 `python3 -m ruff format --check path/to/file.py`. To repair Python style,
 run `python3 -m ruff check --fix .` and `python3 -m ruff format .`, then
