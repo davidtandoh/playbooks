@@ -789,6 +789,71 @@
     },
     {
       "applies_when": [
+        "adding or changing formatters, linters, type checks, or compiler diagnostics",
+        "wiring static analysis into editor hooks, agent hooks, Git hooks, or CI",
+        "adopting static checks in a repository with existing diagnostic debt"
+      ],
+      "key_rules": [
+        {
+          "rule": "Give each static-check responsibility one repository-owned definition with pinned tools and explicit scope.",
+          "source": "practices/engineering-standards/code-style-and-static-analysis.md#define-the-repository-contract"
+        },
+        {
+          "rule": "Use edit feedback, staged-snapshot checks, and the full gate as separate enforcement layers.",
+          "source": "practices/engineering-standards/code-style-and-static-analysis.md#use-three-enforcement-layers"
+        },
+        {
+          "rule": "Bound edit-check latency, output, and concurrency; report deferred or timed-out checks as incomplete.",
+          "source": "practices/engineering-standards/code-style-and-static-analysis.md#budget-the-fast-path"
+        },
+        {
+          "rule": "Preserve unstaged work and partial staging; keep commit and CI checks non-mutating.",
+          "source": "practices/engineering-standards/code-style-and-static-analysis.md#format-safely"
+        },
+        {
+          "rule": "Reject new baseline debt and remove resolved allowances through a reviewed ratchet.",
+          "source": "practices/engineering-standards/code-style-and-static-analysis.md#ratchet-debt-and-exceptions"
+        },
+        {
+          "rule": "Propagate checker failures and fail on missing tools, invalid configuration, or crashes.",
+          "source": "practices/engineering-standards/code-style-and-static-analysis.md#preserve-failure-contracts"
+        },
+        {
+          "rule": "Run the same full static-check definition locally and in required CI checks, with source and scope evidence.",
+          "source": "practices/engineering-standards/code-style-and-static-analysis.md#prove-ci-parity"
+        }
+      ],
+      "path": "practices/engineering-standards/code-style-and-static-analysis.md",
+      "path_globs": [
+        "**/eslint.config.*",
+        "**/.prettierrc*",
+        "**/ruff.toml",
+        "**/.golangci.*",
+        "**/clippy.toml",
+        "**/.clang-tidy",
+        "**/.rubocop.yml",
+        "**/analysis_options.yaml",
+        ".pre-commit-config.yaml",
+        ".githooks/**"
+      ],
+      "signals": [
+        "code style",
+        "static analysis",
+        "lint",
+        "formatter",
+        "typecheck",
+        "pre-commit",
+        "lint-on-edit",
+        "suppression",
+        "clippy",
+        "clang-tidy",
+        "RuboCop"
+      ],
+      "skills": [],
+      "title": "Code style and static analysis: enforce the rules early"
+    },
+    {
+      "applies_when": [
         "choosing storage, replication, partitioning, or transaction guarantees for a data service",
         "building batch or stream pipelines, feature stores, caches, or search indexes",
         "evolving persisted schemas or rebuilding derived data"
