@@ -1,8 +1,8 @@
 # Engineering standards
 
-Standards for building and changing software. Each page puts its standard into
-an automatic check first, and keeps prose only to explain the check and to
-point at it. When a page and its check disagree, the check wins.
+Standards for building and changing software. Each page defines a standard and
+the automatic checks a project must run. Pages link to shared checks where
+available; project-specific checks belong in the consuming repository.
 
 ## Start here
 
@@ -17,7 +17,6 @@ point at it. When a page and its check disagree, the check wins.
 | Practice | Status | Check | What it covers |
 | --- | --- | --- | --- |
 | [API design](api-design.md) | Published | Spectral ruleset, oasdiff, Schemathesis | Resource naming, versioning, RFC 9457 errors, pagination, idempotency keys, auth and rate limits, long-running operations, webhooks and events, OpenAPI-first delivery |
-
 | [Performance and memory](performance-and-memory.md) | Published | Project hot-path benchmark and budget comparison in the gate | Latency, throughput, and peak-memory budgets; measurement evidence; bounded data and concurrency; service and job memory limits; regression margins |
 
 ## Credits
