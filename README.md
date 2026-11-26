@@ -18,6 +18,7 @@ front matter will adopt it in a separate change.
 | [CI for agentic engineering](ci-for-agentic-engineering.md) | `delivery-gates` `verification` `security-and-privacy` `cost` `reliability` | Local gate first with hosted merge proof, staged test selection, caching and merge queues, flaky-test governance, rounded-minute cost per merge, and trust boundaries for actions, secrets and runners |
 | [API design](practices/engineering-standards/api-design.md) | `architecture` `delivery-gates` `verification` `security-and-privacy` | One default per HTTP API design question, enforced by a Spectral ruleset and an oasdiff breaking-change check: naming, versioning, RFC 9457 errors, pagination, idempotency, auth, rate limits, long-running operations, webhooks and events |
 | [Observability](practices/engineering-standards/observability.md) | `observability` `reliability` `cost` `verification` | User-outcome SLIs and SLOs, budget-burn alerts, golden signals, RED and USE, correlated telemetry, OpenTelemetry propagation, cardinality and sampling budgets, data-pipeline indicators, runbooks and toil |
+| [Performance and memory](practices/engineering-standards/performance-and-memory.md) | `architecture` `memory` `verification` `delivery-gates` `cost` | Data structures and complexity, allocation and copying, runtime costs, resource budgets, bounded memory, and hot-path regression gates |
 
 ### Agent systems
 
@@ -260,6 +261,20 @@ published.
   5. Bound cardinality, buffers, sampling state, and retention; test exporter failure under load. ([source](practices/engineering-standards/observability.md#cardinality-sampling-and-cost))
   6. Measure data freshness, completeness, correctness, and lateness at the consumer boundary. ([source](practices/engineering-standards/observability.md#data-pipeline-indicators))
   7. Link every paging alert to an owned runbook and test the alert rule before release. ([source](practices/engineering-standards/observability.md#dashboards-runbooks-and-toil))
+
+**[Performance and memory: budgets before building](practices/engineering-standards/performance-and-memory.md)**
+
+- Applies when: building or changing a service, job, or data pipeline with latency, throughput, or memory constraints; reviewing a hot path, resource limit, benchmark, or performance regression.
+- Signals: `performance`, `latency`, `throughput`, `memory`, `benchmark`, `profile`, `profiling`, `hot path`, `data structure`, `allocation`, `garbage collection`, `coordinated omission`, `jmh`, `metaspace`, `aqe`, `kryo`, `event loop`, `optimisation`, `optimization`.
+- Skills: none yet.
+- Key rules:
+  1. Choose data structures by access pattern and complexity; measure allocation, copying, I/O, and concurrency costs. ([source](practices/engineering-standards/performance-and-memory.md#write-efficient-code))
+  2. Write latency, throughput, and peak-memory budgets in the spec before building. ([source](practices/engineering-standards/performance-and-memory.md#set-budgets-before-building))
+  3. Attach a reproducible benchmark or profile for hot-path changes and compare results with the budget. ([source](practices/engineering-standards/performance-and-memory.md#measure-before-optimising))
+  4. Stream data and bound every queue, cache, batch, and in-memory collection. ([source](practices/engineering-standards/performance-and-memory.md#bound-memory-by-default))
+  5. Set explicit memory limits for every service and job, including runtime overhead and worker concurrency. ([source](practices/engineering-standards/performance-and-memory.md#set-service-and-job-limits))
+  6. Choose the simplest structure that meets the budget and optimise only measured misses. ([source](practices/engineering-standards/performance-and-memory.md#choose-the-simplest-structure))
+  7. Gate hot paths against absolute budgets and an agreed regression margin. ([source](practices/engineering-standards/performance-and-memory.md#gate-performance-regressions))
 
 **[Testing in agentic engineering](testing-in-agentic-engineering.md)**
 
