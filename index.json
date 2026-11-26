@@ -714,7 +714,6 @@
     },
     {
       "applies_when": [
-<<<<<<< HEAD
         "building or changing a service, job, or data pipeline with latency, throughput, or memory constraints",
         "reviewing a hot path, resource limit, benchmark, or performance regression"
       ],
@@ -772,7 +771,9 @@
       ],
       "skills": [],
       "title": "Performance and memory: budgets before building"
-=======
+    },
+    {
+      "applies_when": [
         "designing or changing trust boundaries in a data platform, ML platform, or service",
         "adding dependency access, credentials, recovery paths, or deployment controls",
         "reviewing overload behaviour, resilience tests, or incident readiness"
@@ -825,7 +826,6 @@
       ],
       "skills": [],
       "title": "Secure and reliable systems: make the safe path the default"
->>>>>>> 12bf60f (Add secure and reliable systems playbook)
     },
     {
       "applies_when": [
