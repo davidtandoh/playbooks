@@ -17,6 +17,7 @@ front matter will adopt it in a separate change.
 | [Testing in agentic engineering](testing-in-agentic-engineering.md) | `verification` `delivery-gates` `evals` `reliability` `cost` | A test portfolio for agent-written code, what agents over-produce (mocks, debug scripts, tampered assertions) and how to trim it, rules for fewer and better agent tests, property-based and mutation testing, and software tests versus agent evals |
 | [CI for agentic engineering](ci-for-agentic-engineering.md) | `delivery-gates` `verification` `security-and-privacy` `cost` `reliability` | Local gate first with hosted merge proof, staged test selection, caching and merge queues, flaky-test governance, rounded-minute cost per merge, and trust boundaries for actions, secrets and runners |
 | [API design](practices/engineering-standards/api-design.md) | `architecture` `delivery-gates` `verification` `security-and-privacy` | One default per HTTP API design question, enforced by a Spectral ruleset and an oasdiff breaking-change check: naming, versioning, RFC 9457 errors, pagination, idempotency, auth, rate limits, long-running operations, webhooks and events |
+| [Performance and memory](practices/engineering-standards/performance-and-memory.md) | `architecture` `memory` `verification` `delivery-gates` `cost` | Data structures and complexity, allocation and copying, runtime costs, resource budgets, bounded memory, and hot-path regression gates |
 | [Domain-driven design](practices/engineering-standards/domain-driven-design.md) | `architecture` `reliability` `verification` `delivery-gates` | Model business rules and ownership with bounded contexts, small aggregates, explicit events, ports and adapters, architecture tests, and ADRs |
 
 ### Agent systems
@@ -260,6 +261,20 @@ published.
   5. Keep domain decisions in the domain and transaction orchestration in application services. ([source](practices/engineering-standards/domain-driven-design.md#repositories-and-application-services))
   6. Fail the delivery gate on forbidden imports and cycles across domain, application, and adapters. ([source](practices/engineering-standards/domain-driven-design.md#ports-adapters-and-architecture-tests))
   7. Record costly boundary and consistency decisions in ADRs with alternatives and consequences. ([source](practices/engineering-standards/domain-driven-design.md#record-decisions-as-adrs))
+
+**[Performance and memory: budgets before building](practices/engineering-standards/performance-and-memory.md)**
+
+- Applies when: building or changing a service, job, or data pipeline with latency, throughput, or memory constraints; reviewing a hot path, resource limit, benchmark, or performance regression.
+- Signals: `performance`, `latency`, `throughput`, `memory`, `benchmark`, `profile`, `profiling`, `hot path`, `data structure`, `allocation`, `garbage collection`, `coordinated omission`, `jmh`, `metaspace`, `aqe`, `kryo`, `event loop`, `optimisation`, `optimization`.
+- Skills: none yet.
+- Key rules:
+  1. Choose data structures by access pattern and complexity; measure allocation, copying, I/O, and concurrency costs. ([source](practices/engineering-standards/performance-and-memory.md#write-efficient-code))
+  2. Write latency, throughput, and peak-memory budgets in the spec before building. ([source](practices/engineering-standards/performance-and-memory.md#set-budgets-before-building))
+  3. Attach a reproducible benchmark or profile for hot-path changes and compare results with the budget. ([source](practices/engineering-standards/performance-and-memory.md#measure-before-optimising))
+  4. Stream data and bound every queue, cache, batch, and in-memory collection. ([source](practices/engineering-standards/performance-and-memory.md#bound-memory-by-default))
+  5. Set explicit memory limits for every service and job, including runtime overhead and worker concurrency. ([source](practices/engineering-standards/performance-and-memory.md#set-service-and-job-limits))
+  6. Choose the simplest structure that meets the budget and optimise only measured misses. ([source](practices/engineering-standards/performance-and-memory.md#choose-the-simplest-structure))
+  7. Gate hot paths against absolute budgets and an agreed regression margin. ([source](practices/engineering-standards/performance-and-memory.md#gate-performance-regressions))
 
 **[Testing in agentic engineering](testing-in-agentic-engineering.md)**
 
