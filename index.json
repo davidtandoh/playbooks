@@ -714,6 +714,53 @@
     },
     {
       "applies_when": [
+        "building or changing a service, job, or data pipeline with latency, throughput, or memory constraints",
+        "reviewing a hot path, resource limit, benchmark, or performance regression"
+      ],
+      "key_rules": [
+        {
+          "rule": "Write latency, throughput, and peak-memory budgets in the spec before building.",
+          "source": "practices/engineering-standards/performance-and-memory.md#set-budgets-before-building"
+        },
+        {
+          "rule": "Attach a reproducible benchmark or profile for hot-path changes and compare results with the budget.",
+          "source": "practices/engineering-standards/performance-and-memory.md#measure-before-optimising"
+        },
+        {
+          "rule": "Stream data and bound every queue, cache, batch, and in-memory collection.",
+          "source": "practices/engineering-standards/performance-and-memory.md#bound-memory-by-default"
+        },
+        {
+          "rule": "Set explicit memory limits for every service and job, including runtime overhead and worker concurrency.",
+          "source": "practices/engineering-standards/performance-and-memory.md#set-service-and-job-limits"
+        },
+        {
+          "rule": "Choose the simplest structure that meets the budget and optimise only measured misses.",
+          "source": "practices/engineering-standards/performance-and-memory.md#choose-the-simplest-structure"
+        },
+        {
+          "rule": "Gate hot paths against absolute budgets and an agreed regression margin.",
+          "source": "practices/engineering-standards/performance-and-memory.md#gate-performance-regressions"
+        }
+      ],
+      "path": "practices/engineering-standards/performance-and-memory.md",
+      "signals": [
+        "performance",
+        "latency",
+        "throughput",
+        "memory",
+        "benchmark",
+        "profile",
+        "profiling",
+        "hot path",
+        "optimisation",
+        "optimization"
+      ],
+      "skills": [],
+      "title": "Performance and memory: budgets before building"
+    },
+    {
+      "applies_when": [
         "a coding agent writes or changes tests, or writes code and tests together",
         "reviewing, trimming, or deduplicating a test suite that agents have grown",
         "deciding which tests a change needs, or whether to use mocks, properties, snapshots, or end-to-end tests",
