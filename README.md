@@ -18,6 +18,7 @@ front matter will adopt it in a separate change.
 | [CI for agentic engineering](ci-for-agentic-engineering.md) | `delivery-gates` `verification` `security-and-privacy` `cost` `reliability` | Local gate first with hosted merge proof, staged test selection, caching and merge queues, flaky-test governance, rounded-minute cost per merge, and trust boundaries for actions, secrets and runners |
 | [API design](practices/engineering-standards/api-design.md) | `architecture` `delivery-gates` `verification` `security-and-privacy` | One default per HTTP API design question, enforced by a Spectral ruleset and an oasdiff breaking-change check: naming, versioning, RFC 9457 errors, pagination, idempotency, auth, rate limits, long-running operations, webhooks and events |
 | [Performance and memory](practices/engineering-standards/performance-and-memory.md) | `architecture` `memory` `verification` `delivery-gates` `cost` | Data structures and complexity, allocation and copying, runtime costs, resource budgets, bounded memory, and hot-path regression gates |
+| [Code style and static analysis](practices/engineering-standards/code-style-and-static-analysis.md) | `architecture` `verification` `delivery-gates` `cost` | Language baselines, bounded edit feedback, staged-snapshot checks, full static gates, safe formatting, shrinking debt baselines, and CI parity |
 | [Data-intensive systems](practices/engineering-standards/data-intensive-systems.md) | `architecture` `verification` `delivery-gates` `security-and-privacy` | Storage and schema decisions, replication guarantees, partitioning, isolation, retry-safe effects, batch and streams, CDC and derived data, with workload and failure checks |
 | [Domain-driven design](practices/engineering-standards/domain-driven-design.md) | `architecture` `reliability` `verification` `delivery-gates` | Model business rules and ownership with bounded contexts, small aggregates, explicit events, ports and adapters, architecture tests, and ADRs |
 | [Secure and reliable systems](practices/engineering-standards/secure-reliable-systems.md) | `architecture` `security-and-privacy` `reliability` `delivery-gates` `verification` | Least privilege, safe APIs, isolation, secret rotation, supply-chain verification, bounded recovery, safe rollouts, and incident readiness |
@@ -264,6 +265,21 @@ published.
   4. Paginate every list with page_size, page_token, and next_page_token from the first release. ([source](practices/engineering-standards/api-design.md#pagination))
   5. Accept an Idempotency-Key on every POST. ([source](practices/engineering-standards/api-design.md#idempotency-keys))
   6. Declare security on every operation and deny by default. ([source](practices/engineering-standards/api-design.md#auth-and-rate-limits))
+
+**[Code style and static analysis: enforce the rules early](practices/engineering-standards/code-style-and-static-analysis.md)**
+
+- Applies when: adding or changing formatters, linters, type checks, or compiler diagnostics; wiring static analysis into editor hooks, agent hooks, Git hooks, or CI; adopting static checks in a repository with existing diagnostic debt.
+- Signals: `code style`, `static analysis`, `lint`, `formatter`, `typecheck`, `pre-commit`, `lint-on-edit`, `suppression`, `clippy`, `clang-tidy`, `RuboCop`.
+- Path globs (PR gate): `eslint.config.*`, `**/eslint.config.*`, `.prettierrc*`, `**/.prettierrc*`, `ruff.toml`, `**/ruff.toml`, `.golangci.*`, `**/.golangci.*`, `clippy.toml`, `**/clippy.toml`, `.clang-tidy`, `**/.clang-tidy`, `.rubocop.yml`, `**/.rubocop.yml`, `analysis_options.yaml`, `**/analysis_options.yaml`, `.clippy.toml`, `**/.clippy.toml`, `rustfmt.toml`, `**/rustfmt.toml`, `.rustfmt.toml`, `**/.rustfmt.toml`, `.clang-format`, `**/.clang-format`, `.editorconfig`, `**/.editorconfig`, `mypy.ini`, `**/mypy.ini`, `.mypy.ini`, `**/.mypy.ini`, `pyrightconfig.json`, `**/pyrightconfig.json`, `.scalafmt.conf`, `**/.scalafmt.conf`, `.swiftlint.yml`, `**/.swiftlint.yml`, `.swift-format`, `**/.swift-format`, `.shellcheckrc`, `**/.shellcheckrc`, `.markdownlint*`, `**/.markdownlint*`, `.sqlfluff`, `**/.sqlfluff`, `eslint-suppressions.json`, `**/eslint-suppressions.json`, `.rubocop_todo.yml`, `**/.rubocop_todo.yml`, `detekt.yml`, `**/detekt.yml`, `checkstyle.xml`, `**/checkstyle.xml`, `.pre-commit-config.yaml`, `.githooks/**`.
+- Skills: none yet.
+- Key rules:
+  1. Give each static-check responsibility one repository-owned definition with pinned tools and explicit scope. ([source](practices/engineering-standards/code-style-and-static-analysis.md#define-the-repository-contract))
+  2. Use edit feedback, staged-snapshot checks, and the full gate as separate enforcement layers. ([source](practices/engineering-standards/code-style-and-static-analysis.md#use-three-enforcement-layers))
+  3. Bound edit-check latency, output, and concurrency; report deferred or timed-out checks as incomplete. ([source](practices/engineering-standards/code-style-and-static-analysis.md#budget-the-fast-path))
+  4. Preserve unstaged work and partial staging; keep commit and CI checks non-mutating. ([source](practices/engineering-standards/code-style-and-static-analysis.md#format-safely))
+  5. Reject new baseline debt and remove resolved allowances through a reviewed ratchet. ([source](practices/engineering-standards/code-style-and-static-analysis.md#ratchet-debt-and-exceptions))
+  6. Propagate checker failures and fail on missing tools, invalid configuration, or crashes. ([source](practices/engineering-standards/code-style-and-static-analysis.md#preserve-failure-contracts))
+  7. Run the same full static-check definition locally and in required CI checks, with source and scope evidence. ([source](practices/engineering-standards/code-style-and-static-analysis.md#prove-ci-parity))
 
 **[Data-intensive systems: choose guarantees before topology](practices/engineering-standards/data-intensive-systems.md)**
 

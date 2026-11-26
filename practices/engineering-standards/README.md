@@ -20,6 +20,8 @@ check, the check wins.
    ownership boundaries need a model, then enforce dependencies and invariants.
 6. Read [Secure and reliable systems](secure-reliable-systems.md) before changing
    trust boundaries or recovery paths.
+7. Read [Code style and static analysis](code-style-and-static-analysis.md)
+   when choosing static checks or enforcing them through hooks and gates.
 
 ## Practices
 
@@ -30,6 +32,7 @@ check, the check wins.
 | [Data-intensive systems](data-intensive-systems.md) | Published | Workload, compatibility, concurrency, fault-injection and replay checks | Storage models and engines, schema evolution, replication, partitioning, isolation, retries, batch and streams, CDC and derived views |
 | [Domain-driven design](domain-driven-design.md) | Published | Architecture tests, invariant tests, persistence and event contract tests | Language, bounded contexts, context maps, aggregates, entities and values, events, repositories, ports and adapters, ADRs |
 | [Secure and reliable systems](secure-reliable-systems.md) | Published | Authorization and policy tests, parser fuzzing, artifact verification, recovery rehearsals in the service repository | Least privilege, safe construction, isolation, credentials, supply chain, overload, rollout and incident readiness |
+| [Code style and static analysis](code-style-and-static-analysis.md) | Published | Repository-owned format, lint, and type/compile checks; staged-snapshot and full-gate failure fixtures | Language baselines, edit feedback, staged checks, CI parity, safe formatting, shrinking debt baselines, and failure propagation |
 
 ## Credits
 
