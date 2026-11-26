@@ -36,8 +36,9 @@ SKILL_DESCRIPTION_LIMIT = 240
 MATCHING_KEYS = ("applies_when", "signals", "key_rules")
 KEY_RULES_RANGE = (3, 7)
 KEY_RULE_CITATION = re.compile(r"(.+) \(#([^\s()]+)\)")
-# A list item must also read as a plain YAML scalar, so that GitHub renders
-# the front matter. These characters cannot start a plain scalar.
+# Unquoted list items must read as plain YAML scalars so GitHub renders the
+# front matter. These characters require quoting; path_globs also accepts
+# double-quoted JSON strings.
 YAML_INDICATORS = tuple("-?:,[]{}#&*!|>'\"%@`")
 
 
