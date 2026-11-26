@@ -226,16 +226,6 @@ class EngineeringStandardsPracticesTest(unittest.TestCase):
         self.assertIn(f"]({OBSERVABILITY_PAGE.name})", index)
         self.assertIn(f"]({PERFORMANCE_PAGE.name})", index)
 
-    def test_observability_passes_publication_and_section_contract(self) -> None:
-        metadata = read_front_matter(OBSERVABILITY_PAGE)
-        for key, expected_value in REQUIRED_METADATA.items():
-            self.assertEqual(metadata.get(key), expected_value)
-        datetime.date.fromisoformat(metadata["published"])
-        self.assertIn(metadata["category"], APPROVED_CATEGORIES)
-        self.assertTrue(metadata["topics"])
-        self.assertTrue(set(metadata["topics"]).issubset(APPROVED_TOPICS))
-        self.assertEqual(level_two_headings(OBSERVABILITY_PAGE), list(PRACTICE_SECTIONS))
-
     def test_practices_pass_publication_gate_and_taxonomy(self) -> None:
         for page in ENGINEERING_PAGES:
             with self.subTest(page=page.name):
