@@ -68,6 +68,26 @@ Public web references were checked on 2026-11-26.
   executable checks for dependency direction and cycles.
 - [*Architectural Decision Records*](https://adr.github.io/):
   decision logs and links to Michael Nygard's *Documenting Architecture Decisions*.
+- Eric Evans, [*Domain-Driven Design Reference*](https://www.domainlanguage.com/ddd/reference/):
+  canonical pattern definitions, including context mapping and domain events.
+- Martin Fowler, [*Anemic Domain Model*](https://martinfowler.com/bliki/AnemicDomainModel.html)
+  and [*CQRS*](https://martinfowler.com/bliki/CQRS.html):
+  choosing domain behaviour and read/write separation deliberately.
+- DDD Crew, [*Bounded Context Canvas*](https://raw.githubusercontent.com/ddd-crew/bounded-context-canvas/master/README.md)
+  and [*DDD Starter Modelling Process*](https://raw.githubusercontent.com/ddd-crew/ddd-starter-modelling-process/master/README.md),
+  with Alberto Brandolini's [*EventStorming*](https://www.eventstorming.com/):
+  collaborative discovery and explicit boundary assumptions.
+- Matthew Skelton and Manuel Pais, *Team Topologies*,
+  [*Key Concepts*](https://teamtopologies.com/key-concepts), alongside
+  Vlad Khononov's *Learning Domain-Driven Design* and Vaughn Vernon's
+  *Implementing Domain-Driven Design*: ownership and strategic modelling.
+- Gregor Hohpe and Bobby Woolf, *Enterprise Integration Patterns*,
+  [*Process Manager*](https://www.enterpriseintegrationpatterns.com/patterns/messaging/ProcessManager.html):
+  stateful workflow coordination.
+- [*Import Linter*](https://import-linter.readthedocs.io/en/stable/) and
+  [*Spring Modulith Fundamentals*](https://docs.spring.io/spring-modulith/reference/fundamentals.html):
+  module contracts and verification. Check rolling documentation against the
+  tool version used by the project.
 
 ## At a glance
 
@@ -90,7 +110,7 @@ consistency boundary and dependency direction.
 | Shared vocabulary? | One glossary per bounded context; translate at boundaries |
 | Deployment? | Start with modules; a context does not require a microservice |
 | Immediate consistency? | The smallest aggregate that protects the invariant |
-| Cross-context exchange? | Explicit API or integration event; no direct table writes |
+| Cross-context exchange? | Published API, event, or owned read projection; no access to another context's internal tables |
 | External technology? | Adapter behind a port owned by its caller |
 | Proof? | Domain tests, real persistence tests, contract tests, and architecture checks |
 
@@ -114,6 +134,22 @@ observed need. A domain can be modelled with functions and immutable data.
 Check: before adding a pattern, name the rule it protects, a counterexample
 it rejects, and the simplest alternative. Review these with a domain expert.
 
+Classify **subdomains**, the business problem areas, before choosing the code
+patterns. A subdomain describes the problem; a bounded context defines the
+model boundary used to solve it. They need not map one-to-one.
+
+| Subdomain | Business role | Investment default |
+| --- | --- | --- |
+| Core | Rules that distinguish the business from alternatives | Work closely with experts; model complex invariants explicitly |
+| Supporting | Business-specific work that enables the core | Start with a transaction script or CRUD module when rules are simple |
+| Generic | Capabilities whose rules are broadly shared | Evaluate a maintained product or library before custom implementation |
+
+These are investment defaults, not a complexity ranking. A supporting
+capability can need a rich model, and identity or billing can be core for a
+business that sells those capabilities. Revisit the classification when the
+business strategy changes. Evans' *DDD Reference* and DDD Crew's *Bounded
+Context Canvas* provide the strategic vocabulary.
+
 ### Language and context boundaries
 
 A **ubiquitous language** is the vocabulary that domain experts and engineers
@@ -132,6 +168,15 @@ down when different groups assign different meanings to the same term.
 4. Exercise a boundary with a concrete failure: incompatible version,
    unavailable supplier, or a fact that arrives after its replacement.
 
+Use an [EventStorming workshop](https://www.eventstorming.com/) to discover
+the flow with domain experts. Start with a timeline of business events and
+mark disputed meanings and handoffs. In a design-focused session, attach the
+commands, actors, policies, and read models that explain each transition.
+Keep unresolved assumptions visible; a workshop sketch is not an accepted
+design. Capture each candidate context's purpose, language, interfaces, and
+assumptions in a version-controlled
+[Bounded Context Canvas](https://raw.githubusercontent.com/ddd-crew/bounded-context-canvas/master/README.md).
+
 | Context | Term | Meaning | Distinguish from |
 | --- | --- | --- | --- |
 | Training | Model version | Immutable artifact and training metadata | Serving deployment |
@@ -148,11 +193,33 @@ The serving context need not load a training run to deploy its artifact.
 | Anti-corruption layer | A vendor or legacy model would distort the local language | Translation adapter, rejected unknown values, mapping and contract tests |
 | Partnership | Both teams can coordinate changes and share delivery risk | Joint release and incident responsibilities |
 | Separate ways | The capability needs no integration | Keep models independent; avoid a speculative shared library |
+| Open Host Service | Many consumers need a stable upstream capability | One supported protocol and compatibility policy; open means available to intended consumers, not unauthenticated |
+| Published Language | Contexts need an agreed interchange model | Documented field meanings and schema evolution; an Avro or OpenAPI document can describe the contract |
+| Big Ball of Mud | Legacy responsibilities and models cannot yet be separated reliably | Mark the uncertain boundary and contain its semantics behind translation |
 
-An anti-corruption layer is a translation strategy, not a team relationship
-by itself. It can accompany a customer-supplier relationship. Label both on
-the map. A shared kernel means jointly owned model code; use it only when
-both teams accept coordinated changes and test ownership.
+Evans' *DDD Reference* names an anti-corruption layer as a context-mapping
+pattern. Record organizational dynamics and technical integration choices
+separately: customer-supplier can describe the teams while an anti-corruption
+layer describes their translation boundary. An Open Host Service and a
+Published Language can serve many downstream consumers without bespoke
+contracts for each. A shared kernel means jointly owned model code; use it
+only when both teams accept coordinated changes and test ownership.
+
+Give every context one accountable owning team. Check that the team can
+understand and operate its scope; split responsibilities when cognitive load
+prevents safe changes. Shared ownership needs an explicit coordination
+agreement. Following [Team Topologies](https://teamtopologies.com/key-concepts),
+record how teams interact: temporary collaboration to discover the model,
+X-as-a-Service for a self-service contract, or facilitating to transfer a
+capability. These interaction modes complement context-map relationships;
+they do not mechanically determine a context boundary.
+
+Inside a modular monolith, each context owns its persistence schema. Forbid
+direct reads, joins, and writes against another context's internal tables.
+Use a published interface or an explicitly owned reporting projection built
+from published data contracts. A shared database server does not imply shared
+table ownership. Enforce access with database permissions where practical;
+review SQL and test data access as well as package imports.
 
 Check: review every boundary crossing against the context map. Fail
 architecture checks on cross-context internal imports. Use
@@ -180,8 +247,11 @@ Sizing rules:
   If either grows without a business bound, split lifecycle ownership or use
   a bounded query. Do not use a universal object-count threshold.
 - Prefer one aggregate write per transaction. If a hard invariant spans two
-  roots, revisit the boundary or deliberately choose a transaction spanning
-  both. Do not replace an immediate safety rule with eventual consistency.
+  roots, revisit the boundary first. A multi-aggregate transaction is a narrow,
+  documented exception within one context and one transactional store.
+  Record its contention and partitioning costs. Never extend that exception
+  across contexts. Do not replace an immediate safety rule with eventual
+  consistency; redesign ownership or the workflow if it cannot be enforced.
 - Keep locks and transactions short. Use optimistic version checks where
   appropriate; retry by reloading state and re-evaluating the command.
   Database uniqueness and isolation must protect races across processes.
@@ -194,8 +264,22 @@ Check: test valid and invalid state transitions without infrastructure. Then
 test conflicting writes against the real database and isolation settings.
 Measure loaded bytes, query count, and conflict rate under representative
 cardinality. See the companion
-[performance and memory playbook under review](https://github.com/davidtandoh/playbooks/pull/15)
+[Performance and memory](performance-and-memory.md)
 for data structures, allocation, and profiling guidance.
+
+For a workflow that spans contexts, choose coordination explicitly:
+
+| Approach | Use when | Required guard |
+| --- | --- | --- |
+| Event choreography | A small set of independent reactions remains easy to trace | Correlation ids, idempotent handlers, and an owner for stalled flows |
+| Process Manager | Branches, deadlines, or compensation need durable progress tracking | Persist state, command outcomes, timeouts, and retry-safe transitions |
+
+A [Process Manager](https://www.enterpriseintegrationpatterns.com/patterns/messaging/ProcessManager.html)
+routes work according to the recorded workflow state. It adds a coordinator
+that must recover after failure; it does not make participants' commits atomic.
+Example: persist approval requested, handle approval granted, issue deployment,
+then time out or compensate if deployment fails. Test duplicate replies and
+a coordinator crash between recording progress and sending the next command.
 
 ### Entities and value objects
 
@@ -216,6 +300,15 @@ transitions. Reconstruct persisted entities through a path that validates
 their invariants; handle corrupt records explicitly. DDD does not replace
 tenant authorization or input validation at a trust boundary.
 
+Fowler's [Anemic Domain Model](https://martinfowler.com/bliki/AnemicDomainModel.html)
+describes the cost of domain classes that expose data while procedural
+services own all their business behaviour. For complex invariants, place the
+decision beside the state it protects. For a simple use case, an intentional
+**transaction script**, a procedure that validates and commits that use case,
+can be sufficient. Pure functions with immutable data can also enforce a
+rich domain model; the warning is about scattered policy, not a demand for
+object-oriented code.
+
 ### Domain events and integration events
 
 A **domain event** records a business fact inside one context. An
@@ -229,6 +322,14 @@ them explicitly so internal refactoring does not change consumer contracts.
 | Data | Facts needed by local business logic | Minimal approved payload with stable identifiers |
 | Compatibility | Change with the owning model and handlers | Review consumer compatibility and retention |
 | Timing | Can be raised before commit; handlers must respect the transaction boundary | Publish only after committed state is durable |
+
+Choose handler timing explicitly. Synchronous domain handlers inside the
+transaction can reject the primary write and can accidentally expand it to
+multiple aggregates. Apply the same transaction-boundary rules to those
+handlers. Asynchronous post-commit handlers preserve independent writes but
+introduce lag and partial failure. Persist their pending work through an
+outbox or equivalent durable mechanism; an in-memory callback after commit
+can lose work if the process exits.
 
 For reliable publication, write state and an outbox record in the same
 transaction, then let a relay publish the record. If the relay crashes after
@@ -273,6 +374,16 @@ Persistence contract tests prove rollback, version conflicts, and constraint
 translation against the real database. Share those contracts with test doubles
 so an in-memory repository cannot silently accept impossible writes.
 
+For reads, start with dedicated read-only query handlers against the owning
+context's existing store. A list view can select only required columns without
+hydrating aggregates. This does not grant access to other contexts' internal
+tables. Introduce separate read and write models where they simplify a real
+use case; [Fowler's CQRS discussion](https://martinfowler.com/bliki/CQRS.html)
+warns about the added complexity. A separate asynchronously updated read store
+needs a measured reason, such as different scaling or data shapes, plus a
+budget for projection lag, replay, and rebuild. Document what a caller sees
+immediately after a successful write.
+
 ### Ports, adapters, and architecture tests
 
 In hexagonal architecture, a **port** names an interaction the application
@@ -312,6 +423,14 @@ dependency, then remove that dependency before committing. Static import
 checks cannot detect all reflection or dynamic imports; integration tests
 must also exercise the real composition root.
 
+[Import Linter](https://import-linter.readthedocs.io/en/stable/) provides
+independence, layers, and acyclic-siblings contracts for these module rules.
+For Spring applications,
+[Spring Modulith](https://docs.spring.io/spring-modulith/reference/fundamentals.html)
+models provided interfaces, internal implementation, and required interfaces.
+Use its module verification alongside the invariant and persistence tests;
+code dependency checks alone cannot detect SQL joins across owned schemas.
+
 Check: CI fails on a domain-to-adapter import, an application-to-adapter
 import, a cross-context internal import, or a dependency cycle. Pure domain
 tests run without a database, network, or framework startup.
@@ -341,13 +460,17 @@ conflicts exceed the service's agreed budget at expected tenant concurrency.
 ## Checklist
 
 - [ ] Identify the business rule and explain why DDD earns its cost here.
+- [ ] Classify the subdomain and select modelling depth for its actual rules.
+- [ ] Discover disputed terms and handoffs with domain experts; record assumptions.
 - [ ] Agree on context-specific terms with a domain expert.
 - [ ] Map owners, integration contracts, and relationship types.
+- [ ] Assign team accountability and prevent access to other contexts' internal tables.
 - [ ] State immediate invariants and allowed temporary inconsistencies.
 - [ ] Bound aggregate size and test races against real persistence.
 - [ ] Separate immutable values, entity identity, and state transitions.
 - [ ] Separate domain events from versioned integration contracts.
 - [ ] Prove rollback, duplicate handling, and publication recovery.
+- [ ] Choose workflow coordination and read-model consistency explicitly.
 - [ ] Keep use-case orchestration outside business policy.
 - [ ] Run architecture checks for forbidden dependencies and cycles.
 - [ ] Record significant trade-offs and their enforcing checks in ADRs.
