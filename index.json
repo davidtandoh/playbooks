@@ -719,6 +719,10 @@
       ],
       "key_rules": [
         {
+          "rule": "Choose data structures by access pattern and complexity; measure allocation, copying, I/O, and concurrency costs.",
+          "source": "practices/engineering-standards/performance-and-memory.md#write-efficient-code"
+        },
+        {
           "rule": "Write latency, throughput, and peak-memory budgets in the spec before building.",
           "source": "practices/engineering-standards/performance-and-memory.md#set-budgets-before-building"
         },
@@ -753,6 +757,10 @@
         "profile",
         "profiling",
         "hot path",
+        "data structure",
+        "allocation",
+        "garbage collection",
+        "event loop",
         "optimisation",
         "optimization"
       ],
