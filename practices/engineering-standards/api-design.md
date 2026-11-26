@@ -42,6 +42,7 @@ rule, not for a longer page.
 
 Skill: none yet.
 
+See [Data-intensive systems](data-intensive-systems.md) for storage consistency, schema evolution, transaction isolation and retry-safe effects behind API contracts.
 See [Domain-driven design](domain-driven-design.md) for model ownership, consistency boundaries, and the distinction between domain and integration events.
 
 ## Sources
