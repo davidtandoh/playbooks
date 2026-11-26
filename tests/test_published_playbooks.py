@@ -536,6 +536,12 @@ class PathGlobsTest(unittest.TestCase):
                 "eslint.config.mjs", ".prettierrc.json", "ruff.toml",
                 ".golangci.yml", "clippy.toml", ".clang-tidy",
                 ".rubocop.yml", "analysis_options.yaml",
+                ".clippy.toml", "rustfmt.toml", ".rustfmt.toml",
+                ".clang-format", ".editorconfig", "mypy.ini", ".mypy.ini",
+                "pyrightconfig.json", ".scalafmt.conf", ".swiftlint.yml",
+                ".swift-format", ".shellcheckrc", ".markdownlint.jsonc",
+                ".sqlfluff", "eslint-suppressions.json", ".rubocop_todo.yml",
+                "detekt.yml", "checkstyle.xml",
             )
             for prefix in ("", "config/", "packages/app/")
         })
