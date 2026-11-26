@@ -12,11 +12,17 @@ applies_when:
   - changing a model, system prompt, skill, tool schema, or agent framework version
 signals:
   - model id
-  - prompt
-  - skill
+  - system prompt
+  - prompt versioning
+  - agent skill release
   - tool schema
   - canary
-  - eval
+  - agent evaluation
+path_globs:
+  - "**/system_prompts/**"
+  - "**/model_config.*"
+  - "**/eval_suites/**"
+  - "**/agent_canary/**"
 key_rules:
   - Version prompts, skills, model ids, tool schemas, and harness versions, and record each on every trace. (#at-a-glance)
   - Gate each release per slice against the last known-good baseline. (#at-a-glance)

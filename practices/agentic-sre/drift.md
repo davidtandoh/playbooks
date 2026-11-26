@@ -14,10 +14,14 @@ applies_when:
   - trusting an old eval or a model judge
 signals:
   - llm-as-judge
-  - sampling
-  - eval
+  - quality sampling
+  - agent evaluation
   - model version
   - quality dashboard
+path_globs:
+  - "**/drift_detection/**"
+  - "**/quality_monitoring/**"
+  - "**/judge_calibration/**"
 key_rules:
   - Do not trust a judge that has never been compared with human labels. (#rules-of-thumb)
   - Offline evals alone do not detect drift. (#rules-of-thumb)

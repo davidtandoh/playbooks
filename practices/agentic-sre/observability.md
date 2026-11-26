@@ -15,8 +15,12 @@ signals:
   - gen_ai
   - execute_tool
   - span
-  - trace
-  - mcp
+  - agent tracing
+  - mcp tracing
+path_globs:
+  - "**/otel*/**"
+  - "**/*collector*.y*ml"
+  - "**/agent_tracing/**"
 key_rules:
   - Measure tasks, not spans. (#rules-of-thumb)
   - Compute tool error rate from execute_tool spans with error.type set. (#at-a-glance)

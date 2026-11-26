@@ -18,14 +18,19 @@ applies_when:
 signals:
   - .github/workflows
   - github actions
-  - workflow
-  - ci
+  - CI workflow
+  - continuous integration
   - merge queue
   - merge_group
-  - runner
+  - CI runner
   - flaky
   - actionlint
   - zizmor
+path_globs:
+  - ".github/workflows/**"
+  - ".pre-commit-config.yaml"
+  - "scripts/gate.*"
+  - "scripts/check.*"
 key_rules:
   - Run one canonical gate script locally before pushing, and use hosted CI only for independent merge evidence. (#1-gate-locally-prove-independently)
   - Select tests in stages and fail closed to the full suite when a change cannot be classified. (#2-select-tests-in-stages)

@@ -12,10 +12,13 @@ applies_when:
   - designing or launching an agent-backed product or feature
   - signing off reliability before build or before launch
 signals:
-  - launch
+  - agent launch
   - design review
   - readiness review
   - go-live
+path_globs:
+  - "**/launch-reviews/**"
+  - "**/agent-readiness*.md"
 key_rules:
   - Define the critical user journeys and what correct means for each. (#checklist)
   - Give every agent feature a fallback without the model. (#rules-of-thumb)

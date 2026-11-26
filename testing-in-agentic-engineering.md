@@ -16,16 +16,23 @@ applies_when:
   - deciding which tests a change needs, or whether to use mocks, properties, snapshots, or end-to-end tests
   - choosing between software tests and agent evals for a system that contains an agent
 signals:
-  - test
-  - tests/
+  - test suite
+  - test design
   - pytest
   - unittest
-  - mock
-  - fixture
+  - test mock
+  - test fixture
   - hypothesis
   - mutation testing
-  - coverage
-  - snapshot
+  - test coverage
+  - snapshot testing
+path_globs:
+  - "**/*_test.py"
+  - "**/*.test.*"
+  - "**/*.spec.*"
+  - "tests/**"
+  - "pytest.ini"
+  - "**/conftest.py"
 key_rules:
   - Give the agent the map of existing tests that cover the code it will change before it writes new tests. (#3-rules-that-make-agents-write-fewer-better-tests)
   - Trace every new test to a named requirement, boundary, invariant, contract, or bug reproduction. (#3-rules-that-make-agents-write-fewer-better-tests)

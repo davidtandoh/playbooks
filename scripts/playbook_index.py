@@ -36,8 +36,9 @@ SKILL_DESCRIPTION_LIMIT = 240
 MATCHING_KEYS = ("applies_when", "signals", "key_rules")
 KEY_RULES_RANGE = (3, 7)
 KEY_RULE_CITATION = re.compile(r"(.+) \(#([^\s()]+)\)")
-# A list item must also read as a plain YAML scalar, so that GitHub renders
-# the front matter. These characters cannot start a plain scalar.
+# Unquoted list items must read as plain YAML scalars so GitHub renders the
+# front matter. These characters require quoting; path_globs also accepts
+# double-quoted JSON strings.
 YAML_INDICATORS = tuple("-?:,[]{}#&*!|>'\"%@`")
 
 
@@ -65,6 +66,16 @@ def read_front_matter(path: pathlib.Path) -> dict[str, object]:
             items = metadata[current_list]
             if not isinstance(items, list):
                 raise ValueError(f"{path.name} has malformed list metadata")
+            if current_list == "path_globs" and not value.startswith('"'):
+                if value.startswith(YAML_INDICATORS) or ": " in value or " #" in value:
+                    raise ValueError(f"{path.name} path_globs requires double-quoted patterns")
+            if current_list == "path_globs" and value.startswith('"'):
+                try:
+                    value = json.loads(value)
+                except json.JSONDecodeError as error:
+                    raise ValueError(f"{path.name} has malformed path_globs quoting") from error
+                if not isinstance(value, str):
+                    raise ValueError(f"{path.name} path_globs items must be strings")
             items.append(value)
             continue
 
@@ -151,6 +162,24 @@ def matching_metadata_errors(path: pathlib.Path) -> list[str]:
         for item in items:
             if item.startswith(YAML_INDICATORS) or ": " in item or " #" in item:
                 errors.append(f"{key} item is not a plain YAML scalar: {item!r}")
+    if "path_globs" in metadata:
+        patterns = metadata["path_globs"]
+        if not isinstance(patterns, list) or not patterns:
+            errors.append("path_globs must be a non-empty list when present")
+        else:
+            if len(patterns) != len(set(patterns)):
+                errors.append("path_globs repeats an item")
+            for pattern in patterns:
+                if (
+                    not pattern
+                    or pattern.startswith(("/", "~", "!", "'"))
+                    or "\\" in pattern
+                    or ":" in pattern
+                    or any(part in ("", ".", "..") for part in pattern.split("/"))
+                    or any(character.isspace() for character in pattern)
+                    or not re.search(r"[a-zA-Z0-9_-]", pattern)
+                ):
+                    errors.append(f"path_globs item must be a specific relative POSIX glob: {pattern!r}")
     rules = metadata.get("key_rules")
     low, high = KEY_RULES_RANGE
     if isinstance(rules, list) and not low <= len(rules) <= high:
@@ -311,6 +340,8 @@ def build_entries() -> list[dict[str, object]]:
             **{key: metadata[key] for key in MATCHING_KEYS},
             "key_rules": rules,
         }
+        if "path_globs" in metadata:
+            entry["path_globs"] = metadata["path_globs"]
         declared = page_skills(metadata, skills)
         if declared is not None:
             entry["skills"] = declared
@@ -401,6 +432,12 @@ def render_readme_section(entries: list[dict[str, object]]) -> str:
             "- Applies when: " + "; ".join(entry["applies_when"]) + ".",
             "- Signals: " + ", ".join(f"`{s}`" for s in entry["signals"]) + ".",
         ]
+        if "path_globs" in entry:
+            lines.append(
+                "- Path globs (PR gate): "
+                + ", ".join(f"`{pattern}`" for pattern in entry["path_globs"])
+                + "."
+            )
         if "skills" in entry:
             lines.append(
                 "- Skills: "

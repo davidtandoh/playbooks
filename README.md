@@ -65,8 +65,9 @@ front matter will adopt it in a separate change.
 ## Which playbook applies
 
 Match the work in front of you to a published page. Each published page lists
-in its front matter when it applies (`applies_when`), the file or keyword
-hints that suggest it (`signals`), and three to seven checkable rules drawn
+in its front matter when it applies (`applies_when`), the advisory text
+hints that suggest it (`signals`), optional changed-path patterns for the PR
+gate (`path_globs`), and three to seven checkable rules drawn
 from the page (`key_rules`). Each rule ends with a citation to a heading
 in that page, in the form `(#anchor)`. Agents read rule text and source links from
 [`index.json`](index.json). Drafts stay out of this list until they are
@@ -78,7 +79,8 @@ published.
 **[Building AI Agents](building-ai-agents.md)**
 
 - Applies when: deciding whether a task needs an agent, a workflow, or a single model call; building or changing an agent loop, its tools, or its context handling; splitting work across multiple agents.
-- Signals: `agent`, `tool use`, `stop_reason`, `orchestrator`, `multi-agent`, `system prompt`.
+- Signals: `agent loop`, `agent orchestration`, `tool use`, `stop_reason`, `orchestrator`, `multi-agent`, `system prompt`.
+- Path globs (PR gate): `**/agent_loop.*`, `**/agent_orchestrator.*`, `**/tool_definitions/**`.
 - Skills: [`agent-reliability`](skills/agent-reliability/SKILL.md) (`tool-blast-radius`, `agentic-product-reliability-review`), `system-design-assessment`.
 - Key rules:
   1. Build an agent only when the task passes all four gate criteria; otherwise use a single call or a workflow. ([source](building-ai-agents.md#1-gate-should-you-even-build-an-agent))
@@ -91,7 +93,8 @@ published.
 **[Building Reliable Agents](building-reliable-agents.md)**
 
 - Applies when: taking an agent or LLM feature to production; adding observability, cost controls, evals, or security to an agent; handling untrusted input or prompt injection in an agent.
-- Signals: `opentelemetry`, `gen_ai`, `prompt caching`, `eval`, `guardrail`, `sandbox`, `token budget`.
+- Signals: `opentelemetry`, `gen_ai`, `prompt caching`, `agent evaluation`, `guardrail`, `sandbox`, `token budget`.
+- Path globs (PR gate): `**/guardrails/**`, `**/agent_evals/**`, `**/gen_ai/**`.
 - Skills: [`agent-reliability`](skills/agent-reliability/SKILL.md), `context-efficient-session`, `service-observability`.
 - Key rules:
   1. Start with the simplest thing and add autonomy only when it demonstrably improves outcomes. ([source](building-reliable-agents.md#0-the-rules-in-one-screen))
@@ -104,7 +107,8 @@ published.
 **[CI for agentic engineering](ci-for-agentic-engineering.md)**
 
 - Applies when: adding or changing a CI workflow, a local gate script, or pre-commit and pre-push hooks; coding agents open many small pull requests and hosted CI cost or queue time grows; choosing test selection, caching, sharding, or a merge queue; handling flaky tests, workflow permissions, secrets, or self-hosted runners.
-- Signals: `.github/workflows`, `github actions`, `workflow`, `ci`, `merge queue`, `merge_group`, `runner`, `flaky`, `actionlint`, `zizmor`.
+- Signals: `.github/workflows`, `github actions`, `CI workflow`, `continuous integration`, `merge queue`, `merge_group`, `CI runner`, `flaky`, `actionlint`, `zizmor`.
+- Path globs (PR gate): `.github/workflows/**`, `.pre-commit-config.yaml`, `scripts/gate.*`, `scripts/check.*`.
 - Skills: `apply-playbooks`, `spec-delivery-loop`, [`correct`](https://github.com/cursor/plugins/tree/main/pstack/skills/correct).
 - Key rules:
   1. Run one canonical gate script locally before pushing, and use hosted CI only for independent merge evidence. ([source](ci-for-agentic-engineering.md#1-gate-locally-prove-independently))
@@ -119,6 +123,7 @@ published.
 
 - Applies when: building or changing a retrieval-augmented generation pipeline; chunked documents lose context needed to retrieve them; deciding whether to add BM25, reranking, or full-context prompting.
 - Signals: `rag`, `retrieval`, `embedding`, `bm25`, `rerank`, `chunk`, `vector store`.
+- Path globs (PR gate): `**/retrieval/**`, `**/retriever.*`, `**/reranker.*`, `**/embeddings/**`.
 - Skills: none yet.
 - Key rules:
   1. Test putting the whole knowledge base in a cached prompt before building retrieval when it is under 200,000 tokens. ([source](contextual-retrieval.md#1-start-with-the-simplest-prompt-that-fits))
@@ -131,6 +136,7 @@ published.
 
 - Applies when: granting an agent a new power such as merge, send, spend, or deploy; adding or removing a human approval gate; supervising agents takes more time than the work.
 - Signals: `approval`, `auto-merge`, `permissions`, `autonomy`, `human-in-the-loop`.
+- Path globs (PR gate): `**/agent_approvals/**`, `**/autonomy_policy.*`, `**/approval_policy.*`.
 - Skills: [`agent-reliability`](skills/agent-reliability/SKILL.md) (`agent-autonomy-levels`, `agent-toil-budget`).
 - Key rules:
   1. Grant no agent full access on day one. ([source](practices/agentic-sre/autonomy-and-approval.md#rules-of-thumb))
@@ -143,6 +149,7 @@ published.
 
 - Applies when: giving an agent a tool, credential, memory store, or external channel; an agent can write, spend, or reach outside systems.
 - Signals: `credentials`, `api key`, `service account`, `mcp server`, `tool definition`.
+- Path globs (PR gate): `**/tool_permissions.*`, `**/agent_permissions.*`, `**/tool_allowlist.*`.
 - Skills: [`agent-reliability`](skills/agent-reliability/SKILL.md) (`tool-blast-radius`).
 - Key rules:
   1. Keep authorization downstream of the model; a system prompt is not a control. ([source](practices/agentic-sre/blast-radius.md#rules-of-thumb))
@@ -155,7 +162,8 @@ published.
 **[Drift and silent quality decay](practices/agentic-sre/drift.md)**
 
 - Applies when: monitoring production quality of an agent or AI feature; a model, prompt, tool, or input mix changes under a running system; trusting an old eval or a model judge.
-- Signals: `llm-as-judge`, `sampling`, `eval`, `model version`, `quality dashboard`.
+- Signals: `llm-as-judge`, `quality sampling`, `agent evaluation`, `model version`, `quality dashboard`.
+- Path globs (PR gate): `**/drift_detection/**`, `**/quality_monitoring/**`, `**/judge_calibration/**`.
 - Skills: [`agent-reliability`](skills/agent-reliability/SKILL.md) (`drift-and-quality-monitoring`).
 - Key rules:
   1. Do not trust a judge that has never been compared with human labels. ([source](practices/agentic-sre/drift.md#rules-of-thumb))
@@ -168,6 +176,7 @@ published.
 
 - Applies when: an agent takes a harmful action or a group of agents stalls; a model provider fails during operation; an AI product gives harmful output.
 - Signals: `incident`, `outage`, `runbook`, `on-call`, `kill switch`.
+- Path globs (PR gate): `**/runbooks/agent*/**`, `**/runbooks/*agent*.md`, `**/agent_incidents/**`.
 - Skills: [`agent-reliability`](skills/agent-reliability/SKILL.md) (`agent-incident-response`).
 - Key rules:
   1. A human is the incident commander, never an agent. ([source](practices/agentic-sre/incidents.md#at-a-glance))
@@ -179,7 +188,8 @@ published.
 **[Launch review for agentic products](practices/agentic-sre/launch-review.md)**
 
 - Applies when: designing or launching an agent-backed product or feature; signing off reliability before build or before launch.
-- Signals: `launch`, `design review`, `readiness review`, `go-live`.
+- Signals: `agent launch`, `design review`, `readiness review`, `go-live`.
+- Path globs (PR gate): `**/launch-reviews/**`, `**/agent-readiness*.md`.
 - Skills: [`agent-reliability`](skills/agent-reliability/SKILL.md) (`agentic-product-reliability-review`).
 - Key rules:
   1. Define the critical user journeys and what correct means for each. ([source](practices/agentic-sre/launch-review.md#checklist))
@@ -191,7 +201,8 @@ published.
 **[Observability: SLIs from traces](practices/agentic-sre/observability.md)**
 
 - Applies when: adding tracing or metrics to an agent; computing reliability indicators from agent traces.
-- Signals: `opentelemetry`, `gen_ai`, `execute_tool`, `span`, `trace`, `mcp`.
+- Signals: `opentelemetry`, `gen_ai`, `execute_tool`, `span`, `agent tracing`, `mcp tracing`.
+- Path globs (PR gate): `**/otel*/**`, `**/*collector*.y*ml`, `**/agent_tracing/**`.
 - Skills: [`agent-reliability`](skills/agent-reliability/SKILL.md) (`trace-based-slis`).
 - Key rules:
   1. Measure tasks, not spans. ([source](practices/agentic-sre/observability.md#rules-of-thumb))
@@ -204,6 +215,7 @@ published.
 
 - Applies when: writing up an agent incident or a notable bad output.
 - Signals: `postmortem`, `incident review`, `retrospective`, `root cause`.
+- Path globs (PR gate): `**/postmortems/**`, `**/incident-reviews/**`.
 - Skills: [`agent-reliability`](skills/agent-reliability/SKILL.md) (`agent-postmortems`).
 - Key rules:
   1. Stay blameless for humans and agents alike. ([source](practices/agentic-sre/postmortems.md#rules-of-thumb))
@@ -215,7 +227,8 @@ published.
 **[Eval-gated releases and canaries](practices/agentic-sre/releases.md)**
 
 - Applies when: changing a model, system prompt, skill, tool schema, or agent framework version.
-- Signals: `model id`, `prompt`, `skill`, `tool schema`, `canary`, `eval`.
+- Signals: `model id`, `system prompt`, `prompt versioning`, `agent skill release`, `tool schema`, `canary`, `agent evaluation`.
+- Path globs (PR gate): `**/system_prompts/**`, `**/model_config.*`, `**/eval_suites/**`, `**/agent_canary/**`.
 - Skills: [`agent-reliability`](skills/agent-reliability/SKILL.md) (`eval-gated-releases`).
 - Key rules:
   1. Version prompts, skills, model ids, tool schemas, and harness versions, and record each on every trace. ([source](practices/agentic-sre/releases.md#at-a-glance))
@@ -229,6 +242,7 @@ published.
 
 - Applies when: launching or reviewing an agent and defining how reliable it must be; choosing SLIs, SLO targets, error budgets, or burn-rate alerts; planning agent capacity, provider quotas, or cost.
 - Signals: `slo`, `sli`, `error budget`, `burn rate`, `alerting`, `quota`.
+- Path globs (PR gate): `**/slos/**`, `**/slo*.y*ml`, `**/error_budgets/**`.
 - Skills: [`agent-reliability`](skills/agent-reliability/SKILL.md) (`agent-slo-design`, `agent-capacity-and-cost`).
 - Key rules:
   1. Uptime alone is not an SLO for an agent. ([source](practices/agentic-sre/slos-and-error-budgets.md#rules-of-thumb))
@@ -241,6 +255,7 @@ published.
 
 - Applies when: adding or changing an HTTP API or its OpenAPI document; designing webhooks or event payloads consumed by another service.
 - Signals: `openapi`, `openapi.yaml`, `spectral`, `oasdiff`, `endpoint`, `webhook`, `asyncapi`.
+- Path globs (PR gate): `**/openapi*.y*ml`, `**/*.proto`, `**/asyncapi*.y*ml`, `openapi*.y*ml`, `*.proto`.
 - Skills: none yet.
 - Key rules:
   1. Commit the OpenAPI document and lint it with the shared Spectral ruleset on every pull request. ([source](practices/engineering-standards/api-design.md#openapi-first-with-spectral-and-oasdiff))
@@ -254,6 +269,7 @@ published.
 
 - Applies when: choosing storage, replication, partitioning, or transaction guarantees for a data service; building batch or stream pipelines, feature stores, caches, or search indexes; evolving persisted schemas or rebuilding derived data.
 - Signals: `data-intensive`, `storage engine`, `schema evolution`, `replication`, `partitioning`, `isolation level`, `CDC`, `event sourcing`, `watermark`, `stream processing`, `feature store`.
+- Path globs (PR gate): `**/migrations/**`, `**/dbt/models/**`, `**/stream_processing/**`, `**/cdc/**`.
 - Skills: none yet.
 - Key rules:
   1. Choose storage from measured access patterns and write down the authoritative data owner. ([source](practices/engineering-standards/data-intensive-systems.md#data-models-and-storage-engines))
@@ -267,7 +283,8 @@ published.
 **[Domain-driven design: model rules, ownership, and consistency](practices/engineering-standards/domain-driven-design.md)**
 
 - Applies when: modelling business rules and ownership in data platforms, ML platforms, or services; defining bounded contexts, aggregates, domain events, or ports and adapters; separating domain logic from persistence frameworks and external systems.
-- Signals: `domain-driven design`, `bounded context`, `aggregate`, `ubiquitous language`, `domain event`, `repository`, `hexagonal`, `ports and adapters`.
+- Signals: `domain-driven design`, `bounded context`, `aggregate`, `ubiquitous language`, `domain event`, `domain repository`, `hexagonal`, `ports and adapters`.
+- Path globs (PR gate): `**/domain/**`, `**/aggregates/**`, `**/architecture_tests/**`.
 - Skills: `apply-playbooks`, `system-design-assessment`.
 - Key rules:
   1. Define terms per bounded context and record the owner and contract of every context relationship. ([source](practices/engineering-standards/domain-driven-design.md#language-and-context-boundaries))
@@ -282,6 +299,7 @@ published.
 
 - Applies when: building or changing a service, job, or data pipeline with latency, throughput, or memory constraints; reviewing a hot path, resource limit, benchmark, or performance regression.
 - Signals: `performance`, `latency`, `throughput`, `memory`, `benchmark`, `profile`, `profiling`, `hot path`, `data structure`, `allocation`, `garbage collection`, `coordinated omission`, `jmh`, `metaspace`, `aqe`, `kryo`, `event loop`, `optimisation`, `optimization`.
+- Path globs (PR gate): `**/benchmarks/**`, `**/benchmark_*.*`, `**/*_benchmark.*`, `**/jmh/**`.
 - Skills: none yet.
 - Key rules:
   1. Choose data structures by access pattern and complexity; measure allocation, copying, I/O, and concurrency costs. ([source](practices/engineering-standards/performance-and-memory.md#write-efficient-code))
@@ -296,6 +314,7 @@ published.
 
 - Applies when: designing or changing trust boundaries in a data platform, ML platform, or service; adding dependency access, credentials, recovery paths, or deployment controls; reviewing overload behaviour, resilience tests, or incident readiness.
 - Signals: `least privilege`, `zero trust`, `threat model`, `untrusted input`, `secret rotation`, `supply chain`, `provenance`, `retry`, `backoff`, `load shedding`, `rollback`, `recovery`, `incident readiness`.
+- Path globs (PR gate): `**/threat-models/**`, `**/security_policies/**`, `**/network-policies/**`, `**/secret_rotation/**`.
 - Skills: none yet.
 - Key rules:
   1. Authenticate each caller and authorize each resource operation with least privilege; deny by default. ([source](practices/engineering-standards/secure-reliable-systems.md#least-privilege-and-zero-trust))
@@ -309,7 +328,8 @@ published.
 **[Testing in agentic engineering](testing-in-agentic-engineering.md)**
 
 - Applies when: a coding agent writes or changes tests, or writes code and tests together; reviewing, trimming, or deduplicating a test suite that agents have grown; deciding which tests a change needs, or whether to use mocks, properties, snapshots, or end-to-end tests; choosing between software tests and agent evals for a system that contains an agent.
-- Signals: `test`, `tests/`, `pytest`, `unittest`, `mock`, `fixture`, `hypothesis`, `mutation testing`, `coverage`, `snapshot`.
+- Signals: `test suite`, `test design`, `pytest`, `unittest`, `test mock`, `test fixture`, `hypothesis`, `mutation testing`, `test coverage`, `snapshot testing`.
+- Path globs (PR gate): `**/*_test.py`, `**/*.test.*`, `**/*.spec.*`, `tests/**`, `pytest.ini`, `**/conftest.py`.
 - Skills: `apply-playbooks`, `spec-delivery-loop`, [`diagnosing-bugs`](https://github.com/mattpocock/skills/tree/main/skills/engineering/diagnosing-bugs).
 - Key rules:
   1. Give the agent the map of existing tests that cover the code it will change before it writes new tests. ([source](testing-in-agentic-engineering.md#3-rules-that-make-agents-write-fewer-better-tests))
@@ -332,7 +352,32 @@ published.
   builds. CI fails on an ASCII diagram in a `text` fence.
 - Update the index above when adding a playbook.
 - Give every published page `applies_when`, `signals`, and `key_rules` front
-  matter, then run `python3 scripts/playbook_index.py` to regenerate
+  matter. `signals` contains specific phrases matched against prompt text for
+  advice only. Avoid bare words such as `test`, `agent`, `prompt`, and `skill`.
+  `path_globs` is an optional, non-empty list of unique glob patterns matched
+  against changed file paths. The PR gate uses only `path_globs`; advice may
+  use both fields. An omitted `path_globs` field supplies no PR gate trigger.
+  Existing published pages all declare patterns, but a new page can omit the
+  field when no reliable path identifies its topic.
+- Use repository-relative POSIX paths for `path_globs`. Choose specific file
+  names or directories, such as `.github/workflows/**`, `**/openapi*.y*ml`,
+  or `**/*.proto`. Avoid catch-all patterns such as `**` and `**/*`. Paths
+  cannot be absolute or contain `.` or `..` segments, backslashes, or spaces.
+  Matchers must consider root files as well as nested files; include a root
+  pattern such as `*.proto` when the consumer requires it.
+  Write each pattern as a double-quoted JSON string, which is also valid YAML,
+  so a leading `*` is not read as a YAML alias:
+
+  ```yaml
+  signals:
+    - OpenAPI contract
+  path_globs:
+    - "**/openapi*.y*ml"
+    - "**/*.proto"
+    - "*.proto"
+  ```
+
+- Run `python3 scripts/playbook_index.py` to regenerate
   `index.json`, the "Which playbook applies" section, and root playbooks'
   skills sections. Run `python3 scripts/playbook_index.py --check` to check
   for drift without writing files. CI fails when any generated content is stale.

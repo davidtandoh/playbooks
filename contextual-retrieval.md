@@ -20,6 +20,11 @@ signals:
   - rerank
   - chunk
   - vector store
+path_globs:
+  - "**/retrieval/**"
+  - "**/retriever.*"
+  - "**/reranker.*"
+  - "**/embeddings/**"
 key_rules:
   - Test putting the whole knowledge base in a cached prompt before building retrieval when it is under 200,000 tokens. (#1-start-with-the-simplest-prompt-that-fits)
   - Generate context from the complete document and one target chunk, and prepend it before both the embedding and BM25 indexes. (#2-generate-context-once-per-chunk)

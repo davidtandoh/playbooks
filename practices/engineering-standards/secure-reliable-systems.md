@@ -28,6 +28,11 @@ signals:
   - rollback
   - recovery
   - incident readiness
+path_globs:
+  - "**/threat-models/**"
+  - "**/security_policies/**"
+  - "**/network-policies/**"
+  - "**/secret_rotation/**"
 key_rules:
   - Authenticate each caller and authorize each resource operation with least privilege; deny by default. (#least-privilege-and-zero-trust)
   - Parse untrusted input into validated domain types and enforce safe defaults through shared APIs. (#safe-construction-and-untrusted-input)
