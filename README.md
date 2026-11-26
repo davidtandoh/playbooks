@@ -20,8 +20,7 @@ front matter will adopt it in a separate change.
 | [Performance and memory](practices/engineering-standards/performance-and-memory.md) | `architecture` `memory` `verification` `delivery-gates` `cost` | Data structures and complexity, allocation and copying, runtime costs, resource budgets, bounded memory, and hot-path regression gates |
 | [Data-intensive systems](practices/engineering-standards/data-intensive-systems.md) | `architecture` `verification` `delivery-gates` `security-and-privacy` | Storage and schema decisions, replication guarantees, partitioning, isolation, retry-safe effects, batch and streams, CDC and derived data, with workload and failure checks |
 | [Domain-driven design](practices/engineering-standards/domain-driven-design.md) | `architecture` `reliability` `verification` `delivery-gates` | Model business rules and ownership with bounded contexts, small aggregates, explicit events, ports and adapters, architecture tests, and ADRs |
-
-| [Secure and reliable systems](practices/engineering-standards/secure-reliable-systems.md) | `architecture` `reliability` `security-and-privacy` `verification` `delivery-gates` | Least privilege, safe construction, isolation, credentials, supply chain, overload, rollout and incident readiness |
+| [Secure and reliable systems](practices/engineering-standards/secure-reliable-systems.md) | `architecture` `security-and-privacy` `reliability` `delivery-gates` `verification` | Least privilege, safe APIs, isolation, secret rotation, supply-chain verification, bounded recovery, safe rollouts, and incident readiness |
 
 ### Agent systems
 
