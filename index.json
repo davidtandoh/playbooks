@@ -714,6 +714,67 @@
     },
     {
       "applies_when": [
+        "modelling business rules and ownership in data platforms, ML platforms, or services",
+        "defining bounded contexts, aggregates, domain events, or ports and adapters",
+        "separating domain logic from persistence frameworks and external systems"
+      ],
+      "key_rules": [
+        {
+          "rule": "Define terms per bounded context and record the owner and contract of every context relationship.",
+          "source": "practices/engineering-standards/domain-driven-design.md#language-and-context-boundaries"
+        },
+        {
+          "rule": "Size aggregates around immediate invariants and test concurrent writes against real persistence.",
+          "source": "practices/engineering-standards/domain-driven-design.md#aggregates-and-invariants"
+        },
+        {
+          "rule": "Keep value objects immutable and enforce entity state changes through domain operations.",
+          "source": "practices/engineering-standards/domain-driven-design.md#entities-and-value-objects"
+        },
+        {
+          "rule": "Publish integration events only from committed state and make consumers safe under duplicate delivery.",
+          "source": "practices/engineering-standards/domain-driven-design.md#domain-events-and-integration-events"
+        },
+        {
+          "rule": "Keep domain decisions in the domain and transaction orchestration in application services.",
+          "source": "practices/engineering-standards/domain-driven-design.md#repositories-and-application-services"
+        },
+        {
+          "rule": "Fail the delivery gate on forbidden imports and cycles across domain, application, and adapters.",
+          "source": "practices/engineering-standards/domain-driven-design.md#ports-adapters-and-architecture-tests"
+        },
+        {
+          "rule": "Record costly boundary and consistency decisions in ADRs with alternatives and consequences.",
+          "source": "practices/engineering-standards/domain-driven-design.md#record-decisions-as-adrs"
+        }
+      ],
+      "path": "practices/engineering-standards/domain-driven-design.md",
+      "signals": [
+        "domain-driven design",
+        "bounded context",
+        "aggregate",
+        "ubiquitous language",
+        "domain event",
+        "repository",
+        "hexagonal",
+        "ports and adapters"
+      ],
+      "skills": [
+        {
+          "description": "Finds the playbooks that apply to a change, turns their key rules into acceptance criteria, and records in the pull request which rules the change followed.",
+          "id": "apply-playbooks",
+          "topics": []
+        },
+        {
+          "description": "Reviews a design before it is built for boundaries, data ownership, security, reliability, deployment, scale, and synchronous versus asynchronous calls.",
+          "id": "system-design-assessment",
+          "topics": []
+        }
+      ],
+      "title": "Domain-driven design: model rules, ownership, and consistency"
+    },
+    {
+      "applies_when": [
         "adding or reviewing logs, metrics, tracing, or alerts for a service or data platform",
         "defining service or data-pipeline SLIs, SLOs, and error-budget policy",
         "controlling telemetry cardinality, sampling, retention, or collector resource use"
