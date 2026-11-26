@@ -42,6 +42,8 @@ rule, not for a longer page.
 
 Skill: none yet.
 
+See [Data-intensive systems](data-intensive-systems.md) for storage consistency, schema evolution, transaction isolation and retry-safe effects behind API contracts.
+
 ## Sources
 
 All external sources were accessed on 2026-11-23. The IETF documents marked

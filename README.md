@@ -18,6 +18,7 @@ front matter will adopt it in a separate change.
 | [CI for agentic engineering](ci-for-agentic-engineering.md) | `delivery-gates` `verification` `security-and-privacy` `cost` `reliability` | Local gate first with hosted merge proof, staged test selection, caching and merge queues, flaky-test governance, rounded-minute cost per merge, and trust boundaries for actions, secrets and runners |
 | [API design](practices/engineering-standards/api-design.md) | `architecture` `delivery-gates` `verification` `security-and-privacy` | One default per HTTP API design question, enforced by a Spectral ruleset and an oasdiff breaking-change check: naming, versioning, RFC 9457 errors, pagination, idempotency, auth, rate limits, long-running operations, webhooks and events |
 | [Performance and memory](practices/engineering-standards/performance-and-memory.md) | `architecture` `memory` `verification` `delivery-gates` `cost` | Data structures and complexity, allocation and copying, runtime costs, resource budgets, bounded memory, and hot-path regression gates |
+| [Data-intensive systems](practices/engineering-standards/data-intensive-systems.md) | `architecture` `verification` `delivery-gates` `security-and-privacy` | Storage and schema decisions, replication guarantees, partitioning, isolation, retry-safe effects, batch and streams, CDC and derived data, with workload and failure checks |
 
 ### Agent systems
 
@@ -260,6 +261,20 @@ published.
   5. Set explicit memory limits for every service and job, including runtime overhead and worker concurrency. ([source](practices/engineering-standards/performance-and-memory.md#set-service-and-job-limits))
   6. Choose the simplest structure that meets the budget and optimise only measured misses. ([source](practices/engineering-standards/performance-and-memory.md#choose-the-simplest-structure))
   7. Gate hot paths against absolute budgets and an agreed regression margin. ([source](practices/engineering-standards/performance-and-memory.md#gate-performance-regressions))
+
+**[Data-intensive systems: choose guarantees before topology](practices/engineering-standards/data-intensive-systems.md)**
+
+- Applies when: choosing storage, replication, partitioning, or transaction guarantees for a data service; building batch or stream pipelines, feature stores, caches, or search indexes; evolving persisted schemas or rebuilding derived data.
+- Signals: `data-intensive`, `storage engine`, `schema evolution`, `replication`, `partitioning`, `isolation level`, `CDC`, `event sourcing`, `watermark`, `stream processing`, `feature store`.
+- Skills: none yet.
+- Key rules:
+  1. Choose storage from measured access patterns and write down the authoritative data owner. ([source](practices/engineering-standards/data-intensive-systems.md#data-models-and-storage-engines))
+  2. Test both schema compatibility directions against every version still needed for replay or rollback. ([source](practices/engineering-standards/data-intensive-systems.md#encoding-and-schema-evolution))
+  3. Specify read guarantees and verify them during replica lag and failover. ([source](practices/engineering-standards/data-intensive-systems.md#replication-and-consistency))
+  4. Test concurrent transactions against business invariants at the chosen isolation level. ([source](practices/engineering-standards/data-intensive-systems.md#transactions-and-isolation))
+  5. Make retries safe by committing deduplication and the effect in one atomic boundary. ([source](practices/engineering-standards/data-intensive-systems.md#partial-failure-clocks-and-retries))
+  6. Bound stream state and define late-data correction and replay behavior. ([source](practices/engineering-standards/data-intensive-systems.md#batch-and-stream-processing))
+  7. Rebuild derived data from a retained source and reconcile it against that source. ([source](practices/engineering-standards/data-intensive-systems.md#derived-data-and-synchronization))
 
 **[Testing in agentic engineering](testing-in-agentic-engineering.md)**
 

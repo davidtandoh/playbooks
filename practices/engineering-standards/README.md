@@ -11,6 +11,9 @@ available; project-specific checks belong in the consuming repository.
 3. Read [Performance and memory](performance-and-memory.md) before building a
    service, job, or data pipeline. Record its budgets in the spec and add the
    hot-path benchmark to the gate.
+4. Read [Data-intensive systems](data-intensive-systems.md) before choosing
+   storage guarantees or building a data pipeline; implement its workload and
+   failure checks against your selected products.
 
 ## Practices
 
@@ -18,6 +21,7 @@ available; project-specific checks belong in the consuming repository.
 | --- | --- | --- | --- |
 | [API design](api-design.md) | Published | Spectral ruleset, oasdiff, Schemathesis | Resource naming, versioning, RFC 9457 errors, pagination, idempotency keys, auth and rate limits, long-running operations, webhooks and events, OpenAPI-first delivery |
 | [Performance and memory](performance-and-memory.md) | Published | Project hot-path benchmark and budget comparison in the gate | Data structures, complexity, allocation, layout, I/O, concurrency, and language notes; resource budgets, bounded memory, and regression margins |
+| [Data-intensive systems](data-intensive-systems.md) | Published | Workload, compatibility, concurrency, fault-injection and replay checks | Storage models and engines, schema evolution, replication, partitioning, isolation, retries, batch and streams, CDC and derived views |
 
 ## Credits
 
