@@ -212,17 +212,25 @@ ENGINEERING_STANDARDS_DIRECTORY = (
 )
 ENGINEERING_STANDARDS_INDEX = ENGINEERING_STANDARDS_DIRECTORY / "README.md"
 API_DESIGN_PAGE = ENGINEERING_STANDARDS_DIRECTORY / "api-design.md"
+DOMAIN_DRIVEN_DESIGN_PAGE = ENGINEERING_STANDARDS_DIRECTORY / "domain-driven-design.md"
+ENGINEERING_STANDARDS_PAGES = (API_DESIGN_PAGE, DOMAIN_DRIVEN_DESIGN_PAGE)
 
 
 class EngineeringStandardsPracticesTest(unittest.TestCase):
     def test_directory_holds_exactly_the_listed_pages(self) -> None:
         found = set(ENGINEERING_STANDARDS_DIRECTORY.glob("*.md"))
-        self.assertEqual(found, {ENGINEERING_STANDARDS_INDEX, API_DESIGN_PAGE})
+        self.assertEqual(found, {ENGINEERING_STANDARDS_INDEX, *ENGINEERING_STANDARDS_PAGES})
         index = ENGINEERING_STANDARDS_INDEX.read_text(encoding="utf-8")
-        self.assertIn(f"]({API_DESIGN_PAGE.name})", index)
+        for path in ENGINEERING_STANDARDS_PAGES:
+            self.assertIn(f"]({path.name})", index)
 
     def test_api_design_passes_publication_gate_and_taxonomy(self) -> None:
-        metadata = read_front_matter(API_DESIGN_PAGE)
+        for path in ENGINEERING_STANDARDS_PAGES:
+            with self.subTest(page=path.name):
+                self.check_publication_metadata(path)
+
+    def check_publication_metadata(self, path: pathlib.Path) -> None:
+        metadata = read_front_matter(path)
         for key, expected_value in REQUIRED_METADATA.items():
             self.assertEqual(metadata.get(key), expected_value)
         published = metadata.get("published")
@@ -236,12 +244,12 @@ class EngineeringStandardsPracticesTest(unittest.TestCase):
         self.assertTrue(set(topics).issubset(APPROVED_TOPICS))
 
     def test_api_design_uses_the_section_contract(self) -> None:
-        self.assertEqual(
-            level_two_headings(API_DESIGN_PAGE), list(PRACTICE_SECTIONS)
-        )
+        for path in ENGINEERING_STANDARDS_PAGES:
+            with self.subTest(page=path.name):
+                self.assertEqual(level_two_headings(path), list(PRACTICE_SECTIONS))
 
     def test_relative_links_and_anchors_resolve(self) -> None:
-        for path in (ENGINEERING_STANDARDS_INDEX, API_DESIGN_PAGE):
+        for path in (ENGINEERING_STANDARDS_INDEX, *ENGINEERING_STANDARDS_PAGES):
             text = path.read_text(encoding="utf-8")
             for target in LINK_PATTERN.findall(text):
                 if target.startswith("https://"):
@@ -256,7 +264,7 @@ class EngineeringStandardsPracticesTest(unittest.TestCase):
                         self.assertIn(anchor, heading_anchors(linked))
 
     def test_practices_omit_private_product_names(self) -> None:
-        for path in (ENGINEERING_STANDARDS_INDEX, API_DESIGN_PAGE):
+        for path in (ENGINEERING_STANDARDS_INDEX, *ENGINEERING_STANDARDS_PAGES):
             text = path.read_text(encoding="utf-8").lower()
             for term in PRIVATE_TERMS:
                 with self.subTest(page=path.name, term=term):
@@ -268,7 +276,7 @@ class PlaybookIndexTest(unittest.TestCase):
         pages = playbook_index.published_pages()
         self.assertEqual(
             set(pages),
-            set(PUBLISHED_PLAYBOOKS) | set(AGENTIC_SRE_PRACTICES) | {API_DESIGN_PAGE},
+            set(PUBLISHED_PLAYBOOKS) | set(AGENTIC_SRE_PRACTICES) | set(ENGINEERING_STANDARDS_PAGES),
         )
         for path in pages:
             with self.subTest(page=path.name):

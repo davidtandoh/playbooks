@@ -17,6 +17,7 @@ front matter will adopt it in a separate change.
 | [Testing in agentic engineering](testing-in-agentic-engineering.md) | `verification` `delivery-gates` `evals` `reliability` `cost` | A test portfolio for agent-written code, what agents over-produce (mocks, debug scripts, tampered assertions) and how to trim it, rules for fewer and better agent tests, property-based and mutation testing, and software tests versus agent evals |
 | [CI for agentic engineering](ci-for-agentic-engineering.md) | `delivery-gates` `verification` `security-and-privacy` `cost` `reliability` | Local gate first with hosted merge proof, staged test selection, caching and merge queues, flaky-test governance, rounded-minute cost per merge, and trust boundaries for actions, secrets and runners |
 | [API design](practices/engineering-standards/api-design.md) | `architecture` `delivery-gates` `verification` `security-and-privacy` | One default per HTTP API design question, enforced by a Spectral ruleset and an oasdiff breaking-change check: naming, versioning, RFC 9457 errors, pagination, idempotency, auth, rate limits, long-running operations, webhooks and events |
+| [Domain-driven design](practices/engineering-standards/domain-driven-design.md) | `architecture` `reliability` `verification` `delivery-gates` | Model business rules and ownership with bounded contexts, small aggregates, explicit events, ports and adapters, architecture tests, and ADRs |
 
 ### Agent systems
 
@@ -245,6 +246,20 @@ published.
   4. Paginate every list with page_size, page_token, and next_page_token from the first release. ([source](practices/engineering-standards/api-design.md#pagination))
   5. Accept an Idempotency-Key on every POST. ([source](practices/engineering-standards/api-design.md#idempotency-keys))
   6. Declare security on every operation and deny by default. ([source](practices/engineering-standards/api-design.md#auth-and-rate-limits))
+
+**[Domain-driven design: model rules, ownership, and consistency](practices/engineering-standards/domain-driven-design.md)**
+
+- Applies when: modelling business rules and ownership in data platforms, ML platforms, or services; defining bounded contexts, aggregates, domain events, or ports and adapters; separating domain logic from persistence frameworks and external systems.
+- Signals: `domain-driven design`, `bounded context`, `aggregate`, `ubiquitous language`, `domain event`, `repository`, `hexagonal`, `ports and adapters`.
+- Skills: `apply-playbooks`, `system-design-assessment`.
+- Key rules:
+  1. Define terms per bounded context and record the owner and contract of every context relationship. ([source](practices/engineering-standards/domain-driven-design.md#language-and-context-boundaries))
+  2. Size aggregates around immediate invariants and test concurrent writes against real persistence. ([source](practices/engineering-standards/domain-driven-design.md#aggregates-and-invariants))
+  3. Keep value objects immutable and enforce entity state changes through domain operations. ([source](practices/engineering-standards/domain-driven-design.md#entities-and-value-objects))
+  4. Publish integration events only from committed state and make consumers safe under duplicate delivery. ([source](practices/engineering-standards/domain-driven-design.md#domain-events-and-integration-events))
+  5. Keep domain decisions in the domain and transaction orchestration in application services. ([source](practices/engineering-standards/domain-driven-design.md#repositories-and-application-services))
+  6. Fail the delivery gate on forbidden imports and cycles across domain, application, and adapters. ([source](practices/engineering-standards/domain-driven-design.md#ports-adapters-and-architecture-tests))
+  7. Record costly boundary and consistency decisions in ADRs with alternatives and consequences. ([source](practices/engineering-standards/domain-driven-design.md#record-decisions-as-adrs))
 
 **[Testing in agentic engineering](testing-in-agentic-engineering.md)**
 
