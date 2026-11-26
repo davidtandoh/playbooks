@@ -25,6 +25,11 @@ signals:
   - data structure
   - allocation
   - garbage collection
+  - coordinated omission
+  - jmh
+  - metaspace
+  - aqe
+  - kryo
   - event loop
   - optimisation
   - optimization
@@ -57,6 +62,20 @@ Skill: none yet.
 
 Primary sources checked on 2026-11-26:
 
+Investigation and benchmark design:
+
+- Brendan Gregg, *Systems Performance: Enterprise and the Cloud*, second
+  edition; the author's primary web guides cover the
+  [USE Method](https://www.brendangregg.com/usemethod.html) and
+  [flame graphs](https://www.brendangregg.com/flamegraphs.html).
+- [HdrHistogram corrected and raw recording](https://raw.githubusercontent.com/HdrHistogram/HdrHistogram/master/README.md):
+  coordinated omission and expected-interval correction.
+- OpenJDK [Java Microbenchmark Harness (JMH)](https://openjdk.org/projects/code-tools/jmh/),
+  its [project guide](https://raw.githubusercontent.com/openjdk/jmh/master/README.md),
+  and [dead-code sample](https://raw.githubusercontent.com/openjdk/jmh/master/jmh-samples/src/main/java/org/openjdk/jmh/samples/JMHSample_08_DeadCode.java).
+- [async-profiler](https://raw.githubusercontent.com/async-profiler/async-profiler/master/README.md):
+  JVM sampling without safepoint bias, allocation, and contended-lock profiling.
+
 Code and runtime:
 
 - Java collection contracts for [ArrayList](https://docs.oracle.com/en/java/javase/25/docs/api/java.base/java/util/ArrayList.html),
@@ -66,10 +85,15 @@ Code and runtime:
   and [PriorityQueue](https://docs.oracle.com/en/java/javase/25/docs/api/java.base/java/util/PriorityQueue.html).
 - [Kotlin sequences](https://kotlinlang.org/docs/sequences.html),
   [primitive arrays](https://kotlinlang.org/docs/arrays.html), and
-  [coroutine channels](https://kotlinlang.org/docs/channels.html).
+  [coroutine channels](https://kotlinlang.org/docs/channels.html), and
+  [inline value classes](https://kotlinlang.org/docs/inline-classes.html).
 - JVM [garbage collection tuning](https://docs.oracle.com/en/java/javase/25/gctuning/introduction-garbage-collection-tuning.html),
   [heap sizing](https://docs.oracle.com/en/java/javase/25/gctuning/factors-affecting-garbage-collection-performance.html),
   and [thread pool queues](https://docs.oracle.com/en/java/javase/25/docs/api/java.base/java/util/concurrent/ThreadPoolExecutor.html).
+- Oracle JDK 25 [GC ergonomics](https://docs.oracle.com/en/java/javase/25/gctuning/ergonomics.html),
+  [G1 tuning](https://docs.oracle.com/en/java/javase/25/gctuning/garbage-first-garbage-collector-tuning.html),
+  [ZGC](https://docs.oracle.com/en/java/javase/25/gctuning/z-garbage-collector1.html),
+  and [Metaspace and compact headers](https://docs.oracle.com/en/java/javase/25/gctuning/other-considerations.html).
 - [Scala collection performance](https://docs.scala-lang.org/overviews/collections-2.13/performance-characteristics.html),
   [Spark SQL performance tuning](https://spark.apache.org/docs/latest/sql-performance-tuning.html),
   and [Spark memory and serialization tuning](https://spark.apache.org/docs/latest/tuning.html).
@@ -77,17 +101,29 @@ Code and runtime:
   [slots](https://docs.python.org/3/reference/datamodel.html#slots),
   [string construction](https://docs.python.org/3/library/stdtypes.html#text-sequence-type-str),
   and [cache behaviour](https://docs.python.org/3/library/functools.html#functools.lru_cache).
+- Python [profiling](https://docs.python.org/3/library/profiling.html),
+  [sampling](https://docs.python.org/3/library/profiling.sampling.html),
+  [tracemalloc](https://docs.python.org/3/library/tracemalloc.html), and
+  [execution monitoring](https://docs.python.org/3/library/sys.monitoring.html).
 - NumPy [broadcasting](https://numpy.org/doc/stable/user/basics.broadcasting.html)
   and [copies and views](https://numpy.org/doc/stable/user/basics.copies.html).
 - Node.js [event loop guidance](https://nodejs.org/en/learn/asynchronous-work/dont-block-the-event-loop)
-  and [streams](https://nodejs.org/api/stream.html).
+  and [streams](https://nodejs.org/api/stream.html),
+  [event-loop measurements](https://nodejs.org/api/perf_hooks.html),
+  [heap flags](https://nodejs.org/api/cli.html), and
+  [AbortController](https://nodejs.org/api/globals.html#class-abortcontroller).
+- V8 engineering: [fast properties](https://v8.dev/blog/fast-properties) and
+  [elements kinds](https://v8.dev/blog/elements-kinds).
+- ECMAScript [Promise.all semantics](https://tc39.es/ecma262/multipage/control-abstraction-objects.html#sec-promise.all).
 
 Budgets and execution limits:
 
 - [pyperf benchmark guidance](https://pyperf.readthedocs.io/en/latest/run_benchmark.html):
   repeated measurements, warmups, and unstable results.
 - [Kubernetes resource management](https://kubernetes.io/docs/concepts/configuration/manage-resources-containers/):
-  memory requests, limits, and out-of-memory termination.
+  memory requests, limits, and out-of-memory termination; also
+  [Pod quality of service](https://kubernetes.io/docs/concepts/workloads/pods/pod-qos/)
+  and the detailed [node-pressure eviction order](https://kubernetes.io/docs/concepts/scheduling-eviction/node-pressure-eviction/).
 - [Apache Spark configuration](https://spark.apache.org/docs/latest/configuration.html):
   executor heap, memory overhead, off-heap memory, and PySpark memory.
 - [Airflow Celery provider configuration](https://airflow.apache.org/docs/apache-airflow-providers-celery/stable/configurations-ref.html):
@@ -164,6 +200,39 @@ not apply, record why and name the completion measure that replaces it.
 For a new path with no baseline, compare the first measured implementation
 with the absolute budgets. Keep that reviewed result as the initial baseline.
 
+#### Make tail-latency evidence representative
+
+For independent arriving requests, use an open-loop load generator: schedule
+arrivals without waiting for earlier responses. A closed-loop generator waits
+for responses before sending more work. During a stall it can stop generating
+the requests that would have queued, understating tail latency. This is
+coordinated omission. Model the actual caller behaviour; a closed-loop test
+is useful for a fixed client population but answers a different question.
+
+Measure from scheduled arrival where appropriate, and report offered load,
+completed work, timeouts, and dropped or delayed generator arrivals. Ensure
+the generator itself has enough capacity. For an interval-based recorder,
+HdrHistogram's `recordValueWithExpectedInterval` can estimate omitted samples
+from a declared expected interval. Preserve raw and corrected results; do not
+apply correction again to latency that already includes scheduling delay.
+Correction is an assumption-based estimate, not a replacement for a suitable
+arrival model or evidence of real requests.
+
+#### Investigate resources before individual functions
+
+Use Brendan Gregg's Utilization, Saturation, and Errors (USE) method to triage
+CPU, memory, storage, and network. Utilization measures resource use;
+saturation measures queued work; errors identify failed resource operations.
+Record unavailable measurements rather than assuming they are zero.
+
+A CPU profile shows executing stacks. Pair it with off-CPU analysis for
+blocked input/output or locks and scheduler-delay evidence for runnable work
+waiting for CPU. Use allocation or retained-memory profiles for memory misses.
+A flame graph groups stacks by measured weight; width is not elapsed order.
+Compare base and candidate with the same sampling mode and workload, using a
+differential flame graph to locate changed stack weights. Inspect counts and
+units before interpreting a wider stack as a regression.
+
 ### Bound memory by default
 
 - Stream or paginate datasets. Do not load a complete input merely to iterate
@@ -197,6 +266,24 @@ For Spark on YARN or Kubernetes, executor container sizing includes executor
 memory, overhead, configured off-heap memory, and configured PySpark memory.
 Use the deployed Spark version's rules. For Airflow, choose controls for the
 actual executor; Celery settings do not apply to every executor.
+
+#### Account for Kubernetes eviction as well as container limits
+
+Choose resource requests from observed demand and the scheduling policy.
+Requests affect placement and eviction risk; limits contain resource use.
+Under node pressure, a Pod can be evicted before reaching its container limit.
+`BestEffort`, `Burstable`, and `Guaranteed` quality of service (QoS) classes
+summarise configuration, but are not an unconditional eviction order.
+Kubelet ranks memory-pressure candidates by usage above requests, Pod
+Priority, and usage relative to requests. Even a Pod below requests can be
+evicted when other reclamation cannot restore capacity.
+
+For the conventional per-container configuration, `Guaranteed` requires
+positive, equal CPU requests and limits and positive, equal memory requests
+and limits for every container. Memory equality alone is insufficient.
+Consider it for latency-critical workloads when the reserved capacity and
+CPU throttling tradeoff fit the budget. It lowers eviction risk; it does not
+guarantee immunity. Verify the deployed version's rules and test recovery.
 
 ### Choose the simplest structure
 
@@ -237,6 +324,15 @@ These operation costs are illustrated by the Java collection contracts in
 Sources. Other implementations can differ. For a small collection scanned
 once, a plain list may use less memory and finish sooner than constructing
 a hash index. Do not add an index without counting its build cost and lifetime.
+
+For Java HashMap, iteration costs capacity plus size. Over-reserving buckets
+therefore affects both bytes and scan time. With the default load factor of
+0.75, growth occurs after the size exceeds capacity times load factor.
+On JDK 19+, `HashMap.newHashMap(expectedMappings)` accepts the expected mapping
+count; `new HashMap(int)` instead accepts initial capacity. Comparable keys
+can help break collision ties; this does not establish a universal worst-case
+constant-time guarantee. Check collision-heavy inputs and validate capacity
+before allocating.
 
 #### Avoid accidental quadratic work
 
@@ -378,6 +474,37 @@ deployed JVM's guidance and a measured pause/throughput problem, rather than
 copying flags. Bound coroutine channels and concurrent launches; suspension
 frees a thread to do other work but retains coroutine state.
 
+For JVM microbenchmarks, use JMH with explicit forks, warmup, and measured
+iterations. Return the computed result or consume it with a JMH `Blackhole`.
+Use varying inputs and inspect the generated benchmark: just-in-time (JIT)
+compilation can remove unused work, fold constants, or move invariant work
+out of a loop. A manually timed loop is insufficient hot-path evidence.
+Keep end-to-end load tests as separate evidence.
+
+Use JDK Flight Recorder for runtime events and, where supported, async-profiler
+for CPU, allocation, native, or contended-lock stacks. Its sampling avoids
+safepoint bias: collecting stacks only at certain JVM stopping points can
+misrepresent where time is spent. Verify profiling modes, permissions, and
+overhead on the deployed runtime before collecting production evidence.
+
+| JVM concern | Measured choice |
+| --- | --- |
+| Collector goals | Start with the deployed default. On JDK 25 server-class machines this is generally G1; adjust its `-XX:MaxGCPauseMillis` goal only with pause and throughput evidence. A goal is not a hard bound. |
+| Lower pauses | Evaluate generational ZGC with `-XX:+UseZGC` when the workload needs it. Include concurrent CPU work and heap headroom; compare end-to-end latency and peak memory. |
+| Collector-specific flags | Check the chosen collector's documentation. Do not assume `-XX:GCTimeRatio` controls every collector or copy fixed young-generation sizes into G1. |
+| Native class metadata | Metaspace has no default upper cap. Set `-XX:MaxMetaspaceSize` from measured class-loading demand and monitor usage; an undersized cap can cause failures. Include it outside the Java heap budget. |
+| Object footprint | On supported JDK 25 configurations, benchmark `-XX:+UseCompactObjectHeaders`. Check compatibility and class-count restrictions; measure live bytes and throughput rather than assuming a fixed saving per object. |
+
+Release files, sockets, and other native resources explicitly, for example
+with `use` or try-with-resources. Finalization is deprecated for removal;
+finalizers and `Cleaner` do not provide timely release for a bounded-resource
+budget.
+
+Kotlin `@JvmInline value class` can preserve a distinct type without a wrapper
+allocation at suitable direct call sites. It is not universally allocation
+free: generic, interface, and some nullable uses require boxing. Audit actual
+call sites and measure before replacing an existing wrapper or collection.
+
 #### Scala and Spark
 
 - Match Scala collections to the operation: `List` prepends cheaply but
@@ -385,7 +512,9 @@ frees a thread to do other work but retains coroutine state.
   an array for numeric scans, and consult the version's collection cost table.
 - In Spark, filter and project early where semantics allow. Prefer built-in
   expressions to row-wise user-defined functions so the query engine can
-  optimise the execution plan. Inspect `explain` and stage metrics.
+  optimise the execution plan. Inspect `explain` and stage metrics. With
+  Adaptive Query Execution (AQE), a pre-execution plan is provisional; inspect
+  the executed plan and metrics in the Spark UI after the action.
 
 ```scala
 import org.apache.spark.sql.functions.{col, sum}
@@ -408,6 +537,17 @@ choose a storage level, include it in the memory budget, and `unpersist` when
 finished. Avoid `collect` or `toPandas` for inputs that do not fit the driver's
 budget. Test skewed keys, not only evenly distributed examples.
 
+Keep `spark.sql.adaptive.enabled` enabled unless evidence justifies a change.
+AQE can coalesce post-shuffle partitions, change join strategy, and split skewed
+join partitions from runtime statistics. Verify which changes actually occur;
+it does not remove every shuffle or skew problem.
+
+For JVM RDD paths using Java serialization, compare Kryo via
+`spark.serializer=org.apache.spark.serializer.KryoSerializer` and register
+frequent custom classes where appropriate. Benchmark serialization time and
+bytes. This setting is not a replacement for Spark SQL's internal row format
+and does not make Python object serialization use Kryo.
+
 #### Python
 
 Generators yield values on demand; they do not make the upstream reader or
@@ -425,14 +565,32 @@ not just the shallow object size. A cache decorator still needs a limit:
 `functools.cache` and `lru_cache(maxsize=None)` are unbounded, while a finite
 `lru_cache` entry count does not bound arbitrary value sizes.
 
+Choose a profiler supported by the deployed Python version. Deterministic
+tracing records calls and can distort frequently called short functions;
+statistical sampling estimates time from stack samples. Python 3.15's
+`profiling` package provides `profiling.tracing` and `profiling.sampling`.
+Earlier versions need their own supported tools, such as `cProfile` or a
+compatible sampler. Do not prescribe newer module names on older runtimes.
+`sys.monitoring` (3.12+) supplies execution-event hooks for tools; it is not
+itself a statistical profiler. Measure unprofiled runs for budget acceptance.
+
+Use `tracemalloc` snapshot differences to locate growth in traced Python
+allocations. Pair them with process resident set size (RSS) and container
+memory measurements. Native extensions can allocate outside traced pools;
+an empty Python allocation diff cannot establish whole-process stability.
+
 #### TypeScript and Node.js
 
 TypeScript types do not change JavaScript execution costs. Keep CPU-heavy
 loops, synchronous input/output, and large `JSON.parse`/`JSON.stringify` work
 from blocking the event loop that serves other requests. Use a bounded worker
 pool for measured CPU work; include message copies and queue retention in
-its budget. `Promise.all` over an entire input launches and retains all of
-that work; read through a bounded worker stage instead.
+its budget. Eagerly mapping an entire input to asynchronous operations before
+`Promise.all` can launch and retain all that work; admit it through a bounded
+worker stage instead. `Promise.all` aggregates promises; it does not schedule
+a worker pool or cancel siblings when one rejects. Pass an `AbortSignal` to
+operations that support cancellation, stop admission on failure, and await
+cleanup before releasing sockets, buffers, or capacity.
 
 Use Node streams for large byte flows. This TypeScript-compatible example
 compresses a file without reading it into one application buffer:
@@ -455,6 +613,22 @@ or record size, configure each stage for the budget, and measure the whole
 pipeline. For a manual writable loop, stop when `write` returns false and
 wait for `drain` before continuing. Do not add an unbounded promise queue
 inside a transform.
+
+In measured V8 property-access hot paths, create objects with consistent
+property order and avoid repeated shape changes or deletion. Hidden classes
+are V8's internal records of object shape. For numeric arrays, avoid accidental
+holes or mixed element types when dense numeric storage is intended.
+These are engine-specific choices, not JavaScript guarantees. V8 can change
+representations, and some operations can specialise arrays again; do not
+claim that every transition is irreversible.
+
+Measure `performance.eventLoopUtilization()` deltas and
+`monitorEventLoopDelay()` from `node:perf_hooks` alongside throughput and tail
+latency. High event-loop utilization is distinct from process CPU percentage;
+label delay units when exporting results. Set V8 `--max-old-space-size` below
+the process/container memory budget, leaving room for young-generation memory,
+native buffers, and worker state. Tune `--max-semi-space-size` only with GC
+and memory measurements; neither flag caps total process memory.
 
 ### Gate performance regressions
 
@@ -493,6 +667,8 @@ green. For gate structure and flake governance, follow
 - [ ] Every service and job has an enforced memory limit with headroom.
 - [ ] Peak-memory measurements cover the declared process or job scope.
 - [ ] Maximum-size input and sustained-load cases pass where relevant.
+- [ ] Arrival modelling and tail-latency recording account for coordinated omission.
+- [ ] Profiler scope and runtime-version support are recorded with the results.
 - [ ] The gate rejects budget misses, regressions, and invalid evidence.
 - [ ] Data structures match lookup, ordering, append, and scan requirements.
 - [ ] Loop complexity includes nested searches, copies, and query counts.

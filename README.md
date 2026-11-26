@@ -250,7 +250,7 @@ published.
 **[Performance and memory: budgets before building](practices/engineering-standards/performance-and-memory.md)**
 
 - Applies when: building or changing a service, job, or data pipeline with latency, throughput, or memory constraints; reviewing a hot path, resource limit, benchmark, or performance regression.
-- Signals: `performance`, `latency`, `throughput`, `memory`, `benchmark`, `profile`, `profiling`, `hot path`, `data structure`, `allocation`, `garbage collection`, `event loop`, `optimisation`, `optimization`.
+- Signals: `performance`, `latency`, `throughput`, `memory`, `benchmark`, `profile`, `profiling`, `hot path`, `data structure`, `allocation`, `garbage collection`, `coordinated omission`, `jmh`, `metaspace`, `aqe`, `kryo`, `event loop`, `optimisation`, `optimization`.
 - Skills: none yet.
 - Key rules:
   1. Choose data structures by access pattern and complexity; measure allocation, copying, I/O, and concurrency costs. ([source](practices/engineering-standards/performance-and-memory.md#write-efficient-code))

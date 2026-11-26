@@ -760,6 +760,11 @@
         "data structure",
         "allocation",
         "garbage collection",
+        "coordinated omission",
+        "jmh",
+        "metaspace",
+        "aqe",
+        "kryo",
         "event loop",
         "optimisation",
         "optimization"
