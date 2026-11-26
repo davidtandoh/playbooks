@@ -105,8 +105,8 @@ These are responsibilities, not a requirement for five separate services.
 | Derived data | Retain a rebuild path and a freshness budget | Rebuild, reconciliation and deletion propagation tests |
 
 See [API design](api-design.md) for exposed contracts and request idempotency.
-The companion [performance and memory](https://github.com/davidtandoh/playbooks/blob/main/practices/engineering-standards/performance-and-memory.md) playbook
-(being developed in this series) covers code, data structures and profiling.
+The companion [performance and memory](performance-and-memory.md) playbook
+covers code, data structures and profiling.
 This page covers persisted state and guarantees across components.
 
 ## Decision guide
@@ -478,7 +478,7 @@ This page synthesizes the named sources in original wording. It contains no
 book excerpts, measured production outcomes or universal performance claims.
 Examples are synthetic. Recommendations are acceptance criteria to verify
 against the deployed product; product guarantees can differ by configuration
-and version. The companion performance page is forthcoming in this series.
+and version.
 
 ## Privacy review
 
