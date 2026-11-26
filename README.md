@@ -248,20 +248,6 @@ published.
   5. Accept an Idempotency-Key on every POST. ([source](practices/engineering-standards/api-design.md#idempotency-keys))
   6. Declare security on every operation and deny by default. ([source](practices/engineering-standards/api-design.md#auth-and-rate-limits))
 
-**[Performance and memory: budgets before building](practices/engineering-standards/performance-and-memory.md)**
-
-- Applies when: building or changing a service, job, or data pipeline with latency, throughput, or memory constraints; reviewing a hot path, resource limit, benchmark, or performance regression.
-- Signals: `performance`, `latency`, `throughput`, `memory`, `benchmark`, `profile`, `profiling`, `hot path`, `data structure`, `allocation`, `garbage collection`, `coordinated omission`, `jmh`, `metaspace`, `aqe`, `kryo`, `event loop`, `optimisation`, `optimization`.
-- Skills: none yet.
-- Key rules:
-  1. Choose data structures by access pattern and complexity; measure allocation, copying, I/O, and concurrency costs. ([source](practices/engineering-standards/performance-and-memory.md#write-efficient-code))
-  2. Write latency, throughput, and peak-memory budgets in the spec before building. ([source](practices/engineering-standards/performance-and-memory.md#set-budgets-before-building))
-  3. Attach a reproducible benchmark or profile for hot-path changes and compare results with the budget. ([source](practices/engineering-standards/performance-and-memory.md#measure-before-optimising))
-  4. Stream data and bound every queue, cache, batch, and in-memory collection. ([source](practices/engineering-standards/performance-and-memory.md#bound-memory-by-default))
-  5. Set explicit memory limits for every service and job, including runtime overhead and worker concurrency. ([source](practices/engineering-standards/performance-and-memory.md#set-service-and-job-limits))
-  6. Choose the simplest structure that meets the budget and optimise only measured misses. ([source](practices/engineering-standards/performance-and-memory.md#choose-the-simplest-structure))
-  7. Gate hot paths against absolute budgets and an agreed regression margin. ([source](practices/engineering-standards/performance-and-memory.md#gate-performance-regressions))
-
 **[Data-intensive systems: choose guarantees before topology](practices/engineering-standards/data-intensive-systems.md)**
 
 - Applies when: choosing storage, replication, partitioning, or transaction guarantees for a data service; building batch or stream pipelines, feature stores, caches, or search indexes; evolving persisted schemas or rebuilding derived data.
@@ -275,6 +261,20 @@ published.
   5. Make retries safe by committing deduplication and the effect in one atomic boundary. ([source](practices/engineering-standards/data-intensive-systems.md#partial-failure-clocks-and-retries))
   6. Bound stream state and define late-data correction and replay behavior. ([source](practices/engineering-standards/data-intensive-systems.md#batch-and-stream-processing))
   7. Rebuild derived data from a retained source and reconcile it against that source. ([source](practices/engineering-standards/data-intensive-systems.md#derived-data-and-synchronization))
+
+**[Performance and memory: budgets before building](practices/engineering-standards/performance-and-memory.md)**
+
+- Applies when: building or changing a service, job, or data pipeline with latency, throughput, or memory constraints; reviewing a hot path, resource limit, benchmark, or performance regression.
+- Signals: `performance`, `latency`, `throughput`, `memory`, `benchmark`, `profile`, `profiling`, `hot path`, `data structure`, `allocation`, `garbage collection`, `coordinated omission`, `jmh`, `metaspace`, `aqe`, `kryo`, `event loop`, `optimisation`, `optimization`.
+- Skills: none yet.
+- Key rules:
+  1. Choose data structures by access pattern and complexity; measure allocation, copying, I/O, and concurrency costs. ([source](practices/engineering-standards/performance-and-memory.md#write-efficient-code))
+  2. Write latency, throughput, and peak-memory budgets in the spec before building. ([source](practices/engineering-standards/performance-and-memory.md#set-budgets-before-building))
+  3. Attach a reproducible benchmark or profile for hot-path changes and compare results with the budget. ([source](practices/engineering-standards/performance-and-memory.md#measure-before-optimising))
+  4. Stream data and bound every queue, cache, batch, and in-memory collection. ([source](practices/engineering-standards/performance-and-memory.md#bound-memory-by-default))
+  5. Set explicit memory limits for every service and job, including runtime overhead and worker concurrency. ([source](practices/engineering-standards/performance-and-memory.md#set-service-and-job-limits))
+  6. Choose the simplest structure that meets the budget and optimise only measured misses. ([source](practices/engineering-standards/performance-and-memory.md#choose-the-simplest-structure))
+  7. Gate hot paths against absolute budgets and an agreed regression margin. ([source](practices/engineering-standards/performance-and-memory.md#gate-performance-regressions))
 
 **[Testing in agentic engineering](testing-in-agentic-engineering.md)**
 

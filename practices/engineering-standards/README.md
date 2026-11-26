@@ -1,8 +1,9 @@
 # Engineering standards
 
-Standards for building and changing software. Each page defines a standard and
-the automatic checks a project must run. Pages link to shared checks where
-available; project-specific checks belong in the consuming repository.
+Standards for building and changing software. Each page defines checks for
+its standard. A page can supply reusable tooling or specify checks to implement
+against the selected products. When a page supplies an automatic check and
+its prose disagrees with that check, the check wins.
 
 ## Start here
 

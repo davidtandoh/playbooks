@@ -714,6 +714,59 @@
     },
     {
       "applies_when": [
+        "choosing storage, replication, partitioning, or transaction guarantees for a data service",
+        "building batch or stream pipelines, feature stores, caches, or search indexes",
+        "evolving persisted schemas or rebuilding derived data"
+      ],
+      "key_rules": [
+        {
+          "rule": "Choose storage from measured access patterns and write down the authoritative data owner.",
+          "source": "practices/engineering-standards/data-intensive-systems.md#data-models-and-storage-engines"
+        },
+        {
+          "rule": "Test both schema compatibility directions against every version still needed for replay or rollback.",
+          "source": "practices/engineering-standards/data-intensive-systems.md#encoding-and-schema-evolution"
+        },
+        {
+          "rule": "Specify read guarantees and verify them during replica lag and failover.",
+          "source": "practices/engineering-standards/data-intensive-systems.md#replication-and-consistency"
+        },
+        {
+          "rule": "Test concurrent transactions against business invariants at the chosen isolation level.",
+          "source": "practices/engineering-standards/data-intensive-systems.md#transactions-and-isolation"
+        },
+        {
+          "rule": "Make retries safe by committing deduplication and the effect in one atomic boundary.",
+          "source": "practices/engineering-standards/data-intensive-systems.md#partial-failure-clocks-and-retries"
+        },
+        {
+          "rule": "Bound stream state and define late-data correction and replay behavior.",
+          "source": "practices/engineering-standards/data-intensive-systems.md#batch-and-stream-processing"
+        },
+        {
+          "rule": "Rebuild derived data from a retained source and reconcile it against that source.",
+          "source": "practices/engineering-standards/data-intensive-systems.md#derived-data-and-synchronization"
+        }
+      ],
+      "path": "practices/engineering-standards/data-intensive-systems.md",
+      "signals": [
+        "data-intensive",
+        "storage engine",
+        "schema evolution",
+        "replication",
+        "partitioning",
+        "isolation level",
+        "CDC",
+        "event sourcing",
+        "watermark",
+        "stream processing",
+        "feature store"
+      ],
+      "skills": [],
+      "title": "Data-intensive systems: choose guarantees before topology"
+    },
+    {
+      "applies_when": [
         "building or changing a service, job, or data pipeline with latency, throughput, or memory constraints",
         "reviewing a hot path, resource limit, benchmark, or performance regression"
       ],
@@ -771,59 +824,6 @@
       ],
       "skills": [],
       "title": "Performance and memory: budgets before building"
-    },
-    {
-      "applies_when": [
-        "choosing storage, replication, partitioning, or transaction guarantees for a data service",
-        "building batch or stream pipelines, feature stores, caches, or search indexes",
-        "evolving persisted schemas or rebuilding derived data"
-      ],
-      "key_rules": [
-        {
-          "rule": "Choose storage from measured access patterns and write down the authoritative data owner.",
-          "source": "practices/engineering-standards/data-intensive-systems.md#data-models-and-storage-engines"
-        },
-        {
-          "rule": "Test both schema compatibility directions against every version still needed for replay or rollback.",
-          "source": "practices/engineering-standards/data-intensive-systems.md#encoding-and-schema-evolution"
-        },
-        {
-          "rule": "Specify read guarantees and verify them during replica lag and failover.",
-          "source": "practices/engineering-standards/data-intensive-systems.md#replication-and-consistency"
-        },
-        {
-          "rule": "Test concurrent transactions against business invariants at the chosen isolation level.",
-          "source": "practices/engineering-standards/data-intensive-systems.md#transactions-and-isolation"
-        },
-        {
-          "rule": "Make retries safe by committing deduplication and the effect in one atomic boundary.",
-          "source": "practices/engineering-standards/data-intensive-systems.md#partial-failure-clocks-and-retries"
-        },
-        {
-          "rule": "Bound stream state and define late-data correction and replay behavior.",
-          "source": "practices/engineering-standards/data-intensive-systems.md#batch-and-stream-processing"
-        },
-        {
-          "rule": "Rebuild derived data from a retained source and reconcile it against that source.",
-          "source": "practices/engineering-standards/data-intensive-systems.md#derived-data-and-synchronization"
-        }
-      ],
-      "path": "practices/engineering-standards/data-intensive-systems.md",
-      "signals": [
-        "data-intensive",
-        "storage engine",
-        "schema evolution",
-        "replication",
-        "partitioning",
-        "isolation level",
-        "CDC",
-        "event sourcing",
-        "watermark",
-        "stream processing",
-        "feature store"
-      ],
-      "skills": [],
-      "title": "Data-intensive systems: choose guarantees before topology"
     },
     {
       "applies_when": [
