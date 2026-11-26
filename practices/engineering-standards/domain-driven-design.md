@@ -194,7 +194,7 @@ Check: test valid and invalid state transitions without infrastructure. Then
 test conflicting writes against the real database and isolation settings.
 Measure loaded bytes, query count, and conflict rate under representative
 cardinality. See the companion
-[Performance and memory playbook](https://github.com/davidtandoh/playbooks/blob/main/practices/engineering-standards/performance-and-memory.md)
+[performance and memory playbook under review](https://github.com/davidtandoh/playbooks/pull/15)
 for data structures, allocation, and profiling guidance.
 
 ### Entities and value objects
