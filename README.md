@@ -329,7 +329,7 @@ published.
 
 - Applies when: a coding agent writes or changes tests, or writes code and tests together; reviewing, trimming, or deduplicating a test suite that agents have grown; deciding which tests a change needs, or whether to use mocks, properties, snapshots, or end-to-end tests; choosing between software tests and agent evals for a system that contains an agent.
 - Signals: `test suite`, `test design`, `pytest`, `unittest`, `test mock`, `test fixture`, `hypothesis`, `mutation testing`, `test coverage`, `snapshot testing`.
-- Path globs (PR gate): `**/test_*.py`, `**/*_test.py`, `**/*.test.*`, `**/*.spec.*`, `tests/**`, `pytest.ini`, `**/conftest.py`.
+- Path globs (PR gate): `**/*_test.py`, `**/*.test.*`, `**/*.spec.*`, `tests/**`, `pytest.ini`, `**/conftest.py`.
 - Skills: `apply-playbooks`, `spec-delivery-loop`, [`diagnosing-bugs`](https://github.com/mattpocock/skills/tree/main/skills/engineering/diagnosing-bugs).
 - Key rules:
   1. Give the agent the map of existing tests that cover the code it will change before it writes new tests. ([source](testing-in-agentic-engineering.md#3-rules-that-make-agents-write-fewer-better-tests))

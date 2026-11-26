@@ -27,7 +27,6 @@ signals:
   - test coverage
   - snapshot testing
 path_globs:
-  - "**/test_*.py"
   - "**/*_test.py"
   - "**/*.test.*"
   - "**/*.spec.*"

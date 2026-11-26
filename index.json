@@ -1078,7 +1078,6 @@
       ],
       "path": "testing-in-agentic-engineering.md",
       "path_globs": [
-        "**/test_*.py",
         "**/*_test.py",
         "**/*.test.*",
         "**/*.spec.*",

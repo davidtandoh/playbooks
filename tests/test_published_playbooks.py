@@ -501,14 +501,37 @@ class PathGlobsTest(unittest.TestCase):
             "practices/engineering-standards/secure-reliable-systems.md": "docs/threat-models/api.md",
             "testing-in-agentic-engineering.md": "tests/test_index.py",
         }
-        entries = playbook_index.build_entries()
+        # index.json is the generated public path-selection contract.
+        entries = json.loads(
+            (REPOSITORY_ROOT / "index.json").read_text(encoding="utf-8")
+        )["playbooks"]
         self.assertEqual(set(examples), {entry["path"] for entry in entries})
         for entry in entries:
             with self.subTest(page=entry["path"]):
                 patterns = entry["path_globs"]
                 self.assertTrue(any(fnmatch.fnmatchcase(examples[entry["path"]], p) for p in patterns))
-                for unrelated in ("README.md", "src/main.py", "docs/agent.md", "src/prompt.py", "src/trace.py"):
-                    self.assertFalse(any(fnmatch.fnmatchcase(unrelated, p) for p in patterns))
+                for unrelated in (
+                    "README.md", "src/main.py", "docs/agent.md",
+                    "src/prompt.py", "src/trace.py", "src/test_utils.py",
+                    "docs/agent-notes.md", "src/skill.py", "src/mcp.py",
+                ):
+                    with self.subTest(unrelated=unrelated):
+                        self.assertFalse(any(fnmatch.fnmatchcase(unrelated, p) for p in patterns))
+
+        fixtures = {path: {page} for page, path in examples.items()}
+        fixtures.update({
+            "openapi.yaml": {"practices/engineering-standards/api-design.md"},
+            "service.proto": {"practices/engineering-standards/api-design.md"},
+            ".github/workflows/ci.yml": {"ci-for-agentic-engineering.md"},
+            "config/otel-collector.yaml": {"practices/agentic-sre/observability.md"},
+        })
+        for path, expected in fixtures.items():
+            with self.subTest(path=path):
+                matched = {
+                    entry["path"] for entry in entries
+                    if any(fnmatch.fnmatchcase(path, p) for p in entry["path_globs"])
+                }
+                self.assertEqual(matched, expected)
 
     def test_glob_only_drift_is_detected(self) -> None:
         with tempfile.TemporaryDirectory() as directory:
