@@ -19,6 +19,7 @@ front matter will adopt it in a separate change.
 | [API design](practices/engineering-standards/api-design.md) | `architecture` `delivery-gates` `verification` `security-and-privacy` | One default per HTTP API design question, enforced by a Spectral ruleset and an oasdiff breaking-change check: naming, versioning, RFC 9457 errors, pagination, idempotency, auth, rate limits, long-running operations, webhooks and events |
 | [Observability](practices/engineering-standards/observability.md) | `observability` `reliability` `cost` `verification` | User-outcome SLIs and SLOs, budget-burn alerts, golden signals, RED and USE, correlated telemetry, OpenTelemetry propagation, cardinality and sampling budgets, data-pipeline indicators, runbooks and toil |
 | [Performance and memory](practices/engineering-standards/performance-and-memory.md) | `architecture` `memory` `verification` `delivery-gates` `cost` | Data structures and complexity, allocation and copying, runtime costs, resource budgets, bounded memory, and hot-path regression gates |
+| [Data-intensive systems](practices/engineering-standards/data-intensive-systems.md) | `architecture` `verification` `delivery-gates` `security-and-privacy` | Storage and schema decisions, replication guarantees, partitioning, isolation, retry-safe effects, batch and streams, CDC and derived data, with workload and failure checks |
 | [Domain-driven design](practices/engineering-standards/domain-driven-design.md) | `architecture` `reliability` `verification` `delivery-gates` | Model business rules and ownership with bounded contexts, small aggregates, explicit events, ports and adapters, architecture tests, and ADRs |
 
 ### Agent systems
@@ -248,6 +249,20 @@ published.
   4. Paginate every list with page_size, page_token, and next_page_token from the first release. ([source](practices/engineering-standards/api-design.md#pagination))
   5. Accept an Idempotency-Key on every POST. ([source](practices/engineering-standards/api-design.md#idempotency-keys))
   6. Declare security on every operation and deny by default. ([source](practices/engineering-standards/api-design.md#auth-and-rate-limits))
+
+**[Data-intensive systems: choose guarantees before topology](practices/engineering-standards/data-intensive-systems.md)**
+
+- Applies when: choosing storage, replication, partitioning, or transaction guarantees for a data service; building batch or stream pipelines, feature stores, caches, or search indexes; evolving persisted schemas or rebuilding derived data.
+- Signals: `data-intensive`, `storage engine`, `schema evolution`, `replication`, `partitioning`, `isolation level`, `CDC`, `event sourcing`, `watermark`, `stream processing`, `feature store`.
+- Skills: none yet.
+- Key rules:
+  1. Choose storage from measured access patterns and write down the authoritative data owner. ([source](practices/engineering-standards/data-intensive-systems.md#data-models-and-storage-engines))
+  2. Test both schema compatibility directions against every version still needed for replay or rollback. ([source](practices/engineering-standards/data-intensive-systems.md#encoding-and-schema-evolution))
+  3. Specify read guarantees and verify them during replica lag and failover. ([source](practices/engineering-standards/data-intensive-systems.md#replication-and-consistency))
+  4. Test concurrent transactions against business invariants at the chosen isolation level. ([source](practices/engineering-standards/data-intensive-systems.md#transactions-and-isolation))
+  5. Make retries safe by committing deduplication and the effect in one atomic boundary. ([source](practices/engineering-standards/data-intensive-systems.md#partial-failure-clocks-and-retries))
+  6. Bound stream state and define late-data correction and replay behavior. ([source](practices/engineering-standards/data-intensive-systems.md#batch-and-stream-processing))
+  7. Rebuild derived data from a retained source and reconcile it against that source. ([source](practices/engineering-standards/data-intensive-systems.md#derived-data-and-synchronization))
 
 **[Domain-driven design: model rules, ownership, and consistency](practices/engineering-standards/domain-driven-design.md)**
 
