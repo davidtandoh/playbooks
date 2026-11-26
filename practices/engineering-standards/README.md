@@ -1,8 +1,9 @@
 # Engineering standards
 
-Standards for building and changing software. Each page puts its standard into
-an automatic check first, and keeps prose only to explain the check and to
-point at it. When a page and its check disagree, the check wins.
+Standards for building and changing software. Each page identifies checks to
+run in the adopting repository. Some pages supply check configuration; others
+specify checks the adopter must implement. When a page and its implemented
+check disagree, the check wins.
 
 ## Start here
 
@@ -15,7 +16,7 @@ point at it. When a page and its check disagree, the check wins.
 | Practice | Status | Check | What it covers |
 | --- | --- | --- | --- |
 | [API design](api-design.md) | Published | Spectral ruleset, oasdiff, Schemathesis | Resource naming, versioning, RFC 9457 errors, pagination, idempotency keys, auth and rate limits, long-running operations, webhooks and events, OpenAPI-first delivery |
-| [Observability](observability.md) | Published | Telemetry contract integration tests, alert-rule fixtures, failure drills | Golden signals, RED and USE, SLIs and SLOs, error budgets, correlated logs and traces, OpenTelemetry, telemetry cost, data-pipeline indicators, runbooks and toil |
+| [Observability](observability.md) | Published | [Checks to implement in the service repository](observability.md#checklist) | Golden signals, RED and USE, SLIs and SLOs, error budgets, correlated logs and traces, OpenTelemetry, telemetry cost, data-pipeline indicators, runbooks and toil |
 
 ## Credits
 
