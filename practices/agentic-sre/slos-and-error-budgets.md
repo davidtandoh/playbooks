@@ -19,6 +19,10 @@ signals:
   - burn rate
   - alerting
   - quota
+path_globs:
+  - "**/slos/**"
+  - "**/slo*.y*ml"
+  - "**/error_budgets/**"
 key_rules:
   - Uptime alone is not an SLO for an agent. (#rules-of-thumb)
   - Use pass or fail indicators, not one-to-ten judge scores. (#rules-of-thumb)

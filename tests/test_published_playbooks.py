@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import datetime
+import fnmatch
 import json
 import pathlib
 import re
@@ -419,6 +420,111 @@ def write_page(root: pathlib.Path, name: str, skills: str, body: str = "") -> No
         f"  - Three. (#page)\n{skills}---\n# Page\n{body}",
         encoding="utf-8",
     )
+
+
+class PathGlobsTest(unittest.TestCase):
+    def test_optional_globs_compile_without_changing_text_hints(self) -> None:
+        for declaration, expected in (
+            ("", None),
+            ('path_globs:\n  - "**/openapi*.y*ml"\n  - "**/*.proto"\n',
+             ["**/openapi*.y*ml", "**/*.proto"]),
+        ):
+            with self.subTest(declaration=declaration):
+                with tempfile.TemporaryDirectory() as directory:
+                    root = pathlib.Path(directory)
+                    write_page(root, "page.md", declaration)
+                    with mock.patch.object(playbook_index, "REPOSITORY_ROOT", root):
+                        entry = playbook_index.build_entries()[0]
+                self.assertEqual(entry.get("path_globs"), expected)
+                self.assertEqual(entry["signals"], ["agent"])
+                rendered = playbook_index.render_readme_section([entry])
+                if expected:
+                    self.assertIn('`**/openapi*.y*ml`', rendered)
+                else:
+                    self.assertNotIn("Path globs", rendered)
+
+    def test_malformed_glob_quoting_is_rejected(self) -> None:
+        for pattern in ('**/*.proto', '"**/*.proto', '"**/*.proto" extra'):
+            with self.subTest(pattern=pattern):
+                with tempfile.TemporaryDirectory() as directory:
+                    root = pathlib.Path(directory)
+                    write_page(root, "page.md", f"path_globs:\n  - {pattern}\n")
+                    with self.assertRaisesRegex(ValueError, "path_globs"):
+                        read_front_matter(root / "page.md")
+
+    def test_invalid_glob_metadata_is_rejected(self) -> None:
+        for declaration in (
+            "path_globs: not-a-list\n",
+            "path_globs:\n",
+            'path_globs:\n  - ""\n',
+            'path_globs:\n  - "**/*.proto"\n  - "**/*.proto"\n',
+            'path_globs:\n  - "/etc/*.yaml"\n',
+            'path_globs:\n  - "../other/*.yaml"\n',
+            'path_globs:\n  - "**"\n',
+            'path_globs:\n  - "**/*"\n',
+            'path_globs:\n  - "**/../*.yaml"\n',
+            'path_globs:\n  - "**/bad\\\\name"\n',
+        ):
+            with self.subTest(declaration=declaration):
+                with tempfile.TemporaryDirectory() as directory:
+                    root = pathlib.Path(directory)
+                    write_page(root, "page.md", declaration)
+                    errors = playbook_index.matching_metadata_errors(root / "page.md")
+                self.assertTrue(any("path_globs" in error for error in errors), errors)
+
+    def test_published_pages_declare_strict_paths_and_specific_hints(self) -> None:
+        generic = {"test", "tests/", "agent", "prompt", "skill", "trace", "mcp"}
+        for entry in playbook_index.build_entries():
+            with self.subTest(page=entry["path"]):
+                self.assertTrue(entry.get("path_globs"))
+                self.assertFalse(generic.intersection(entry["signals"]))
+
+    def test_published_patterns_match_topic_paths_without_generic_files(self) -> None:
+        examples = {
+            "building-ai-agents.md": "src/agent_loop.py",
+            "building-reliable-agents.md": "src/guardrails/output.py",
+            "ci-for-agentic-engineering.md": ".github/workflows/check.yml",
+            "contextual-retrieval.md": "src/retrieval/search.py",
+            "practices/agentic-sre/autonomy-and-approval.md": "config/autonomy_policy.json",
+            "practices/agentic-sre/blast-radius.md": "config/tool_permissions.json",
+            "practices/agentic-sre/drift.md": "src/drift_detection/check.py",
+            "practices/agentic-sre/incidents.md": "docs/runbooks/agent-outage.md",
+            "practices/agentic-sre/launch-review.md": "docs/launch-reviews/agent.md",
+            "practices/agentic-sre/observability.md": "config/otel/collector.yaml",
+            "practices/agentic-sre/postmortems.md": "docs/postmortems/agent-outage.md",
+            "practices/agentic-sre/releases.md": "src/system_prompts/assistant.txt",
+            "practices/agentic-sre/slos-and-error-budgets.md": "config/slos/agent.yaml",
+            "practices/engineering-standards/api-design.md": "api/openapi.yaml",
+            "practices/engineering-standards/data-intensive-systems.md": "db/migrations/001.sql",
+            "practices/engineering-standards/domain-driven-design.md": "src/domain/order.py",
+            "practices/engineering-standards/performance-and-memory.md": "src/benchmarks/search.py",
+            "practices/engineering-standards/secure-reliable-systems.md": "docs/threat-models/api.md",
+            "testing-in-agentic-engineering.md": "tests/test_index.py",
+        }
+        entries = playbook_index.build_entries()
+        self.assertEqual(set(examples), {entry["path"] for entry in entries})
+        for entry in entries:
+            with self.subTest(page=entry["path"]):
+                patterns = entry["path_globs"]
+                self.assertTrue(any(fnmatch.fnmatchcase(examples[entry["path"]], p) for p in patterns))
+                for unrelated in ("README.md", "src/main.py", "docs/agent.md", "src/prompt.py", "src/trace.py"):
+                    self.assertFalse(any(fnmatch.fnmatchcase(unrelated, p) for p in patterns))
+
+    def test_glob_only_drift_is_detected(self) -> None:
+        with tempfile.TemporaryDirectory() as directory:
+            root = pathlib.Path(directory)
+            write_page(root, "page.md", 'path_globs:\n  - "**/*.proto"\n')
+            readme = root / "README.md"
+            readme.write_text(playbook_index.README_BEGIN + "\n" + playbook_index.README_END)
+            with mock.patch.multiple(
+                playbook_index, REPOSITORY_ROOT=root,
+                INDEX_PATH=root / "index.json", README_PATH=readme,
+            ):
+                self.assertEqual(playbook_index.main([]), 0)
+                self.assertEqual(playbook_index.main(["--check"]), 0)
+                page = root / "page.md"
+                page.write_text(page.read_text().replace("**/*.proto", "**/*.graphql"))
+                self.assertEqual(playbook_index.main(["--check"]), 1)
 
 
 def write_allowlist(root: pathlib.Path) -> None:

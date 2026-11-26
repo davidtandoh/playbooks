@@ -19,9 +19,13 @@ signals:
   - aggregate
   - ubiquitous language
   - domain event
-  - repository
+  - domain repository
   - hexagonal
   - ports and adapters
+path_globs:
+  - "**/domain/**"
+  - "**/aggregates/**"
+  - "**/architecture_tests/**"
 key_rules:
   - Define terms per bounded context and record the owner and contract of every context relationship. (#language-and-context-boundaries)
   - Size aggregates around immediate invariants and test concurrent writes against real persistence. (#aggregates-and-invariants)

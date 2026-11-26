@@ -8,12 +8,17 @@ applies_when:
   - building or changing an agent loop, its tools, or its context handling
   - splitting work across multiple agents
 signals:
-  - agent
+  - agent loop
+  - agent orchestration
   - tool use
   - stop_reason
   - orchestrator
   - multi-agent
   - system prompt
+path_globs:
+  - "**/agent_loop.*"
+  - "**/agent_orchestrator.*"
+  - "**/tool_definitions/**"
 key_rules:
   - Build an agent only when the task passes all four gate criteria; otherwise use a single call or a workflow. (#1-gate-should-you-even-build-an-agent)
   - Key loop termination off the structured stop signal; keep the iteration cap as a backstop only. (#2-the-atomic-unit-the-react-loop)

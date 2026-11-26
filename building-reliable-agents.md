@@ -11,10 +11,14 @@ signals:
   - opentelemetry
   - gen_ai
   - prompt caching
-  - eval
+  - agent evaluation
   - guardrail
   - sandbox
   - token budget
+path_globs:
+  - "**/guardrails/**"
+  - "**/agent_evals/**"
+  - "**/gen_ai/**"
 key_rules:
   - Start with the simplest thing and add autonomy only when it demonstrably improves outcomes. (#0-the-rules-in-one-screen)
   - Treat context as finite and degrading; curate it instead of filling it. (#the-core-mental-model-context-is-finite-and-degrading)

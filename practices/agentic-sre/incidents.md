@@ -17,6 +17,10 @@ signals:
   - runbook
   - on-call
   - kill switch
+path_globs:
+  - "**/runbooks/agent*/**"
+  - "**/runbooks/*agent*.md"
+  - "**/agent_incidents/**"
 key_rules:
   - A human is the incident commander, never an agent. (#at-a-glance)
   - Agents investigate read-only and propose; the incident commander decides. (#at-a-glance)

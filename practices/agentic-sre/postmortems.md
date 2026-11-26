@@ -15,6 +15,9 @@ signals:
   - incident review
   - retrospective
   - root cause
+path_globs:
+  - "**/postmortems/**"
+  - "**/incident-reviews/**"
 key_rules:
   - Stay blameless for humans and agents alike. (#rules-of-thumb)
   - Build the timeline from traces, not memory. (#at-a-glance)

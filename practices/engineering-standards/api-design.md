@@ -20,6 +20,12 @@ signals:
   - endpoint
   - webhook
   - asyncapi
+path_globs:
+  - "**/openapi*.y*ml"
+  - "**/*.proto"
+  - "**/asyncapi*.y*ml"
+  - "openapi*.y*ml"
+  - "*.proto"
 key_rules:
   - Commit the OpenAPI document and lint it with the shared Spectral ruleset on every pull request. (#openapi-first-with-spectral-and-oasdiff)
   - Fail CI on breaking changes with oasdiff; break the contract only with a new major path version. (#versioning)

@@ -25,6 +25,11 @@ signals:
   - watermark
   - stream processing
   - feature store
+path_globs:
+  - "**/migrations/**"
+  - "**/dbt/models/**"
+  - "**/stream_processing/**"
+  - "**/cdc/**"
 key_rules:
   - Choose storage from measured access patterns and write down the authoritative data owner. (#data-models-and-storage-engines)
   - Test both schema compatibility directions against every version still needed for replay or rollback. (#encoding-and-schema-evolution)
