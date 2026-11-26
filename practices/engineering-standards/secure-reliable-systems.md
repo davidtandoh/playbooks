@@ -431,7 +431,9 @@ operation, or forward repair before release. Keep the halt and recovery controls
 usable when the primary control plane is unavailable.
 
 Checks: deployment rehearsal proves the abort signal stops expansion and the
-previous version can read current data. A backup job succeeding is insufficient;
+chosen recovery path restores service with consistent data. If recovery uses
+code rollback, prove the previous version can read current data.
+A backup job succeeding is insufficient;
 measure restore time and verify the recovered data against the agreed data-loss
 window.
 
@@ -442,7 +444,8 @@ to implement in the service repository; this document does not install them.
 
 | Exercise | Observable pass condition |
 | --- | --- |
-| Wrong-tenant access and policy outage | Protected reads and writes denied; no data disclosed |
+| Wrong-tenant access | Protected reads and writes denied; no data disclosed |
+| Policy outage | Access requires valid local policy or capabilities within recorded freshness and revocation bounds; otherwise deny protected work |
 | Credential rotation and revocation | Replacement works; revoked credential fails; no secret in logs |
 | Dependency timeout and retry storm | Attempts and total work remain bounded; critical work survives |
 | Duplicate delivery and crash after commit | One durable effect; consistent replay response |
