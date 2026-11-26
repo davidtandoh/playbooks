@@ -73,14 +73,38 @@ words; the examples are synthetic.
   control the credential lifecycle, including storage, access, rotation,
   revocation, and audit.
 - [SLSA specification v1.2](https://slsa.dev/spec/v1.2/): Supply-chain Levels
-  for Software Artifacts (SLSA) describes supply-chain guarantees and build
-  provenance. Verification must connect the artifact to an expected producer
-  and build process.
+  for Software Artifacts (SLSA) covers both Build and Source Tracks. The
+  [v1.2 changes](https://slsa.dev/spec/v1.2/whats-new) add source provenance,
+  history, and continuous enforcement of source controls alongside build
+  provenance. Verify the required track and level rather than assuming one
+  attestation covers both.
 - [Timeouts, retries, and backoff with jitter](https://aws.amazon.com/builders-library/timeouts-retries-and-backoff-with-jitter/),
   Amazon Builders' Library: deadlines and bounded retries limit amplification;
   randomized delay spreads retry traffic.
 - [The Site Reliability Workbook: Canarying Releases](https://sre.google/workbook/canarying-releases/):
   evaluate a limited rollout against a control before increasing exposure.
+
+- [NIST SP 800-218: Secure Software Development Framework (SSDF) v1.1](https://csrc.nist.gov/pubs/sp/800/218/final)
+  and [OWASP Application Security Verification Standard (ASVS) v5.0.0](https://asvs.owasp.org/):
+  secure development practices and versioned verification requirements.
+  OWASP's [Threat Modeling](https://cheatsheetseries.owasp.org/cheatsheets/Threat_Modeling_Cheat_Sheet.html),
+  [Cryptographic Storage](https://cheatsheetseries.owasp.org/cheatsheets/Cryptographic_Storage_Cheat_Sheet.html),
+  and [Logging](https://cheatsheetseries.owasp.org/cheatsheets/Logging_Cheat_Sheet.html)
+  cheat sheets and [API Security Top 10](https://owasp.org/API-Security/) inform
+  the boundary, encryption, and audit checks below.
+- *Site Reliability Engineering*: [Handling Overload](https://sre.google/sre-book/handling-overload/),
+  [Addressing Cascading Failures](https://sre.google/sre-book/addressing-cascading-failures/),
+  and [Service Level Objectives](https://sre.google/sre-book/service-level-objectives/):
+  capacity, request criticality, retry budgets, and reliability targets.
+- [Workload isolation using shuffle-sharding](https://aws.amazon.com/builders-library/workload-isolation-using-shuffle-sharding/),
+  Amazon Builders' Library: limiting correlated tenant impact through subsets
+  of a shared worker pool.
+- [CNCF Cloud Native Security Whitepaper](https://www.cncf.io/reports/cloud-native-security-whitepaper/),
+  [SPIFFE Overview](https://spiffe.io/docs/latest/spiffe-about/overview/), and
+  [Sigstore Overview](https://docs.sigstore.dev/about/overview/): lifecycle
+  controls, workload identity, and artifact signing with transparency evidence.
+- [Principles of Chaos Engineering](https://principlesofchaos.org/): test a
+  measurable steady-state hypothesis under controlled failure injection.
 
 ## At a glance
 
@@ -111,6 +135,24 @@ numbers for all services.
 
 ## Decision guide
 
+### Threat model and verification baseline
+
+Before adding a trust boundary, ask what the service does, how it could fail or
+be attacked, which controls address those cases, and how to verify the controls.
+Walk the data-flow diagram through spoofing, tampering, repudiation, information
+disclosure, denial of service, and elevation of privilege (STRIDE). Record the
+asset, attacker capability, mitigation owner, residual risk, and test for each
+material threat. Repeat when identities, data flows, or external dependencies
+change. See the [OWASP threat-modeling workflow](https://cheatsheetseries.owasp.org/cheatsheets/Threat_Modeling_Cheat_Sheet.html).
+
+Use SSDF to organize preparation, software protection, secure production, and
+vulnerability response. Select ASVS requirements for the service's risk and
+record their pinned identifiers as `v5.0.0-<chapter>.<section>.<requirement>` next
+to tests or review evidence. Record justified exclusions. This mapping supports
+review; it does not establish certification. Include wrong-object and
+wrong-function authorization tests: permission to read one dataset does not
+permit another dataset or an administrator-only action.
+
 ### Least privilege and zero trust
 
 - Authenticate service-to-service calls as well as user calls. Validate the
@@ -126,9 +168,18 @@ numbers for all services.
 - Separate human administration, build, deployment, and runtime identities.
   Avoid wildcard permissions. Review unused grants and recheck authorization
   when long-running jobs cross a new privilege boundary.
-- If the authorization service is unavailable, deny protected work. Any cached
-  policy needs an explicit freshness bound and revocation design. Keep public
-  health reporting independent of protected data access.
+- Deny protected work when the service cannot establish authorization. Avoid
+  making every check depend on a central policy decision service: use verified
+  local policy bundles or short-lived signed capabilities when the revocation
+  requirement permits bounded staleness. Record maximum policy age, expiry,
+  revocation delivery, and the outcome when those bounds are exceeded. Immediate
+  revocation through a synchronous policy call adds availability and latency
+  coupling. Document the break-glass path and its limits. Keep public health
+  reporting independent of protected data access.
+- For identity across clusters, evaluate SPIFFE identities and its Workload API
+  instead of distributing static service keys. X.509 or JWT SPIFFE Verifiable
+  Identity Documents (SVIDs) identify an attested workload; authorization still
+  decides what that workload may do. Test identity rotation and issuer outages.
 
 | Situation | Choose | Avoid |
 | --- | --- | --- |
@@ -179,8 +230,11 @@ start_export(request, grant) -> OperationId
 `ExportRequest` has a bounded row limit, a parsed dataset identifier, and an
 allowed output format. Its constructor enforces those properties. An
 `ExportGrant` is created only by the authorization component and binds the
-actor, dataset, and operation. The service checks expiry and current policy
-when using the grant; possessing an old value cannot bypass revocation.
+actor, dataset, and operation. At use, validate expiry and the selected policy
+freshness or revocation mechanism. Choose synchronous policy checks when the
+required revocation latency demands them; otherwise use bounded local policy
+and revocation updates. Test and document the maximum time a revoked grant can
+remain usable. A type alone cannot make a distributed revocation instantaneous.
 
 - Bound bytes before parsing, then bound nesting, collection length, numeric
   ranges, decompressed size, and processing time. Include event payloads,
@@ -194,6 +248,13 @@ when using the grant; possessing an old value cannot bypass revocation.
   access primitives rather than trusting string-prefix checks.
 - Load untrusted model artifacts only through reviewed formats and constrained
   loaders. Formats that execute code require isolation and explicit approval.
+
+Enforce the safe API with static rules that reject unsafe query construction,
+shell interpolation, or unsafe deserialization outside a reviewed boundary
+module. Restrict exceptions by path and owner; test the rule against a known
+unsafe call. Safe framework types reduce vulnerability classes, but casts and
+uncontrolled constructors can defeat them. Use the framework and static checks
+together, following *Building Secure and Reliable Systems*, chapter 12.
 
 Checks: fuzz boundary parsers; test oversized, malformed, and wrong-tenant
 inputs. Confirm invalid requests cause no writes and errors reveal no secrets.
@@ -215,11 +276,18 @@ Partition by tenant or cell when isolation requirements justify the operating
 cost. Two replicas with the same identity, release, and storage dependency
 share those failure modes. Record the dependencies a recovery path still needs.
 
+When dedicated tenant pools cost too much, evaluate shuffle sharding: assign
+each tenant a stable subset of workers and retain routing and quotas during
+failure. Subsets can overlap. More combinations do not directly imply a smaller
+outage fraction: impact depends on overlap, spare capacity, and whether each
+request needs one healthy worker or every assigned worker. Test partial and
+complete shard failures and prevent failover from spilling into the whole pool.
+See [Workload isolation using shuffle-sharding](https://aws.amazon.com/builders-library/workload-isolation-using-shuffle-sharding/).
+
 Checks: policy tests prove forbidden cross-boundary access. Load tests measure
 queue age, memory, and critical-path latency during saturation. For data
-structure and allocation choices, use the companion performance-and-memory
-playbook once available at `performance-and-memory.md`; this page owns the
-resource limits and failure outcomes.
+structure and allocation choices, use [Performance and memory](performance-and-memory.md);
+this page owns the resource limits and failure outcomes.
 
 ### Secrets and rotation
 
@@ -243,6 +311,21 @@ revoking a service token is a different operation.
 Checks: secret scanning in commit and build gates, a rotation rehearsal without
 logging values, and an audit event for issuance, access, and revocation.
 
+### Cryptographic storage
+
+Use maintained cryptographic libraries and authenticated encryption, such as an
+approved AES-GCM implementation. Enforce nonce uniqueness for each key through
+the library or storage service; do not invent algorithms or manage nonces with
+unchecked application counters. Minimize retained sensitive data first.
+
+For envelope encryption, a data encryption key (DEK) encrypts the dataset; a key
+encryption key (KEK) in a separate key-management boundary wraps the DEK. Wrapped
+DEKs may accompany ciphertext; protect plaintext DEKs and keep the KEK outside
+the data store. Separate decrypt permission from storage read access. Rotating
+a KEK can rewrap DEKs without rewriting all data. A compromised DEK needs a
+data re-encryption and exposure-response plan. Test restore and key availability
+for retained backups. See [OWASP Cryptographic Storage](https://cheatsheetseries.owasp.org/cheatsheets/Cryptographic_Storage_Cheat_Sheet.html).
+
 ### Supply-chain security
 
 - Review why a dependency is needed, its maintenance, license, transitive
@@ -260,6 +343,18 @@ logging values, and an audit event for issuance, access, and revocation.
   on exposure. Exceptions need an expiry and compensating controls. Provenance
   establishes origin; it does not prove the code is free of vulnerabilities.
 
+Apply SLSA's Source Track controls before building: protect source history,
+enforce required review, and verify source provenance and Source Verification
+Summary Attestations (VSAs) against the selected policy. Keep this distinct from
+Build Track evidence. For artifact signing, evaluate Sigstore's short-lived
+identity certificates and transparency log. Verify the expected identity,
+issuer, trust root, artifact digest, and log evidence. Choose public or private
+transparency infrastructure with an explicit metadata-disclosure policy.
+
+Use CNCF's develop, distribute, deploy, and runtime lifecycle to find gaps:
+reviewed source and hardened builds, verified distribution, admission checks,
+and constrained runtime permissions and egress need separate controls.
+
 Checks: a clean build consumes the lockfile; policy rejects an unexpected
 artifact producer or altered digest. Review dependency changes alongside code.
 
@@ -275,14 +370,30 @@ artifact producer or altered digest. Review dependency changes alongside code.
 
 Propagate a request deadline and cancellation to downstream work. Bound queue
 length, connections, concurrency, payload size, and per-tenant work. Measure
-queue age as well as depth. A circuit breaker can stop repeated calls to a
-failing dependency; give it bounded probes and test recovery to avoid leaving
-it stuck open.
+queue age as well as depth. Estimate capacity using CPU, memory, or another
+limiting resource; equal request rates can have very different costs. Assign
+criticality at a trusted ingress and propagate it downstream. For example,
+separate serving requests from deferrable feature backfills and shed the latter
+first; do not let an untrusted caller promote its own priority.
+
+For sustained overload, prefer gradual client-side adaptive throttling with
+continuous probes over a binary circuit breaker that blocks all traffic.
+Track recent attempted and accepted requests; Google SRE describes increasing
+local rejection as attempts exceed a tunable multiple of accepts. Select that
+multiple and sampling window through load tests, and protect recovery probes
+from synchronized bursts. A circuit breaker can still suit a hard dependency
+failure; give it bounded probes and test recovery. See
+[Handling Overload](https://sre.google/sre-book/handling-overload/).
 
 Choose one retry owner in a call chain. Retry only classified transient failures,
 and honor server retry guidance when it fits the remaining deadline. Use a
 capped exponential delay with random jitter, a finite attempt count, and a
-shared retry budget. Stop when cancellation, deadline, or budget wins. Three
+shared retry budget. As an initial experiment, cap retries at 10% of original
+requests per client and allow at most three attempts per request; these are
+starting settings to validate, not universal safety limits. Prefer retries at
+the layer directly above the rejecting dependency and propagate a non-retryable
+overload outcome upward so other layers cannot multiply the work. Stop when
+cancellation, deadline, or budget wins. Three
 layers making three attempts each can cause 27 calls to the final dependency.
 
 A timeout means the caller lacks an answer; the write may have committed.
@@ -339,10 +450,21 @@ to implement in the service repository; this document does not install them.
 | Lost dependency or failed canary | Degradation stays within contract; expansion stops |
 | Restore from a separate recovery copy | Data and permissions verified within recovery objectives |
 
+Define service level indicators (SLIs) for user outcomes, such as successful
+serving latency or feature freshness, and service level objectives (SLOs) with
+a measurement window. An error budget is the allowed failure fraction over
+that window. Agree before launch which burn rate or exhausted budget pauses
+risky releases. These govern ongoing service quality; recovery time and
+data-loss objectives govern recovery after disruption.
+
 Run small, deterministic fault tests in continuous integration (CI). Rehearse
 multi-component failures in an isolated environment. A production resilience
 experiment needs an owner, explicit scope, abort signals, and a tested cleanup
-path; start with the smallest affected cohort.
+path; start with the smallest affected cohort. State a steady-state hypothesis
+and its metric before injecting a fault. Compare the experimental cohort with
+a control and stop when the bound is breached. Automate only experiments whose
+scope and recovery have already been verified. See
+[Principles of Chaos Engineering](https://principlesofchaos.org/).
 
 Before launch, assign an on-call owner and incident roles. Provide symptom-based
 runbooks for overload, credential compromise, bad rollout, and data corruption.
@@ -352,7 +474,13 @@ relying solely on the failing service.
 
 Record request/operation ids, artifact and policy versions, authorization
 outcomes, and recovery actions. Protect audit integrity and retention; restrict
-access. Exclude credentials and sensitive payloads. Alert on user-visible
+access. Bound field lengths and use structured encoding that escapes control
+characters to prevent log injection. Apply storage quotas and bounded buffering
+so log floods cannot fill the application's disk or exhaust memory. Separate
+audit writers from readers and deletion administrators; test disk exhaustion
+and record dropped-event counts. Exclude credentials and sensitive payloads.
+See [OWASP Logging](https://cheatsheetseries.owasp.org/cheatsheets/Logging_Cheat_Sheet.html).
+Alert on user-visible
 failures and credible security signals. After an incident, assign corrective
 actions to owners and verify the resulting control or regression test.
 
