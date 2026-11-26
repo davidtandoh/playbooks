@@ -42,6 +42,8 @@ rule, not for a longer page.
 
 Skill: none yet.
 
+See [Domain-driven design](domain-driven-design.md) for model ownership, consistency boundaries, and the distinction between domain and integration events.
+
 ## Sources
 
 All external sources were accessed on 2026-11-23. The IETF documents marked

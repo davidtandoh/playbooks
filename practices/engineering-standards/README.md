@@ -11,6 +11,8 @@ available; project-specific checks belong in the consuming repository.
 3. Read [Performance and memory](performance-and-memory.md) before building a
    service, job, or data pipeline. Record its budgets in the spec and add the
    hot-path benchmark to the gate.
+4. Read [Domain-driven design](domain-driven-design.md) when business rules or
+   ownership boundaries need a model, then enforce dependencies and invariants.
 
 ## Practices
 
@@ -18,6 +20,7 @@ available; project-specific checks belong in the consuming repository.
 | --- | --- | --- | --- |
 | [API design](api-design.md) | Published | Spectral ruleset, oasdiff, Schemathesis | Resource naming, versioning, RFC 9457 errors, pagination, idempotency keys, auth and rate limits, long-running operations, webhooks and events, OpenAPI-first delivery |
 | [Performance and memory](performance-and-memory.md) | Published | Project hot-path benchmark and budget comparison in the gate | Data structures, complexity, allocation, layout, I/O, concurrency, and language notes; resource budgets, bounded memory, and regression margins |
+| [Domain-driven design](domain-driven-design.md) | Published | Architecture tests, invariant tests, persistence and event contract tests | Language, bounded contexts, context maps, aggregates, entities and values, events, repositories, ports and adapters, ADRs |
 
 ## Credits
 
