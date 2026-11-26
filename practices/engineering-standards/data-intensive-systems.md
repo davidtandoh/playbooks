@@ -62,6 +62,8 @@ checked on 2026-11-26. Pin product documentation to the deployed version.
   framework, rather than a product configuration recipe.
 - [PostgreSQL Documentation: Transaction Isolation](https://www.postgresql.org/docs/current/transaction-iso.html):
   anomaly definitions and an example of implementation-specific guarantees.
+- [PostgreSQL Documentation: Data Consistency Checks at the Application Level](https://www.postgresql.org/docs/current/applevel-consistency.html#NON-SERIALIZABLE-CONSISTENCY):
+  explicit locking and snapshot timing for application invariants.
 - [Apache Avro Specification: Schema Resolution](https://avro.apache.org/docs/1.12.0/specification/#schema-resolution):
   writer/reader schemas and defaults.
 - [Confluent: Schema Evolution and Compatibility](https://docs.confluent.io/platform/current/schema-registry/fundamentals/schema-evolution.html):
@@ -288,8 +290,15 @@ product with the same level name. See the cited Transaction Isolation guide.
 Example: two workers each see another worker marked available and mark
 themselves unavailable. They update different rows, so snapshot isolation
 can leave none available. Use serializable transactions with whole-transaction
-retries, or a shared guard row locked by every writer of this invariant.
-A row lock on each worker's own row is insufficient.
+retries. Alternatively, in PostgreSQL Read Committed, require every writer of
+this invariant to acquire `SELECT ... FOR UPDATE` on the same existing guard
+row, then check availability in a separate statement after acquiring the lock.
+Hold the guard lock through the worker update and commit. The separate check
+gets a fresh snapshot that includes the previous guard holder's commit.
+Locking an unchanged guard row alone is insufficient under PostgreSQL
+Repeatable Read: a waiting transaction can retain an older snapshot.
+A row lock on each worker's own row is also insufficient. See the cited
+Data Consistency Checks guide.
 
 Prefer a unique constraint for uniqueness and an atomic conditional update
 for a single-row state transition. Check affected-row counts. Locks need a
