@@ -20,7 +20,11 @@ accepted change at the source and exports the skill again.
 
 | Skill | Exported from source commit | Exported on |
 | --- | --- | --- |
-| `agent-reliability` | `62b48aaa8e492c2b4591690ea084d7fec5deb37b` | 2026-11-25 |
+| `agent-reliability` | `dcc1848fb59aa7990f6ac478d9de863e1a632e63` | 2026-11-27 |
+
+Export normalization: the drift-monitoring output template uses `old value;
+new value` in place of the source arrow placeholder to pass this repository's
+ASCII-diagram check.
 
 Every export passes a manual privacy review and the repository's private-term
 scan before it is published.

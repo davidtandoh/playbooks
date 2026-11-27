@@ -16,6 +16,17 @@ Detect immediate and gradual regressions before a change reaches all traffic.
 - Compare with the last known-good baseline, not only an absolute floor.
 - Quality regressions abort a release even when infrastructure is healthy.
 
+## Workaround-removal trials
+
+- After a model or harness upgrade, test removal of one model-specific
+  workaround at a time against the unchanged baseline and per-slice gates.
+  Retain the failure case that originally justified the workaround.
+- Keep authorization, isolation, privacy and audit controls outside these
+  trials. A stronger model does not justify removing those controls.
+- Remove the workaround only when regression, safety and long-session checks
+  pass. Record the artifact versions, evidence and rollback path; otherwise
+  retain it. Passing evals do not grant deployment or promotion authority.
+
 ## Workflow
 
 1. Record artifact versions and signatures on every trace.
@@ -50,11 +61,6 @@ Detect immediate and gradual regressions before a change reaches all traffic.
 | Grader passes a known wrong answer | Fix the grader before trusting the gate |
 | Canary infrastructure is green, task success drops | Abort and roll back |
 | Many changes landed after the bad one | Disable by flag or fix forward |
-
-For model or harness changes, apply the
-[release playbook’s workaround-removal rules](../../../../practices/agentic-sre/releases.md#decision-guide).
-For deployed service outcomes, use the
-[safe rollout guidance](../../../../practices/engineering-standards/secure-reliable-systems.md#safe-rollout-and-rollback).
 
 ## Output template
 
