@@ -20,6 +20,10 @@
 - medzin/sre-runbook-agent-skills (MIT; author, reviewer and executor roles): https://github.com/medzin/sre-runbook-agent-skills
 - Anthropic cookbook, "The SRE Incident Response Agent": https://platform.claude.com/cookbook/claude-agent-sdk-03-the-site-reliability-agent
 - AI Incident Database: https://incidentdatabase.ai/
+- The Pragmatic Engineer, public preview of [AI SRE](https://newsletter.pragmaticengineer.com/p/ai-sre)
+  (2026-10-27), reviewed on 2026-11-27: hypothesis checks, memory promotion
+  and quiet escalation. The guide recommends these controls; it does not
+  claim that every cited system implements them.
 
 ## Updating
 

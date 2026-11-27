@@ -46,7 +46,8 @@ key_rules:
 - Primary source: LangChain, "The Future of Agents with Harrison Chase", webinar, 2026-11-21, 45:52:
   <https://www.youtube.com/watch?v=GojQtxCT3dg>. Vendor talk; product claims
   about LangSmith are omitted here and only the architecture is used.
-- 47 further sources, read on 2026-11-23: practitioner engineering
+- 48 further sources: 47 read on 2026-11-23 and source 48 added on
+  2026-11-27: practitioner engineering
   posts, framework and durable-execution documentation, OWASP and protocol
   specifications, research papers, and incident write-ups. Section 7 gives
   the support level for each requirement. The [source list](#source-list) at
@@ -296,7 +297,8 @@ Framing claims outside the table:
 
 ## Source list
 
-All sources were opened and read on 2026-11-23. "Undated" means the page shows
+Sources 1–47 were opened and read on 2026-11-23. Source 48 was added
+on 2026-11-27 from a separately reviewed public reading. "Undated" means the page shows
 no date. Source 24 comes from LangChain, the webinar's vendor, and does not
 count as independent.
 
@@ -358,6 +360,7 @@ count as independent.
 45. Anthropic, [Project Vend: can Claude run a small shop?](https://www.anthropic.com/research/project-vend-1), 2025-06-27.
 46. Anthropic, [Project Vend: phase two](https://www.anthropic.com/news/project-vend-2), 2025-12-18.
 47. AI Village, [What do we tell the humans?](https://aivillageblog.substack.com/p/what-do-we-tell-the-humans), 2025-11-21; and S. Willison, [Slop acts of kindness](https://simonwillison.net/2025/Dec/26/slop-acts-of-kindness/), 2025-12-26.
+48. Anthropic, [Scaling Managed Agents: Decoupling the brain from the hands](https://www.anthropic.com/research/managed-agents), 2026-04-08. Primary engineering account of durable event history, a replaceable harness, disposable execution and credential mediation. Use as a future design-review lens for recovery and failure domains; it does not establish that a particular local runtime has these properties.
 
 ## Capture record
 

@@ -33,6 +33,11 @@ signals:
   - event loop
   - optimisation
   - optimization
+path_globs:
+  - "**/benchmarks/**"
+  - "**/benchmark_*.*"
+  - "**/*_benchmark.*"
+  - "**/jmh/**"
 key_rules:
   - Choose data structures by access pattern and complexity; measure allocation, copying, I/O, and concurrency costs. (#write-efficient-code)
   - Write latency, throughput, and peak-memory budgets in the spec before building. (#set-budgets-before-building)

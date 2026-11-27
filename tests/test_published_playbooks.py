@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import datetime
+import fnmatch
 import json
 import pathlib
 import re
@@ -8,7 +9,6 @@ import sys
 import tempfile
 import unittest
 from unittest import mock
-
 
 REPOSITORY_ROOT = pathlib.Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(REPOSITORY_ROOT / "scripts"))
@@ -30,7 +30,14 @@ PUBLISHED_PLAYBOOKS = (
 TAXONOMY_DRAFTS = {
     REPOSITORY_ROOT / "drafts" / "20261123-persistent-agents.md": (
         "Agent systems",
-        ["architecture", "orchestration", "memory", "reliability", "governance", "evals"],
+        [
+            "architecture",
+            "orchestration",
+            "memory",
+            "reliability",
+            "governance",
+            "evals",
+        ],
     ),
 }
 AGENTIC_SRE_DIRECTORY = REPOSITORY_ROOT / "practices" / "agentic-sre"
@@ -43,9 +50,7 @@ AGENTIC_SRE_PRACTICES = {
     AGENTIC_SRE_DIRECTORY / "blast-radius.md": ("tool-blast-radius",),
     AGENTIC_SRE_DIRECTORY / "drift.md": ("drift-and-quality-monitoring",),
     AGENTIC_SRE_DIRECTORY / "incidents.md": ("agent-incident-response",),
-    AGENTIC_SRE_DIRECTORY / "launch-review.md": (
-        "agentic-product-reliability-review",
-    ),
+    AGENTIC_SRE_DIRECTORY / "launch-review.md": ("agentic-product-reliability-review",),
     AGENTIC_SRE_DIRECTORY / "observability.md": ("trace-based-slis",),
     AGENTIC_SRE_DIRECTORY / "postmortems.md": ("agent-postmortems",),
     AGENTIC_SRE_DIRECTORY / "releases.md": ("eval-gated-releases",),
@@ -159,9 +164,7 @@ class AgenticSrePracticesTest(unittest.TestCase):
     def test_practices_use_the_section_contract(self) -> None:
         for path in AGENTIC_SRE_PRACTICES:
             with self.subTest(practice=path.name):
-                self.assertEqual(
-                    level_two_headings(path), list(PRACTICE_SECTIONS)
-                )
+                self.assertEqual(level_two_headings(path), list(PRACTICE_SECTIONS))
                 text = path.read_text(encoding="utf-8")
                 self.assertIn("../../building-reliable-agents.md#", text)
                 self.assertNotIn("- [ ]", text.split("## Claim review")[1])
@@ -192,9 +195,7 @@ class AgenticSrePracticesTest(unittest.TestCase):
                     continue
                 with self.subTest(page=path.name, link=target):
                     file_part, _, anchor = target.partition("#")
-                    linked = (
-                        (path.parent / file_part).resolve() if file_part else path
-                    )
+                    linked = (path.parent / file_part).resolve() if file_part else path
                     self.assertTrue(linked.is_file())
                     if anchor:
                         self.assertIn(anchor, heading_anchors(linked))
@@ -216,12 +217,16 @@ OBSERVABILITY_PAGE = ENGINEERING_STANDARDS_DIRECTORY / "observability.md"
 PERFORMANCE_PAGE = ENGINEERING_STANDARDS_DIRECTORY / "performance-and-memory.md"
 DOMAIN_DRIVEN_DESIGN_PAGE = ENGINEERING_STANDARDS_DIRECTORY / "domain-driven-design.md"
 DATA_INTENSIVE_PAGE = ENGINEERING_STANDARDS_DIRECTORY / "data-intensive-systems.md"
+SECURE_RELIABLE_PAGE = ENGINEERING_STANDARDS_DIRECTORY / "secure-reliable-systems.md"
+CODE_STYLE_PAGE = ENGINEERING_STANDARDS_DIRECTORY / "code-style-and-static-analysis.md"
 ENGINEERING_PAGES = (
     API_DESIGN_PAGE,
     OBSERVABILITY_PAGE,
     PERFORMANCE_PAGE,
     DOMAIN_DRIVEN_DESIGN_PAGE,
     DATA_INTENSIVE_PAGE,
+    SECURE_RELIABLE_PAGE,
+    CODE_STYLE_PAGE,
 )
 
 
@@ -230,9 +235,8 @@ class EngineeringStandardsPracticesTest(unittest.TestCase):
         found = set(ENGINEERING_STANDARDS_DIRECTORY.glob("*.md"))
         self.assertEqual(found, {ENGINEERING_STANDARDS_INDEX, *ENGINEERING_PAGES})
         index = ENGINEERING_STANDARDS_INDEX.read_text(encoding="utf-8")
-        self.assertIn(f"]({API_DESIGN_PAGE.name})", index)
-        self.assertIn(f"]({OBSERVABILITY_PAGE.name})", index)
-        self.assertIn(f"]({PERFORMANCE_PAGE.name})", index)
+        for page in ENGINEERING_PAGES:
+            self.assertIn(f"]({page.name})", index)
 
     def test_practices_pass_publication_gate_and_taxonomy(self) -> None:
         for page in ENGINEERING_PAGES:
@@ -263,9 +267,7 @@ class EngineeringStandardsPracticesTest(unittest.TestCase):
                     continue
                 with self.subTest(page=path.name, link=target):
                     file_part, _, anchor = target.partition("#")
-                    linked = (
-                        (path.parent / file_part).resolve() if file_part else path
-                    )
+                    linked = (path.parent / file_part).resolve() if file_part else path
                     self.assertTrue(linked.is_file())
                     if anchor:
                         self.assertIn(anchor, heading_anchors(linked))
@@ -283,7 +285,9 @@ class PlaybookIndexTest(unittest.TestCase):
         pages = playbook_index.published_pages()
         self.assertEqual(
             set(pages),
-            set(PUBLISHED_PLAYBOOKS) | set(AGENTIC_SRE_PRACTICES) | set(ENGINEERING_PAGES),
+            set(PUBLISHED_PLAYBOOKS)
+            | set(AGENTIC_SRE_PRACTICES)
+            | set(ENGINEERING_PAGES),
         )
         for path in pages:
             with self.subTest(page=path.name):
@@ -315,12 +319,8 @@ class PlaybookIndexTest(unittest.TestCase):
             errors = playbook_index.matching_metadata_errors(page)
         self.assertIn("applies_when must be a non-empty list", errors)
         self.assertIn("key_rules must have 3 to 7 items", errors)
-        self.assertIn(
-            "signals item is not a plain YAML scalar: '*.proto'", errors
-        )
-        self.assertIn(
-            "key_rules item lacks a trailing (#anchor): 'One.'", errors
-        )
+        self.assertIn("signals item is not a plain YAML scalar: '*.proto'", errors)
+        self.assertIn("key_rules item lacks a trailing (#anchor): 'One.'", errors)
         self.assertIn(
             "key_rules item cites a missing heading: 'Two. (#missing)'", errors
         )
@@ -422,6 +422,205 @@ def write_page(root: pathlib.Path, name: str, skills: str, body: str = "") -> No
     )
 
 
+class PathGlobsTest(unittest.TestCase):
+    def test_optional_globs_compile_without_changing_text_hints(self) -> None:
+        for declaration, expected in (
+            ("", None),
+            (
+                'path_globs:\n  - "**/openapi*.y*ml"\n  - "**/*.proto"\n',
+                ["**/openapi*.y*ml", "**/*.proto"],
+            ),
+        ):
+            with self.subTest(declaration=declaration):
+                with tempfile.TemporaryDirectory() as directory:
+                    root = pathlib.Path(directory)
+                    write_page(root, "page.md", declaration)
+                    with mock.patch.object(playbook_index, "REPOSITORY_ROOT", root):
+                        entry = playbook_index.build_entries()[0]
+                self.assertEqual(entry.get("path_globs"), expected)
+                self.assertEqual(entry["signals"], ["agent"])
+                rendered = playbook_index.render_readme_section([entry])
+                if expected:
+                    self.assertIn("`**/openapi*.y*ml`", rendered)
+                else:
+                    self.assertNotIn("Path globs", rendered)
+
+    def test_malformed_glob_quoting_is_rejected(self) -> None:
+        for pattern in ("**/*.proto", '"**/*.proto', '"**/*.proto" extra'):
+            with self.subTest(pattern=pattern):
+                with tempfile.TemporaryDirectory() as directory:
+                    root = pathlib.Path(directory)
+                    write_page(root, "page.md", f"path_globs:\n  - {pattern}\n")
+                    with self.assertRaisesRegex(ValueError, "path_globs"):
+                        read_front_matter(root / "page.md")
+
+    def test_invalid_glob_metadata_is_rejected(self) -> None:
+        for declaration in (
+            "path_globs: not-a-list\n",
+            "path_globs:\n",
+            'path_globs:\n  - ""\n',
+            'path_globs:\n  - "**/*.proto"\n  - "**/*.proto"\n',
+            'path_globs:\n  - "/etc/*.yaml"\n',
+            'path_globs:\n  - "../other/*.yaml"\n',
+            'path_globs:\n  - "**"\n',
+            'path_globs:\n  - "**/*"\n',
+            'path_globs:\n  - "**/../*.yaml"\n',
+            'path_globs:\n  - "**/bad\\\\name"\n',
+        ):
+            with self.subTest(declaration=declaration):
+                with tempfile.TemporaryDirectory() as directory:
+                    root = pathlib.Path(directory)
+                    write_page(root, "page.md", declaration)
+                    errors = playbook_index.matching_metadata_errors(root / "page.md")
+                self.assertTrue(any("path_globs" in error for error in errors), errors)
+
+    def test_published_pages_declare_strict_paths_and_specific_hints(self) -> None:
+        generic = {"test", "tests/", "agent", "prompt", "skill", "trace", "mcp"}
+        for entry in playbook_index.build_entries():
+            with self.subTest(page=entry["path"]):
+                self.assertTrue(entry.get("path_globs"))
+                self.assertFalse(generic.intersection(entry["signals"]))
+
+    def test_published_patterns_match_topic_paths_without_generic_files(self) -> None:
+        examples = {
+            "building-ai-agents.md": "src/agent_loop.py",
+            "building-reliable-agents.md": "src/guardrails/output.py",
+            "ci-for-agentic-engineering.md": ".github/workflows/check.yml",
+            "contextual-retrieval.md": "src/retrieval/search.py",
+            "practices/agentic-sre/autonomy-and-approval.md": "config/autonomy_policy.json",
+            "practices/agentic-sre/blast-radius.md": "config/tool_permissions.json",
+            "practices/agentic-sre/drift.md": "src/drift_detection/check.py",
+            "practices/agentic-sre/incidents.md": "docs/runbooks/agent-outage.md",
+            "practices/agentic-sre/launch-review.md": "docs/launch-reviews/agent.md",
+            "practices/agentic-sre/observability.md": "config/otel/collector.yaml",
+            "practices/agentic-sre/postmortems.md": "docs/postmortems/agent-outage.md",
+            "practices/agentic-sre/releases.md": "src/system_prompts/assistant.txt",
+            "practices/agentic-sre/slos-and-error-budgets.md": "config/slos/agent.yaml",
+            "practices/engineering-standards/api-design.md": "api/openapi.yaml",
+            "practices/engineering-standards/data-intensive-systems.md": "db/migrations/001.sql",
+            "practices/engineering-standards/domain-driven-design.md": "src/domain/order.py",
+            "practices/engineering-standards/observability.md": "config/observability/alerts.yaml",
+            "practices/engineering-standards/performance-and-memory.md": "src/benchmarks/search.py",
+            "practices/engineering-standards/secure-reliable-systems.md": "docs/threat-models/api.md",
+            "practices/engineering-standards/code-style-and-static-analysis.md": "config/eslint.config.mjs",
+            "testing-in-agentic-engineering.md": "tests/test_index.py",
+        }
+        # index.json is the generated public path-selection contract.
+        entries = json.loads(
+            (REPOSITORY_ROOT / "index.json").read_text(encoding="utf-8")
+        )["playbooks"]
+        self.assertEqual(set(examples), {entry["path"] for entry in entries})
+        for entry in entries:
+            with self.subTest(page=entry["path"]):
+                patterns = entry["path_globs"]
+                self.assertTrue(
+                    any(
+                        fnmatch.fnmatchcase(examples[entry["path"]], p)
+                        for p in patterns
+                    )
+                )
+                for unrelated in (
+                    "README.md",
+                    "src/main.py",
+                    "docs/agent.md",
+                    "src/prompt.py",
+                    "src/trace.py",
+                    "src/test_utils.py",
+                    "docs/agent-notes.md",
+                    "src/skill.py",
+                    "src/mcp.py",
+                ):
+                    with self.subTest(unrelated=unrelated):
+                        self.assertFalse(
+                            any(fnmatch.fnmatchcase(unrelated, p) for p in patterns)
+                        )
+
+        fixtures = {path: {page} for page, path in examples.items()}
+        fixtures.update(
+            {
+                "openapi.yaml": {"practices/engineering-standards/api-design.md"},
+                "service.proto": {"practices/engineering-standards/api-design.md"},
+                ".github/workflows/ci.yml": {"ci-for-agentic-engineering.md"},
+                "config/otel-collector.yaml": {
+                    "practices/agentic-sre/observability.md",
+                    "practices/engineering-standards/observability.md",
+                },
+                "config/otel/collector.yaml": {
+                    "practices/agentic-sre/observability.md",
+                    "practices/engineering-standards/observability.md",
+                },
+                "config/slos/agent.yaml": {
+                    "practices/agentic-sre/slos-and-error-budgets.md",
+                    "practices/engineering-standards/observability.md",
+                },
+            }
+        )
+        fixtures.update(
+            {
+                prefix + name: {
+                    "practices/engineering-standards/code-style-and-static-analysis.md"
+                }
+                for name in (
+                    "eslint.config.mjs",
+                    ".prettierrc.json",
+                    "ruff.toml",
+                    ".golangci.yml",
+                    "clippy.toml",
+                    ".clang-tidy",
+                    ".rubocop.yml",
+                    "analysis_options.yaml",
+                    ".clippy.toml",
+                    "rustfmt.toml",
+                    ".rustfmt.toml",
+                    ".clang-format",
+                    ".editorconfig",
+                    "mypy.ini",
+                    ".mypy.ini",
+                    "pyrightconfig.json",
+                    ".scalafmt.conf",
+                    ".swiftlint.yml",
+                    ".swift-format",
+                    ".shellcheckrc",
+                    ".markdownlint.jsonc",
+                    ".sqlfluff",
+                    "eslint-suppressions.json",
+                    ".rubocop_todo.yml",
+                    "detekt.yml",
+                    "checkstyle.xml",
+                )
+                for prefix in ("", "config/", "packages/app/")
+            }
+        )
+        for path, expected in fixtures.items():
+            with self.subTest(path=path):
+                matched = {
+                    entry["path"]
+                    for entry in entries
+                    if any(fnmatch.fnmatchcase(path, p) for p in entry["path_globs"])
+                }
+                self.assertEqual(matched, expected)
+
+    def test_glob_only_drift_is_detected(self) -> None:
+        with tempfile.TemporaryDirectory() as directory:
+            root = pathlib.Path(directory)
+            write_page(root, "page.md", 'path_globs:\n  - "**/*.proto"\n')
+            readme = root / "README.md"
+            readme.write_text(
+                playbook_index.README_BEGIN + "\n" + playbook_index.README_END
+            )
+            with mock.patch.multiple(
+                playbook_index,
+                REPOSITORY_ROOT=root,
+                INDEX_PATH=root / "index.json",
+                README_PATH=readme,
+            ):
+                self.assertEqual(playbook_index.main([]), 0)
+                self.assertEqual(playbook_index.main(["--check"]), 0)
+                page = root / "page.md"
+                page.write_text(page.read_text().replace("**/*.proto", "**/*.graphql"))
+                self.assertEqual(playbook_index.main(["--check"]), 1)
+
+
 def write_allowlist(root: pathlib.Path) -> None:
     (root / "skills-public.json").write_text(
         json.dumps(
@@ -481,15 +680,16 @@ class PlaybookSkillsTest(unittest.TestCase):
                 self.assertIn("---", lines[1:])
                 metadata = {
                     key.strip(): value.strip()
-                    for line in lines[1:lines.index("---", 1)]
+                    for line in lines[1 : lines.index("---", 1)]
                     if line.strip()
                     for key, value in [line.split(":", 1)]
                 }
                 self.assertEqual(metadata["name"], name)
                 self.assertTrue(metadata["description"].strip("\"'"))
-                self.assertIn(f"`{name}`", (SKILLS_DIRECTORY / "README.md").read_text(
-                    encoding="utf-8"
-                ))
+                self.assertIn(
+                    f"`{name}`",
+                    (SKILLS_DIRECTORY / "README.md").read_text(encoding="utf-8"),
+                )
 
     def test_reliability_topics_match_the_exported_guides(self) -> None:
         topics = playbook_index.load_public_skills()[RELIABILITY_SKILL]["topics"]
@@ -564,7 +764,11 @@ class PlaybookSkillsTest(unittest.TestCase):
                     "topics": ["first-topic"],
                     "public_url": "https://example.com/linked-skill",
                 },
-                {"id": "private-skill", "description": "Does another thing.", "topics": []},
+                {
+                    "id": "private-skill",
+                    "description": "Does another thing.",
+                    "topics": [],
+                },
             ],
         )
         self.assertEqual(by_path["none.md"]["skills"], [])

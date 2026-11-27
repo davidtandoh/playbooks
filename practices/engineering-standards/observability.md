@@ -29,6 +29,13 @@ signals:
   - cardinality
   - sampling
   - collector
+path_globs:
+  - "**/observability/**"
+  - "**/telemetry/**"
+  - "**/otel*/**"
+  - "**/*otel-collector*.y*ml"
+  - "**/prometheus*.y*ml"
+  - "**/slos/**"
 key_rules:
   - Define good and valid events per user journey before choosing an SLO target. (#slis-slos-and-error-budgets)
   - Page on user-visible symptoms and require both windows of each burn-rate condition. (#alerts-that-protect-the-budget)
@@ -62,7 +69,7 @@ Public sources checked on 2026-11-26. The procedures and example choices below
 are recommendations for adopting these ideas, not claims about a deployment.
 
 - Google, *Site Reliability Engineering*:
-  [Monitoring Distributed Systems](https://sre.google/sre-book/monitoring-distributed-systems/)
+  [Monitoring Distributed Systems](https://sre.google/sre-book/monitoring-distributed-systems/),
   [Being On-Call](https://sre.google/sre-book/being-on-call/),
   [Service Level Objectives](https://sre.google/sre-book/service-level-objectives/),
   and [Eliminating Toil](https://sre.google/sre-book/eliminating-toil/).

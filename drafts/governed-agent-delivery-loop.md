@@ -209,6 +209,31 @@ A one-line permission change can matter more than a large internal refactor.
     **Observable result:** another engineer can reproduce the checks and continue
     without trusting the agent's memory.
 
+## Calibrate review quality
+
+Evaluate a review configuration on fixed, independently labelled changes with
+known defects and clean examples. Use redacted or synthetic cohorts; do not
+import raw transcripts. Hold expected findings outside the reviewer's writable
+context. Include permission, persistence and test-weakening defects, and keep
+agent skills, prompts and hooks at a high-risk review floor because they can
+change later agent behaviour.
+
+Report missed consequential defects, incorrect low-risk classifications,
+unsupported findings, duplicate comments, review duration and cost separately
+by consequence and change type. Accepted comments alone do not establish
+precision; recall requires independently known defects. Audit a sample of
+changes that received no finding. Prove the evaluation rejects a deliberately
+false-negative reviewer before trusting its gate. Run provider evaluations only
+within approved disclosure and cost limits.
+
+Use calibration to tune routing and noise after the existing finding-verification
+step. It does not grant merge authority or lower mandatory review floors. A
+quieter reviewer is useful only while detection meets the agreed target.
+These are operating recommendations informed by the public sections 1–3 of
+[What is happening with code reviews?](https://newsletter.pragmaticengineer.com/p/what-is-happening-with-code-reviews) and
+[Inside OpenAI’s software factory](https://newsletter.pragmaticengineer.com/p/openai-software-factory); those reports do not
+establish benchmark superiority for any review configuration.
+
 ## Failure modes
 
 | Failure | Detection | Recovery | Residual risk |
@@ -241,6 +266,7 @@ The claim classes in this draft are:
 | Scope, design, perform, and document testing; retain regression tests for previously reported vulnerabilities | `sourced` | [NIST SSDF 1.1, PW.8.2, page 15](https://nvlpubs.nist.gov/nistpubs/SpecialPublications/NIST.SP.800-218.pdf#page=23) |
 | A provenance record can identify where, when, and how a software artifact was produced | `sourced` | [SLSA 1.2: Provenance](https://slsa.dev/spec/v1.2/provenance) |
 | Use an isolated branch or worktree and keep one coherent change per delivery record | `practice` | This guide's operating recommendation; validate it against local repository and deployment controls |
+| Review calibration should measure missed defects and unsupported findings separately, without lowering mandatory risk floors | `practice` | Public code-review and software-factory reports linked in the calibration section motivate this evaluation; no local result is claimed |
 | Teams can encode the risk decision and evidence ledger as repository checks after the manual loop is stable | `proposal` | Evaluate only after repeated use identifies a deterministic rule with acceptable maintenance and false-positive cost |
 
 ## Limits

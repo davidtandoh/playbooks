@@ -25,6 +25,11 @@ signals:
   - watermark
   - stream processing
   - feature store
+path_globs:
+  - "**/migrations/**"
+  - "**/dbt/models/**"
+  - "**/stream_processing/**"
+  - "**/cdc/**"
 key_rules:
   - Choose storage from measured access patterns and write down the authoritative data owner. (#data-models-and-storage-engines)
   - Test both schema compatibility directions against every version still needed for replay or rollback. (#encoding-and-schema-evolution)
@@ -50,10 +55,16 @@ Skill: none yet.
 
 ## Sources
 
+- [Anthropic: Migrating our Messages API to Rust](https://www.anthropic.com/research/migrating-api-to-rust):
+  differential verification and independent production-parity checks.
+- [The Pragmatic Engineer: Typical migration approaches](https://blog.pragmaticengineer.com/typical-migration-approaches/):
+  public Part 1; temporary dependencies and migration risk.
+
 This is an original decision guide informed by the following public sources.
 The recommendations and synthetic examples are this playbook's synthesis;
-they are not quotations or claims of production results. Web references were
-checked on 2026-11-26. Pin product documentation to the deployed version.
+they are not quotations or claims of production results. The two additions
+above came from a reviewed public reading on 2026-11-27. Web references below
+were checked on 2026-11-26. Pin product documentation to the deployed version.
 Kafka links below target 4.1 and Avro targets 1.12.0. PostgreSQL `/current/`
 links, Flink `stable` links and other rolling guides can change after this
 review; select the matching release before applying product-specific advice.
@@ -265,6 +276,36 @@ Checks: block incompatible schema changes in continuous integration (CI).
 Keep serialized fixtures for supported versions and test mixed deployments,
 unknown fields, absent fields and rollback. Link exposed event contracts to
 [API design: webhooks and events](api-design.md#webhooks-and-events).
+
+### Verify a replacement against the running system
+
+Specify the parity verifier before translating the implementation or its tests.
+Define observable contracts: responses, errors, ordering, stored state, emitted
+events and side effects. Declare intentional differences, mismatch thresholds,
+representative request categories and rollback criteria before cutover. Extend
+[the staged store migration](#encoding-and-schema-evolution) with these checks
+when replacing a whole service.
+
+1. Compare old and new paths on the same representative inputs. Execute a
+   nondeterministic dependency once and replay its result to both paths.
+   Isolate candidate writes, billing, notifications and other side effects;
+   never duplicate live effects to obtain a comparison.
+2. Record bounded, privacy-safe mismatch fingerprints and checkpoints. Keep
+   raw payloads out of routine diagnostic records. Turn each new mismatch into
+   a synthetic reproducer and deduplicate it against known bugs. Give each
+   accepted intentional difference an owner and explicit acceptance evidence;
+   a known bug remains a mismatch until that decision is recorded.
+3. Use fast local reproducers for repairs, then an independent outer loop of
+   representative shadow comparisons by request category. A translated test
+   suite can share the replacement's mistakes. Review weakened assertions and
+   preserve an independent oracle; a high test pass rate is not parity.
+4. Keep both implementations aligned while they coexist. Check changes to
+   either path before merge, reconcile differences before cutover, and remove
+   the temporary verifier or dual path only after its recorded exit criteria.
+
+Anthropic's migration report supports this verification pattern, not a promise
+that matching one workload proves all behaviour. The thresholds and cutover
+rules above are operating recommendations; validate them for the service.
 
 ### Replication and consistency
 
@@ -618,6 +659,7 @@ Exercise full reconstruction before treating the derived store as disposable.
 
 ## Checklist
 
+- [ ] A replacement has an independent parity verifier, isolated side effects, mismatch dispositions and cutover evidence by request category.
 - [ ] Record source ownership, access patterns, invariants, retention and load assumptions.
 - [ ] Pin engine versions and document actual consistency, durability and isolation settings.
 - [ ] Pass schema, concurrency, retry and stale-writer tests at real component boundaries.
@@ -636,6 +678,8 @@ Exercise full reconstruction before treating the derived store as disposable.
 - Prefer the existing store and a bounded batch job until evidence requires more components.
 
 ## Claim review
+
+- [x] Replacement verification is sourced to the public migration reports; local thresholds are recommendations, with no claimed parity result.
 
 This page synthesizes the named sources in original wording. It contains no
 book excerpts, measured production outcomes or universal performance claims.

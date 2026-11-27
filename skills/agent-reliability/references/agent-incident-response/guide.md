@@ -17,6 +17,17 @@ and mutations with a human.
   pre-flight checks.
 - Mitigate before you find the root cause.
 - Evidence is preserved before anyone cleans up.
+- Independently check each leading hypothesis for disconfirming evidence.
+  Record the competing explanation and the observation that would reject it
+  before recommending remediation.
+- Keep operational memory notes unverified until verified utility or explicit
+  human review earns `Activated` status. Move contradicted notes to
+  `Quarantined`; exclude them from investigation context until revalidated.
+  Use the existing incident record or memory store, not a parallel store.
+- Keep incident assistance quiet by default. Escalate an unanswered question,
+  a stakeholder joining without context, an unproved claim of mitigation, or
+  a proposed risky action without a rollback plan. Escalation grants no
+  mutation authority.
 
 ## Workflow
 

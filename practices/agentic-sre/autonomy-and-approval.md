@@ -17,6 +17,10 @@ signals:
   - permissions
   - autonomy
   - human-in-the-loop
+path_globs:
+  - "**/agent_approvals/**"
+  - "**/autonomy_policy.*"
+  - "**/approval_policy.*"
 key_rules:
   - Grant no agent full access on day one. (#rules-of-thumb)
   - Record the autonomy level per action type, not one level per agent. (#rules-of-thumb)

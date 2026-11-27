@@ -20,6 +20,12 @@ signals:
   - endpoint
   - webhook
   - asyncapi
+path_globs:
+  - "**/openapi*.y*ml"
+  - "**/*.proto"
+  - "**/asyncapi*.y*ml"
+  - "openapi*.y*ml"
+  - "*.proto"
 key_rules:
   - Commit the OpenAPI document and lint it with the shared Spectral ruleset on every pull request. (#openapi-first-with-spectral-and-oasdiff)
   - Fail CI on breaking changes with oasdiff; break the contract only with a new major path version. (#versioning)
@@ -44,6 +50,8 @@ Skill: none yet.
 
 See [Data-intensive systems](data-intensive-systems.md) for storage consistency, schema evolution, transaction isolation and retry-safe effects behind API contracts.
 See [Domain-driven design](domain-driven-design.md) for model ownership, consistency boundaries, and the distinction between domain and integration events.
+
+See [Secure and reliable systems](secure-reliable-systems.md) for trust boundaries, credential rotation, bounded retries, and recovery checks.
 
 ## Sources
 

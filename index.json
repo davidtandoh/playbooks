@@ -33,8 +33,14 @@
         }
       ],
       "path": "building-ai-agents.md",
+      "path_globs": [
+        "**/agent_loop.*",
+        "**/agent_orchestrator.*",
+        "**/tool_definitions/**"
+      ],
       "signals": [
-        "agent",
+        "agent loop",
+        "agent orchestration",
         "tool use",
         "stop_reason",
         "orchestrator",
@@ -92,11 +98,16 @@
         }
       ],
       "path": "building-reliable-agents.md",
+      "path_globs": [
+        "**/guardrails/**",
+        "**/agent_evals/**",
+        "**/gen_ai/**"
+      ],
       "signals": [
         "opentelemetry",
         "gen_ai",
         "prompt caching",
-        "eval",
+        "agent evaluation",
         "guardrail",
         "sandbox",
         "token budget"
@@ -159,14 +170,20 @@
         }
       ],
       "path": "ci-for-agentic-engineering.md",
+      "path_globs": [
+        ".github/workflows/**",
+        ".pre-commit-config.yaml",
+        "scripts/gate.*",
+        "scripts/check.*"
+      ],
       "signals": [
         ".github/workflows",
         "github actions",
-        "workflow",
-        "ci",
+        "CI workflow",
+        "continuous integration",
         "merge queue",
         "merge_group",
-        "runner",
+        "CI runner",
         "flaky",
         "actionlint",
         "zizmor"
@@ -220,6 +237,12 @@
         }
       ],
       "path": "contextual-retrieval.md",
+      "path_globs": [
+        "**/retrieval/**",
+        "**/retriever.*",
+        "**/reranker.*",
+        "**/embeddings/**"
+      ],
       "signals": [
         "rag",
         "retrieval",
@@ -261,6 +284,11 @@
         }
       ],
       "path": "practices/agentic-sre/autonomy-and-approval.md",
+      "path_globs": [
+        "**/agent_approvals/**",
+        "**/autonomy_policy.*",
+        "**/approval_policy.*"
+      ],
       "signals": [
         "approval",
         "auto-merge",
@@ -313,6 +341,11 @@
         }
       ],
       "path": "practices/agentic-sre/blast-radius.md",
+      "path_globs": [
+        "**/tool_permissions.*",
+        "**/agent_permissions.*",
+        "**/tool_allowlist.*"
+      ],
       "signals": [
         "credentials",
         "api key",
@@ -361,10 +394,15 @@
         }
       ],
       "path": "practices/agentic-sre/drift.md",
+      "path_globs": [
+        "**/drift_detection/**",
+        "**/quality_monitoring/**",
+        "**/judge_calibration/**"
+      ],
       "signals": [
         "llm-as-judge",
-        "sampling",
-        "eval",
+        "quality sampling",
+        "agent evaluation",
         "model version",
         "quality dashboard"
       ],
@@ -409,6 +447,11 @@
         }
       ],
       "path": "practices/agentic-sre/incidents.md",
+      "path_globs": [
+        "**/runbooks/agent*/**",
+        "**/runbooks/*agent*.md",
+        "**/agent_incidents/**"
+      ],
       "signals": [
         "incident",
         "outage",
@@ -456,8 +499,12 @@
         }
       ],
       "path": "practices/agentic-sre/launch-review.md",
+      "path_globs": [
+        "**/launch-reviews/**",
+        "**/agent-readiness*.md"
+      ],
       "signals": [
-        "launch",
+        "agent launch",
         "design review",
         "readiness review",
         "go-live"
@@ -502,13 +549,18 @@
         }
       ],
       "path": "practices/agentic-sre/observability.md",
+      "path_globs": [
+        "**/otel*/**",
+        "**/*collector*.y*ml",
+        "**/agent_tracing/**"
+      ],
       "signals": [
         "opentelemetry",
         "gen_ai",
         "execute_tool",
         "span",
-        "trace",
-        "mcp"
+        "agent tracing",
+        "mcp tracing"
       ],
       "skills": [
         {
@@ -549,6 +601,10 @@
         }
       ],
       "path": "practices/agentic-sre/postmortems.md",
+      "path_globs": [
+        "**/postmortems/**",
+        "**/incident-reviews/**"
+      ],
       "signals": [
         "postmortem",
         "incident review",
@@ -598,13 +654,20 @@
         }
       ],
       "path": "practices/agentic-sre/releases.md",
+      "path_globs": [
+        "**/system_prompts/**",
+        "**/model_config.*",
+        "**/eval_suites/**",
+        "**/agent_canary/**"
+      ],
       "signals": [
         "model id",
-        "prompt",
-        "skill",
+        "system prompt",
+        "prompt versioning",
+        "agent skill release",
         "tool schema",
         "canary",
-        "eval"
+        "agent evaluation"
       ],
       "skills": [
         {
@@ -647,6 +710,11 @@
         }
       ],
       "path": "practices/agentic-sre/slos-and-error-budgets.md",
+      "path_globs": [
+        "**/slos/**",
+        "**/slo*.y*ml",
+        "**/error_budgets/**"
+      ],
       "signals": [
         "slo",
         "sli",
@@ -700,6 +768,13 @@
         }
       ],
       "path": "practices/engineering-standards/api-design.md",
+      "path_globs": [
+        "**/openapi*.y*ml",
+        "**/*.proto",
+        "**/asyncapi*.y*ml",
+        "openapi*.y*ml",
+        "*.proto"
+      ],
       "signals": [
         "openapi",
         "openapi.yaml",
@@ -711,6 +786,115 @@
       ],
       "skills": [],
       "title": "API design: one default per question, enforced by a linter"
+    },
+    {
+      "applies_when": [
+        "adding or changing formatters, linters, type checks, or compiler diagnostics",
+        "wiring static analysis into editor hooks, agent hooks, Git hooks, or CI",
+        "adopting static checks in a repository with existing diagnostic debt"
+      ],
+      "key_rules": [
+        {
+          "rule": "Give each static-check responsibility one repository-owned definition with pinned tools and explicit scope.",
+          "source": "practices/engineering-standards/code-style-and-static-analysis.md#define-the-repository-contract"
+        },
+        {
+          "rule": "Use edit feedback, staged-snapshot checks, and the full gate as separate enforcement layers.",
+          "source": "practices/engineering-standards/code-style-and-static-analysis.md#use-three-enforcement-layers"
+        },
+        {
+          "rule": "Bound edit-check latency, output, and concurrency; report deferred or timed-out checks as incomplete.",
+          "source": "practices/engineering-standards/code-style-and-static-analysis.md#budget-the-fast-path"
+        },
+        {
+          "rule": "Preserve unstaged work and partial staging; keep commit and CI checks non-mutating.",
+          "source": "practices/engineering-standards/code-style-and-static-analysis.md#format-safely"
+        },
+        {
+          "rule": "Reject new baseline debt and remove resolved allowances through a reviewed ratchet.",
+          "source": "practices/engineering-standards/code-style-and-static-analysis.md#ratchet-debt-and-exceptions"
+        },
+        {
+          "rule": "Propagate checker failures and fail on missing tools, invalid configuration, or crashes.",
+          "source": "practices/engineering-standards/code-style-and-static-analysis.md#preserve-failure-contracts"
+        },
+        {
+          "rule": "Run the same full static-check definition locally and in required CI checks, with source and scope evidence.",
+          "source": "practices/engineering-standards/code-style-and-static-analysis.md#prove-ci-parity"
+        }
+      ],
+      "path": "practices/engineering-standards/code-style-and-static-analysis.md",
+      "path_globs": [
+        "eslint.config.*",
+        "**/eslint.config.*",
+        ".prettierrc*",
+        "**/.prettierrc*",
+        "ruff.toml",
+        "**/ruff.toml",
+        ".golangci.*",
+        "**/.golangci.*",
+        "clippy.toml",
+        "**/clippy.toml",
+        ".clang-tidy",
+        "**/.clang-tidy",
+        ".rubocop.yml",
+        "**/.rubocop.yml",
+        "analysis_options.yaml",
+        "**/analysis_options.yaml",
+        ".clippy.toml",
+        "**/.clippy.toml",
+        "rustfmt.toml",
+        "**/rustfmt.toml",
+        ".rustfmt.toml",
+        "**/.rustfmt.toml",
+        ".clang-format",
+        "**/.clang-format",
+        ".editorconfig",
+        "**/.editorconfig",
+        "mypy.ini",
+        "**/mypy.ini",
+        ".mypy.ini",
+        "**/.mypy.ini",
+        "pyrightconfig.json",
+        "**/pyrightconfig.json",
+        ".scalafmt.conf",
+        "**/.scalafmt.conf",
+        ".swiftlint.yml",
+        "**/.swiftlint.yml",
+        ".swift-format",
+        "**/.swift-format",
+        ".shellcheckrc",
+        "**/.shellcheckrc",
+        ".markdownlint*",
+        "**/.markdownlint*",
+        ".sqlfluff",
+        "**/.sqlfluff",
+        "eslint-suppressions.json",
+        "**/eslint-suppressions.json",
+        ".rubocop_todo.yml",
+        "**/.rubocop_todo.yml",
+        "detekt.yml",
+        "**/detekt.yml",
+        "checkstyle.xml",
+        "**/checkstyle.xml",
+        ".pre-commit-config.yaml",
+        ".githooks/**"
+      ],
+      "signals": [
+        "code style",
+        "static analysis",
+        "lint",
+        "formatter",
+        "typecheck",
+        "pre-commit",
+        "lint-on-edit",
+        "suppression",
+        "clippy",
+        "clang-tidy",
+        "RuboCop"
+      ],
+      "skills": [],
+      "title": "Code style and static analysis: enforce the rules early"
     },
     {
       "applies_when": [
@@ -749,6 +933,12 @@
         }
       ],
       "path": "practices/engineering-standards/data-intensive-systems.md",
+      "path_globs": [
+        "**/migrations/**",
+        "**/dbt/models/**",
+        "**/stream_processing/**",
+        "**/cdc/**"
+      ],
       "signals": [
         "data-intensive",
         "storage engine",
@@ -802,13 +992,18 @@
         }
       ],
       "path": "practices/engineering-standards/domain-driven-design.md",
+      "path_globs": [
+        "**/domain/**",
+        "**/aggregates/**",
+        "**/architecture_tests/**"
+      ],
       "signals": [
         "domain-driven design",
         "bounded context",
         "aggregate",
         "ubiquitous language",
         "domain event",
-        "repository",
+        "domain repository",
         "hexagonal",
         "ports and adapters"
       ],
@@ -863,6 +1058,14 @@
         }
       ],
       "path": "practices/engineering-standards/observability.md",
+      "path_globs": [
+        "**/observability/**",
+        "**/telemetry/**",
+        "**/otel*/**",
+        "**/*otel-collector*.y*ml",
+        "**/prometheus*.y*ml",
+        "**/slos/**"
+      ],
       "signals": [
         "observability",
         "telemetry",
@@ -919,6 +1122,12 @@
         }
       ],
       "path": "practices/engineering-standards/performance-and-memory.md",
+      "path_globs": [
+        "**/benchmarks/**",
+        "**/benchmark_*.*",
+        "**/*_benchmark.*",
+        "**/jmh/**"
+      ],
       "signals": [
         "performance",
         "latency",
@@ -942,6 +1151,67 @@
       ],
       "skills": [],
       "title": "Performance and memory: budgets before building"
+    },
+    {
+      "applies_when": [
+        "designing or changing trust boundaries in a data platform, ML platform, or service",
+        "adding dependency access, credentials, recovery paths, or deployment controls",
+        "reviewing overload behaviour, resilience tests, or incident readiness"
+      ],
+      "key_rules": [
+        {
+          "rule": "Authenticate each caller and authorize each resource operation with least privilege; deny by default.",
+          "source": "practices/engineering-standards/secure-reliable-systems.md#least-privilege-and-zero-trust"
+        },
+        {
+          "rule": "Parse untrusted input into validated domain types and enforce safe defaults through shared APIs.",
+          "source": "practices/engineering-standards/secure-reliable-systems.md#safe-construction-and-untrusted-input"
+        },
+        {
+          "rule": "Bound tenant resource use and isolate failure domains with independent controls.",
+          "source": "practices/engineering-standards/secure-reliable-systems.md#defence-in-depth-and-blast-radius"
+        },
+        {
+          "rule": "Use short-lived credentials and prove rotation and revocation without exposing secrets.",
+          "source": "practices/engineering-standards/secure-reliable-systems.md#secrets-and-rotation"
+        },
+        {
+          "rule": "Pin build inputs and verify artifact provenance against an explicit deployment policy.",
+          "source": "practices/engineering-standards/secure-reliable-systems.md#supply-chain-security"
+        },
+        {
+          "rule": "Bound retries by deadlines and budgets; make replay safe before enabling retries.",
+          "source": "practices/engineering-standards/secure-reliable-systems.md#recovery-and-overload"
+        },
+        {
+          "rule": "Rehearse recovery, canary aborts, and incident access before release.",
+          "source": "practices/engineering-standards/secure-reliable-systems.md#verification-and-incident-readiness"
+        }
+      ],
+      "path": "practices/engineering-standards/secure-reliable-systems.md",
+      "path_globs": [
+        "**/threat-models/**",
+        "**/security_policies/**",
+        "**/network-policies/**",
+        "**/secret_rotation/**"
+      ],
+      "signals": [
+        "least privilege",
+        "zero trust",
+        "threat model",
+        "untrusted input",
+        "secret rotation",
+        "supply chain",
+        "provenance",
+        "retry",
+        "backoff",
+        "load shedding",
+        "rollback",
+        "recovery",
+        "incident readiness"
+      ],
+      "skills": [],
+      "title": "Secure and reliable systems: make the safe path the default"
     },
     {
       "applies_when": [
@@ -981,17 +1251,25 @@
         }
       ],
       "path": "testing-in-agentic-engineering.md",
+      "path_globs": [
+        "**/*_test.py",
+        "**/*.test.*",
+        "**/*.spec.*",
+        "tests/**",
+        "pytest.ini",
+        "**/conftest.py"
+      ],
       "signals": [
-        "test",
-        "tests/",
+        "test suite",
+        "test design",
         "pytest",
         "unittest",
-        "mock",
-        "fixture",
+        "test mock",
+        "test fixture",
         "hypothesis",
         "mutation testing",
-        "coverage",
-        "snapshot"
+        "test coverage",
+        "snapshot testing"
       ],
       "skills": [
         {

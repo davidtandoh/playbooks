@@ -17,6 +17,10 @@ signals:
   - service account
   - mcp server
   - tool definition
+path_globs:
+  - "**/tool_permissions.*"
+  - "**/agent_permissions.*"
+  - "**/tool_allowlist.*"
 key_rules:
   - Keep authorization downstream of the model; a system prompt is not a control. (#rules-of-thumb)
   - Give each agent its own short-lived, scoped credentials; no shared or developer credentials. (#at-a-glance)
