@@ -62,8 +62,9 @@ Skill: none yet.
 
 This is an original decision guide informed by the following public sources.
 The recommendations and synthetic examples are this playbook's synthesis;
-they are not quotations or claims of production results. Web references were
-checked on 2026-11-26. Pin product documentation to the deployed version.
+they are not quotations or claims of production results. The two additions
+above came from a reviewed public reading on 2026-11-27. Web references below
+were checked on 2026-11-26. Pin product documentation to the deployed version.
 Kafka links below target 4.1 and Avro targets 1.12.0. PostgreSQL `/current/`
 links, Flink `stable` links and other rolling guides can change after this
 review; select the matching release before applying product-specific advice.

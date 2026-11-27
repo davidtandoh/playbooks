@@ -52,26 +52,7 @@ and mutations with a human.
 
 ### Disconfirm hypotheses and validate memory
 
-For each leading hypothesis, name a predicted observation and a check that
-could refute it. Use a separate read-only verification pass to examine the
-underlying evidence and at least one credible alternative. Keep missing evidence
-and unresolved contradictions explicit. Each recommendation names its expected
-effect, risks, recovery path and the observation that would show it failed.
-The incident commander keeps decision authority.
-
-Keep new incident notes provisional in the existing incident or memory record.
-Promote a note to `Activated` only after its claim is validated or its usefulness
-is verified. Mark a contradicted or stale note `Quarantined`; exclude it from
-causal claims and retrieval used to guide action until revalidation. Preserve
-its source, date, exclusion reason and superseding evidence. These are two
-operational states for reusable notes, not a new memory store or a claim that
-provisional notes are verified facts.
-
-Keep assistance quiet by default. Surface evidence when someone claims
-“mitigated” without an outcome check, or announces a risky action without a
-rollback or recovery plan. Route the concern to the incident commander. Quiet
-assistance never suppresses pages, delays critical or unknown alerts, or grants
-permission to act.
+Apply the [incident playbook’s hypothesis, memory and assistance rules](../../../../practices/agentic-sre/incidents.md#disconfirm-hypotheses-and-validate-memory).
 
 ## Output template
 
@@ -109,8 +90,5 @@ names. Write only the requested incident record or runbook draft. Do not run
 mitigations or mutations; the incident commander approves and executes them.
 
 ## Sources
-
-- [The Pragmatic Engineer: AI SRE](https://newsletter.pragmaticengineer.com/p/ai-sre), public sections 1–3:
-  independent hypothesis verification and validated operational memory.
 
 See [PROVENANCE.md](PROVENANCE.md). Concepts are cited; wording is original.

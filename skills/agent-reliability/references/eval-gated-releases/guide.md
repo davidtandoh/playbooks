@@ -51,13 +51,10 @@ Detect immediate and gradual regressions before a change reaches all traffic.
 | Canary infrastructure is green, task success drops | Abort and roll back |
 | Many changes landed after the bad one | Disable by flag or fix forward |
 
-- Trial removing one model-specific workaround at a time against the unchanged
-  known-good baseline. Keep authorization, isolation, privacy and audit controls
-  outside the experiment.
-- Retain a removal only after per-slice quality, safety, cost and latency checks
-  pass. Record evidence and a reversible configuration. Verify deployed service
-  outcomes with the
-  [safe rollout guidance](../../../../practices/engineering-standards/secure-reliable-systems.md#safe-rollout-and-rollback).
+For model or harness changes, apply the
+[release playbook’s workaround-removal rules](../../../../practices/agentic-sre/releases.md#decision-guide).
+For deployed service outcomes, use the
+[safe rollout guidance](../../../../practices/engineering-standards/secure-reliable-systems.md#safe-rollout-and-rollback).
 
 ## Output template
 
@@ -95,8 +92,5 @@ Write only the requested gate report or eval-case proposals. Do not deploy,
 promote, roll back or change a baseline; the release owner decides.
 
 ## Sources
-
-- [Anthropic: Scaling Managed Agents](https://www.anthropic.com/research/managed-agents):
-  an obsolete model-specific context-reset workaround.
 
 See [PROVENANCE.md](PROVENANCE.md). Concepts are cited; wording is original.
