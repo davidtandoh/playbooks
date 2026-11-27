@@ -41,6 +41,9 @@ Skill: `agent-reliability`, topic `agent-incident-response` (see the
 
 ## Sources
 
+- [The Pragmatic Engineer: AI SRE](https://newsletter.pragmaticengineer.com/p/ai-sre): public sections 1–3
+  describe independent verification and operational-memory validation; the paid
+  accuracy section is not used.
 - [Google SRE: AI in SRE, engineering reliable operations](https://sre.google/resources/practices-and-processes/ai-engineering-reliable-operations/)
 - [Google SRE book: Managing incidents](https://sre.google/sre-book/managing-incidents/)
 - [medzin/sre-runbook-agent-skills](https://github.com/medzin/sre-runbook-agent-skills)
@@ -72,8 +75,34 @@ separate agent behind pre-flight checks. Use the same split.
 - If observed state diverges from the runbook, then the agent stops and hands
   back to the incident commander.
 
+### Disconfirm hypotheses and validate memory
+
+For each leading hypothesis, name a predicted observation and a check that
+could refute it. Use a separate read-only verification pass to examine the
+underlying evidence and at least one credible alternative. Keep missing evidence
+and unresolved contradictions explicit. Each recommendation names its expected
+effect, risks, recovery path and the observation that would show it failed.
+The incident commander keeps decision authority.
+
+Keep new incident notes provisional in the existing incident or memory record.
+Promote a note to `Activated` only after its claim is validated or its usefulness
+is verified. Mark a contradicted or stale note `Quarantined`; exclude it from
+causal claims and retrieval used to guide action until revalidation. Preserve
+its source, date, exclusion reason and superseding evidence. These are two
+operational states for reusable notes, not a new memory store or a claim that
+provisional notes are verified facts.
+
+Keep assistance quiet by default. Surface evidence when someone claims
+“mitigated” without an outcome check, or announces a risky action without a
+rollback or recovery plan. Route the concern to the incident commander. Quiet
+assistance never suppresses pages, delays critical or unknown alerts, or grants
+permission to act.
+
 ## Checklist
 
+- [ ] A separate verification pass records disconfirming checks, a credible alternative and unknowns.
+- [ ] Reusable notes have validated Activated or excluded Quarantined status; new notes remain provisional.
+- [ ] Unproved mitigation and risky actions without recovery plans reach the commander without suppressing alerts.
 - [ ] The incident is declared early and the three human roles are named.
 - [ ] Investigation agents have read-only access.
 - [ ] Runbooks state trigger, read-only diagnostics, risk-tiered actions, expected result after each step, rollback, escalation, and a stop rule.
@@ -93,6 +122,7 @@ separate agent behind pre-flight checks. Use the same split.
 
 ## Claim review
 
+- [x] Hypothesis and memory controls adapt the public AI SRE examples; they make no incident-accuracy claim.
 - [x] Every figure traces to a cited source or is labelled Own experience.
 - [x] Every factual claim stays within the cited evidence.
 - [x] Evidence limits and qualifiers remain explicit.

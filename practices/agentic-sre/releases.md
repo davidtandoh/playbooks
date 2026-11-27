@@ -44,6 +44,8 @@ Skill: `agent-reliability`, topic `eval-gated-releases` (see the
 
 ## Sources
 
+- [Anthropic: Scaling Managed Agents](https://www.anthropic.com/research/managed-agents):
+  a model-specific context-reset workaround became unnecessary after an upgrade.
 - [Stack Overflow Blog: Evals as a deployment gate, and how to know when they drift](https://stackoverflow.blog/2026/10/07/evals-as-a-deployment-gate-and-how-to-know-when-they-drift)
 - [Anthropic: Demystifying evals for AI agents](https://www.anthropic.com/engineering/demystifying-evals-for-ai-agents)
 - [Hamel Husain: Your AI product needs evals](https://hamel.dev/blog/posts/evals/)
@@ -76,9 +78,17 @@ Skill: `agent-reliability`, topic `eval-gated-releases` (see the
   layers and score diagnosis and mitigation.
 - If you run chaos experiments on agents, then clamp the blast radius and
   define abort conditions before the run starts.
+- When a model or harness changes, trial removing one obsolete workaround at a
+  time against the unchanged known-good baseline. Keep authorization,
+  isolation, privacy and audit controls outside the experiment.
+- Keep a removal only after per-slice quality, safety, cost and latency checks
+  pass; retain the evidence and a reversible configuration. For deployed
+  service behaviour, use
+  [post-deploy outcome checks](../engineering-standards/secure-reliable-systems.md#safe-rollout-and-rollback).
 
 ## Checklist
 
+- [ ] Each workaround-removal trial changes one workaround, preserves mandatory controls and records baseline comparison and recovery.
 - [ ] Every release artefact is versioned and recorded on traces.
 - [ ] The golden eval set comes from real traces, including postmortem failures.
 - [ ] Graders are binary, and each grader has a sensitivity test.
@@ -98,6 +108,7 @@ Skill: `agent-reliability`, topic `eval-gated-releases` (see the
 
 ## Claim review
 
+- [x] Workaround removal is a controlled experiment informed by a public example, not evidence that every workaround is obsolete.
 - [x] Every figure traces to a cited source or is labelled Own experience.
 - [x] Every factual claim stays within the cited evidence.
 - [x] Evidence limits and qualifiers remain explicit.

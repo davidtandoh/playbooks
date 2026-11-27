@@ -51,6 +51,11 @@ Detect immediate and gradual regressions before a change reaches all traffic.
 | Canary infrastructure is green, task success drops | Abort and roll back |
 | Many changes landed after the bad one | Disable by flag or fix forward |
 
+For model or harness changes, apply the
+[release playbook’s workaround-removal rules](../../../../practices/agentic-sre/releases.md#decision-guide).
+For deployed service outcomes, use the
+[safe rollout guidance](../../../../practices/engineering-standards/secure-reliable-systems.md#safe-rollout-and-rollback).
+
 ## Output template
 
 ```text

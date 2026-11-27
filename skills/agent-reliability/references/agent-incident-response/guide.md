@@ -50,6 +50,10 @@ and mutations with a human.
 | Rollback would remove needed fixes | Prefer a feature flag or a fix forward |
 | Observed state diverges from the runbook | Retry only for the declared retryable outcome; otherwise stop |
 
+### Disconfirm hypotheses and validate memory
+
+Apply the [incident playbook’s hypothesis, memory and assistance rules](../../../../practices/agentic-sre/incidents.md#disconfirm-hypotheses-and-validate-memory).
+
 ## Output template
 
 ```text

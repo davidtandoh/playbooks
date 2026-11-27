@@ -15,6 +15,7 @@
 
 ## Sources
 
+- Anthropic, "Scaling Managed Agents: Decoupling the brain from the hands" (obsolete model-specific context-reset workaround; summarised): https://www.anthropic.com/research/managed-agents
 - SRE Workbook, "Canarying Releases": https://sre.google/workbook/canarying-releases/
 - Google, *Site Reliability Engineering* (2016), *The Site Reliability Workbook* (2018) and the second edition (O'Reilly, 2026), cited by chapter title only: https://sre.google/books/ (book text is not reproduced; second-edition chapter numbers are provisional)
 - Google SRE, "AI in SRE: How Google is Engineering the Future of Reliable Operations" (no licence notice; paraphrased): https://sre.google/resources/practices-and-processes/ai-engineering-reliable-operations/

@@ -15,6 +15,7 @@
 
 ## Sources
 
+- The Pragmatic Engineer, "AI SRE" (public sections 1–3; independent hypothesis verification and validated operational memory; summarised): https://newsletter.pragmaticengineer.com/p/ai-sre
 - Google, *Site Reliability Engineering* (2016), *The Site Reliability Workbook* (2018) and the second edition (O'Reilly, 2026), cited by chapter title only: https://sre.google/books/ (book text is not reproduced; second-edition chapter numbers are provisional)
 - Google SRE, "AI in SRE: How Google is Engineering the Future of Reliable Operations" (no licence notice; paraphrased): https://sre.google/resources/practices-and-processes/ai-engineering-reliable-operations/
 - medzin/sre-runbook-agent-skills (MIT; author, reviewer and executor roles): https://github.com/medzin/sre-runbook-agent-skills

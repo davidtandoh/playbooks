@@ -59,7 +59,13 @@ Skill: none yet.
 
 ## Sources
 
-Primary sources consulted on 2026-11-26. All guidance is written in original
+- [The Pragmatic Engineer: Inside OpenAI’s software factory](https://newsletter.pragmaticengineer.com/p/openai-software-factory):
+  public sections 1–3 report per-change deployment observation.
+- [Anthropic: Migrating our Messages API to Rust](https://www.anthropic.com/research/migrating-api-to-rust):
+  independent outer verification beyond local tests.
+
+The two additions above were reviewed on 2026-11-27. The primary sources below
+were consulted on 2026-11-26. All guidance is written in original
 words; the examples are synthetic.
 
 - [Building Secure and Reliable Systems](https://google.github.io/building-secure-and-reliable-systems/raw/toc.html),
@@ -429,6 +435,22 @@ versions needed for recovery.
 4. Abort expansion on a breach and execute the tested recovery path. Verify
    restored behaviour and data integrity before resuming.
 
+Before release, put a concrete post-deploy check in the delivery handoff.
+Derive it from the diff: name the target endpoint or feature flag, expected
+version marker, and real-content or contract assertion. After an authorized
+release, verify the deployed version and flag state, then observe the changed
+user behaviour. An HTTP 200 can come from a catch-all route; assert the intended
+content or contract as well as the status.
+
+Record environment, version, flag state, observation window, traffic coverage,
+expected result and observed result. Compare relevant errors, latency and
+saturation with a control. Report merged, deployed and observed states
+separately. An old version, disabled flag or insufficient representative sample
+means the outcome remains unverified. Keep observation read-only: the verifier
+reports failure to the release owner; deployment, flag changes and recovery
+still require their existing authority. Apply the same outcome check after
+rollback before declaring recovery.
+
 Code rollback cannot undo a destructive migration, emitted events, or an
 external write. Use staged schema changes with a documented compatibility
 window when real consumers require it. Otherwise plan a restore, compensating
@@ -500,6 +522,7 @@ agent evaluation gates, and agent-specific incident response.
 
 ## Checklist
 
+- [ ] The handoff names a diff-derived post-deploy check; version, flag state, real behaviour and representative observations are recorded without granting mutation authority.
 - [ ] Each trust boundary names the identity, resource, policy owner, and denial path.
 - [ ] Unsafe inputs and configuration cannot bypass the shared safe API.
 - [ ] Tenant resource limits and failure domains have executable checks.
@@ -517,6 +540,7 @@ agent evaluation gates, and agent-specific incident response.
 
 ## Claim review
 
+- [x] Post-deploy checks are operating recommendations informed by public reporting and the migration verification loop, not a claimed deployment result.
 - [x] Sources support the design principles; decision tables are local recommendations.
 - [x] The export example is synthetic and makes no production performance claim.
 - [x] Service checks are required follow-up, not tools installed by this page.
