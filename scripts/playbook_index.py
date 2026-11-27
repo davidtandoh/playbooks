@@ -19,7 +19,6 @@ import posixpath
 import re
 import sys
 
-
 REPOSITORY_ROOT = pathlib.Path(__file__).resolve().parents[1]
 INDEX_PATH = REPOSITORY_ROOT / "index.json"
 README_PATH = REPOSITORY_ROOT / "README.md"
@@ -30,7 +29,9 @@ PAGE_SKILLS_BEGIN = "<!-- playbook-skills:v1:begin -->"
 PAGE_SKILLS_END = "<!-- playbook-skills:v1:end -->"
 PAGE_SKILLS_HEADING = "## Skills that put this into practice"
 NO_SKILLS = "none"
-SKILL_REFERENCE = re.compile(r"([a-z0-9]+(?:-[a-z0-9]+)*)(?:/([a-z0-9]+(?:-[a-z0-9]+)*))?")
+SKILL_REFERENCE = re.compile(
+    r"([a-z0-9]+(?:-[a-z0-9]+)*)(?:/([a-z0-9]+(?:-[a-z0-9]+)*))?"
+)
 SKILL_ENTRY_KEYS = {"description", "public_url", "topics"}
 SKILL_DESCRIPTION_LIMIT = 240
 MATCHING_KEYS = ("applies_when", "signals", "key_rules")
@@ -68,12 +69,16 @@ def read_front_matter(path: pathlib.Path) -> dict[str, object]:
                 raise ValueError(f"{path.name} has malformed list metadata")
             if current_list == "path_globs" and not value.startswith('"'):
                 if value.startswith(YAML_INDICATORS) or ": " in value or " #" in value:
-                    raise ValueError(f"{path.name} path_globs requires double-quoted patterns")
+                    raise ValueError(
+                        f"{path.name} path_globs requires double-quoted patterns"
+                    )
             if current_list == "path_globs" and value.startswith('"'):
                 try:
                     value = json.loads(value)
                 except json.JSONDecodeError as error:
-                    raise ValueError(f"{path.name} has malformed path_globs quoting") from error
+                    raise ValueError(
+                        f"{path.name} has malformed path_globs quoting"
+                    ) from error
                 if not isinstance(value, str):
                     raise ValueError(f"{path.name} path_globs items must be strings")
             items.append(value)
@@ -179,7 +184,9 @@ def matching_metadata_errors(path: pathlib.Path) -> list[str]:
                     or any(character.isspace() for character in pattern)
                     or not re.search(r"[a-zA-Z0-9_-]", pattern)
                 ):
-                    errors.append(f"path_globs item must be a specific relative POSIX glob: {pattern!r}")
+                    errors.append(
+                        f"path_globs item must be a specific relative POSIX glob: {pattern!r}"
+                    )
     rules = metadata.get("key_rules")
     low, high = KEY_RULES_RANGE
     if isinstance(rules, list) and not low <= len(rules) <= high:
@@ -276,8 +283,12 @@ def skills_metadata_errors(
         if reference is None:
             errors.append(f"skills item is not <id> or <id>/<topic>: {item!r}")
         elif reference[1] not in skills:
-            errors.append(f"skills item names a skill outside skills-public.json: {item!r}")
-        elif reference[2] and reference[2] not in skills[reference[1]].get("topics", []):
+            errors.append(
+                f"skills item names a skill outside skills-public.json: {item!r}"
+            )
+        elif reference[2] and reference[2] not in skills[reference[1]].get(
+            "topics", []
+        ):
             errors.append(f"skills item names an unknown topic: {item!r}")
     return errors
 
@@ -411,12 +422,17 @@ def render_page(text: str, entry: dict[str, object]) -> str:
     before, begin, rest = text.partition(PAGE_SKILLS_BEGIN)
     _, end, after = rest.partition(PAGE_SKILLS_END)
     if not begin or not end:
-        raise ValueError(f"{path} declares skills but lacks the {PAGE_SKILLS_BEGIN} markers")
+        raise ValueError(
+            f"{path} declares skills but lacks the {PAGE_SKILLS_BEGIN} markers"
+        )
     return before + render_page_skills(entry) + after
 
 
 def render_index(entries: list[dict[str, object]]) -> str:
-    return json.dumps({"version": 1, "playbooks": entries}, indent=2, sort_keys=True) + "\n"
+    return (
+        json.dumps({"version": 1, "playbooks": entries}, indent=2, sort_keys=True)
+        + "\n"
+    )
 
 
 def render_readme_section(entries: list[dict[str, object]]) -> str:
@@ -497,7 +513,8 @@ def main(argv: list[str]) -> int:
         ]
         if stale:
             print(
-                "Stale: " + ", ".join(stale)
+                "Stale: "
+                + ", ".join(stale)
                 + ". Run python3 scripts/playbook_index.py",
                 file=sys.stderr,
             )

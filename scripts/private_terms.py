@@ -28,7 +28,6 @@ import sys
 from collections.abc import Iterable, Iterator
 from typing import Optional
 
-
 REPOSITORY_ROOT = pathlib.Path(__file__).resolve().parents[1]
 MAX_PHRASE_TOKENS = 3
 TOKEN_PATTERN = re.compile(r"[a-z0-9]+")
@@ -85,8 +84,7 @@ def tracked_files(root: pathlib.Path = REPOSITORY_ROOT) -> list[pathlib.Path]:
     result = subprocess.run(
         ["git", "ls-files", "--cached", "-z"],
         cwd=root,
-        stdout=subprocess.PIPE,
-        stderr=subprocess.PIPE,
+        capture_output=True,
         check=True,
     )
     return sorted(

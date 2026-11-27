@@ -1,0 +1,24 @@
+{
+  "globs": ["**/*.md"],
+  "ignores": ["node_modules/**", ".venv/**"],
+  "config": {
+    // Structural correctness only; prose layout, HTML, and line length are optional.
+    "default": false,
+    "MD001": true,
+    "MD018": true,
+    "MD019": true,
+    "MD020": true,
+    "MD021": true,
+    "MD023": true,
+    "MD025": { "front_matter_title": "" },
+    "MD031": true,
+    "MD040": true,
+    "MD046": true,
+    "MD048": true,
+    "MD051": true,
+    "MD053": true,
+    "MD055": true,
+    "MD056": true,
+    "MD058": true
+  }
+}

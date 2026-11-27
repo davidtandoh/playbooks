@@ -1,0 +1,13 @@
+{
+  "name": "playbooks-checks",
+  "private": true,
+  "engines": {
+    "node": ">=22"
+  },
+  "scripts": {
+    "check": "markdownlint-cli2 && python3 -m ruff check . && python3 -m ruff format --check . && python3 scripts/private_terms.py scan && python3 -m unittest discover -s tests -v"
+  },
+  "devDependencies": {
+    "markdownlint-cli2": "0.24.2"
+  }
+}
