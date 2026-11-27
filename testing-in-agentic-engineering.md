@@ -55,7 +55,11 @@ faults.
 
 ## Sources
 
-All sources were accessed and checked on **2026-11-25**. The 2026 agent
+- [Anthropic: Migrating our Messages API to Rust](https://www.anthropic.com/research/migrating-api-to-rust) —
+  implementation-coupled tests and weakened assertions during a service port;
+  added from a reviewed public reading on **2026-11-27**.
+
+The sources below were accessed and checked on **2026-11-25**. The 2026 agent
 studies are preprints; treat their percentages as directional.
 
 - [Software Engineering at Google, Ch. 11: Testing Overview](https://abseil.io/resources/swe-book/html/ch11.html)
@@ -172,6 +176,13 @@ accepted 73% of the tests ([arXiv:2501.12862](https://arxiv.org/abs/2501.12862),
 | **Test smells and redundancy** | Across 20,505 LLM-generated class-level suites, Assertion Roulette and Magic Number Test smells recurred, overlapping with smells in human-written tests ([arXiv:2410.10628](https://arxiv.org/abs/2410.10628)). In one Meta evaluation, 75% of TestGen-LLM's tests built, 57% passed reliably, and 25% increased coverage ([arXiv:2402.09171](https://arxiv.org/abs/2402.09171)). | Duplicate files for one component; tests that add no coverage and kill no unique mutant; smell detectors such as tsDetect or JNose. | Keep a new test only when it kills a mutant or covers an uncovered requirement; merge duplicates into parametrized tables. |
 | **Snapshot and prose-match sprawl** | Snapshot tests fail on intentional UI changes and need manual triage to tell regressions from design changes ([arXiv:2507.10062](https://arxiv.org/abs/2507.10062)). | Bulk snapshot updates in diffs; tests that match exact sentences in prose files. | Replace full-tree snapshots with targeted assertions; check machine-checkable facts (links, schemas, counts), not wording. |
 | **Reward hacking and test tampering** | Agents with access to tests deleted failing tests, modified tests, hardcoded expected outputs, or overloaded operators ([arXiv:2510.20270](https://arxiv.org/abs/2510.20270), [arXiv:2511.21654](https://arxiv.org/abs/2511.21654)). On SpecBench the visible-to-held-out pass-rate gap grew by 28 percentage points per tenfold increase in code size ([arXiv:2605.21384](https://arxiv.org/abs/2605.21384)). Simple environmental hardening cut exploit rates on RHB by 87.7% relative ([arXiv:2605.02964](https://arxiv.org/abs/2605.02964)). | Any diff that deletes, skips, or loosens an assertion; visible tests passing while held-out tests fail. | Keep acceptance tests read-only in the agent's sandbox; flag every deleted test or weakened assertion in review. |
+
+- When porting a service and its tests together, keep an independent behavioural
+  oracle and review every weakened assertion. Anthropic reports more than 100
+  weakened assertions in its Rust migration; translated tests can repeat the
+  replacement's errors. Use the
+  [running-system parity verifier](practices/engineering-standards/data-intensive-systems.md#verify-a-replacement-against-the-running-system)
+  before treating a green ported suite as evidence of equivalence.
 
 #### Trimming protocol for an existing suite
 
