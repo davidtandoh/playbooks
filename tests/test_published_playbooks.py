@@ -213,6 +213,7 @@ ENGINEERING_STANDARDS_DIRECTORY = (
 )
 ENGINEERING_STANDARDS_INDEX = ENGINEERING_STANDARDS_DIRECTORY / "README.md"
 API_DESIGN_PAGE = ENGINEERING_STANDARDS_DIRECTORY / "api-design.md"
+OBSERVABILITY_PAGE = ENGINEERING_STANDARDS_DIRECTORY / "observability.md"
 PERFORMANCE_PAGE = ENGINEERING_STANDARDS_DIRECTORY / "performance-and-memory.md"
 DOMAIN_DRIVEN_DESIGN_PAGE = ENGINEERING_STANDARDS_DIRECTORY / "domain-driven-design.md"
 DATA_INTENSIVE_PAGE = ENGINEERING_STANDARDS_DIRECTORY / "data-intensive-systems.md"
@@ -220,6 +221,7 @@ SECURE_RELIABLE_PAGE = ENGINEERING_STANDARDS_DIRECTORY / "secure-reliable-system
 CODE_STYLE_PAGE = ENGINEERING_STANDARDS_DIRECTORY / "code-style-and-static-analysis.md"
 ENGINEERING_PAGES = (
     API_DESIGN_PAGE,
+    OBSERVABILITY_PAGE,
     PERFORMANCE_PAGE,
     DOMAIN_DRIVEN_DESIGN_PAGE,
     DATA_INTENSIVE_PAGE,
@@ -497,6 +499,7 @@ class PathGlobsTest(unittest.TestCase):
             "practices/engineering-standards/api-design.md": "api/openapi.yaml",
             "practices/engineering-standards/data-intensive-systems.md": "db/migrations/001.sql",
             "practices/engineering-standards/domain-driven-design.md": "src/domain/order.py",
+            "practices/engineering-standards/observability.md": "config/observability/alerts.yaml",
             "practices/engineering-standards/performance-and-memory.md": "src/benchmarks/search.py",
             "practices/engineering-standards/secure-reliable-systems.md": "docs/threat-models/api.md",
             "practices/engineering-standards/code-style-and-static-analysis.md": "config/eslint.config.mjs",
@@ -539,7 +542,16 @@ class PathGlobsTest(unittest.TestCase):
                 "service.proto": {"practices/engineering-standards/api-design.md"},
                 ".github/workflows/ci.yml": {"ci-for-agentic-engineering.md"},
                 "config/otel-collector.yaml": {
-                    "practices/agentic-sre/observability.md"
+                    "practices/agentic-sre/observability.md",
+                    "practices/engineering-standards/observability.md",
+                },
+                "config/otel/collector.yaml": {
+                    "practices/agentic-sre/observability.md",
+                    "practices/engineering-standards/observability.md",
+                },
+                "config/slos/agent.yaml": {
+                    "practices/agentic-sre/slos-and-error-budgets.md",
+                    "practices/engineering-standards/observability.md",
                 },
             }
         )

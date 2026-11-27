@@ -1023,6 +1023,71 @@
     },
     {
       "applies_when": [
+        "adding or reviewing logs, metrics, tracing, or alerts for a service or data platform",
+        "defining service or data-pipeline SLIs, SLOs, and error-budget policy",
+        "controlling telemetry cardinality, sampling, retention, or collector resource use"
+      ],
+      "key_rules": [
+        {
+          "rule": "Define good and valid events per user journey before choosing an SLO target.",
+          "source": "practices/engineering-standards/observability.md#slis-slos-and-error-budgets"
+        },
+        {
+          "rule": "Page on user-visible symptoms and require both windows of each burn-rate condition.",
+          "source": "practices/engineering-standards/observability.md#alerts-that-protect-the-budget"
+        },
+        {
+          "rule": "Correlate structured logs and spans with trace and request identity; keep those identifiers out of metric labels.",
+          "source": "practices/engineering-standards/observability.md#logs-metrics-and-traces"
+        },
+        {
+          "rule": "Propagate context across HTTP and queues and route telemetry through an OpenTelemetry Collector.",
+          "source": "practices/engineering-standards/observability.md#instrumentation-and-propagation"
+        },
+        {
+          "rule": "Bound cardinality, buffers, sampling state, and retention; test exporter failure under load.",
+          "source": "practices/engineering-standards/observability.md#cardinality-sampling-and-cost"
+        },
+        {
+          "rule": "Measure data freshness, completeness, correctness, and lateness at the consumer boundary.",
+          "source": "practices/engineering-standards/observability.md#data-pipeline-indicators"
+        },
+        {
+          "rule": "Link every paging alert to an owned runbook and test the alert rule before release.",
+          "source": "practices/engineering-standards/observability.md#dashboards-runbooks-and-toil"
+        }
+      ],
+      "path": "practices/engineering-standards/observability.md",
+      "path_globs": [
+        "**/observability/**",
+        "**/telemetry/**",
+        "**/otel*/**",
+        "**/*otel-collector*.y*ml",
+        "**/prometheus*.y*ml",
+        "**/slos/**"
+      ],
+      "signals": [
+        "observability",
+        "telemetry",
+        "opentelemetry",
+        "tracing",
+        "structured logging",
+        "metrics",
+        "alerting",
+        "golden signals",
+        "burn rate",
+        "slo",
+        "sli",
+        "freshness",
+        "cardinality",
+        "sampling",
+        "collector"
+      ],
+      "skills": [],
+      "title": "Observability: measure user outcomes, then explain failures"
+    },
+    {
+      "applies_when": [
         "building or changing a service, job, or data pipeline with latency, throughput, or memory constraints",
         "reviewing a hot path, resource limit, benchmark, or performance regression"
       ],

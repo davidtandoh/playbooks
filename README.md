@@ -17,6 +17,7 @@ front matter will adopt it in a separate change.
 | [Testing in agentic engineering](testing-in-agentic-engineering.md) | `verification` `delivery-gates` `evals` `reliability` `cost` | A test portfolio for agent-written code, what agents over-produce (mocks, debug scripts, tampered assertions) and how to trim it, rules for fewer and better agent tests, property-based and mutation testing, and software tests versus agent evals |
 | [CI for agentic engineering](ci-for-agentic-engineering.md) | `delivery-gates` `verification` `security-and-privacy` `cost` `reliability` | Local gate first with hosted merge proof, staged test selection, caching and merge queues, flaky-test governance, rounded-minute cost per merge, and trust boundaries for actions, secrets and runners |
 | [API design](practices/engineering-standards/api-design.md) | `architecture` `delivery-gates` `verification` `security-and-privacy` | One default per HTTP API design question, enforced by a Spectral ruleset and an oasdiff breaking-change check: naming, versioning, RFC 9457 errors, pagination, idempotency, auth, rate limits, long-running operations, webhooks and events |
+| [Observability](practices/engineering-standards/observability.md) | `observability` `reliability` `cost` `verification` | User-outcome SLIs and SLOs, budget-burn alerts, golden signals, RED and USE, correlated telemetry, OpenTelemetry propagation, cardinality and sampling budgets, data-pipeline indicators, runbooks and toil |
 | [Performance and memory](practices/engineering-standards/performance-and-memory.md) | `architecture` `memory` `verification` `delivery-gates` `cost` | Data structures and complexity, allocation and copying, runtime costs, resource budgets, bounded memory, and hot-path regression gates |
 | [Code style and static analysis](practices/engineering-standards/code-style-and-static-analysis.md) | `architecture` `verification` `delivery-gates` `cost` | Language baselines, bounded edit feedback, staged-snapshot checks, full static gates, safe formatting, shrinking debt baselines, and CI parity |
 | [Data-intensive systems](practices/engineering-standards/data-intensive-systems.md) | `architecture` `verification` `delivery-gates` `security-and-privacy` | Storage and schema decisions, replication guarantees, partitioning, isolation, retry-safe effects, batch and streams, CDC and derived data, with workload and failure checks |
@@ -310,6 +311,21 @@ published.
   5. Keep domain decisions in the domain and transaction orchestration in application services. ([source](practices/engineering-standards/domain-driven-design.md#repositories-and-application-services))
   6. Fail the delivery gate on forbidden imports and cycles across domain, application, and adapters. ([source](practices/engineering-standards/domain-driven-design.md#ports-adapters-and-architecture-tests))
   7. Record costly boundary and consistency decisions in ADRs with alternatives and consequences. ([source](practices/engineering-standards/domain-driven-design.md#record-decisions-as-adrs))
+
+**[Observability: measure user outcomes, then explain failures](practices/engineering-standards/observability.md)**
+
+- Applies when: adding or reviewing logs, metrics, tracing, or alerts for a service or data platform; defining service or data-pipeline SLIs, SLOs, and error-budget policy; controlling telemetry cardinality, sampling, retention, or collector resource use.
+- Signals: `observability`, `telemetry`, `opentelemetry`, `tracing`, `structured logging`, `metrics`, `alerting`, `golden signals`, `burn rate`, `slo`, `sli`, `freshness`, `cardinality`, `sampling`, `collector`.
+- Path globs (PR gate): `**/observability/**`, `**/telemetry/**`, `**/otel*/**`, `**/*otel-collector*.y*ml`, `**/prometheus*.y*ml`, `**/slos/**`.
+- Skills: none yet.
+- Key rules:
+  1. Define good and valid events per user journey before choosing an SLO target. ([source](practices/engineering-standards/observability.md#slis-slos-and-error-budgets))
+  2. Page on user-visible symptoms and require both windows of each burn-rate condition. ([source](practices/engineering-standards/observability.md#alerts-that-protect-the-budget))
+  3. Correlate structured logs and spans with trace and request identity; keep those identifiers out of metric labels. ([source](practices/engineering-standards/observability.md#logs-metrics-and-traces))
+  4. Propagate context across HTTP and queues and route telemetry through an OpenTelemetry Collector. ([source](practices/engineering-standards/observability.md#instrumentation-and-propagation))
+  5. Bound cardinality, buffers, sampling state, and retention; test exporter failure under load. ([source](practices/engineering-standards/observability.md#cardinality-sampling-and-cost))
+  6. Measure data freshness, completeness, correctness, and lateness at the consumer boundary. ([source](practices/engineering-standards/observability.md#data-pipeline-indicators))
+  7. Link every paging alert to an owned runbook and test the alert rule before release. ([source](practices/engineering-standards/observability.md#dashboards-runbooks-and-toil))
 
 **[Performance and memory: budgets before building](practices/engineering-standards/performance-and-memory.md)**
 
